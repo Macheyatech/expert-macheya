@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Macheya — Marketplace ayisyen pou achte ak vann pwodwi fizik ak dijital.">
+    <title>Macheya | Marketplace Ayisyen</title>
+
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body id="macheya-app">
+
+<header id="main-header">
+
+    <div id="header-left">
+
+        <button
+            id="menu-button"
+            type="button"
+            aria-label="Louvri meni"
+            aria-expanded="false">
+            ⋮
+        </button>
+
+        <a id="macheya-logo" href="index.html">
+            <span id="logo-mark">M</span>
+            <span id="logo-name">macheya</span>
+        </a>
+
+    </div>
+
+    <nav id="main-navigation">
+        <a id="nav-home" href="index.html">Akèy</a>
+        <a id="nav-marketplace" href="marketplace.html">Achte</a>
+        <a id="nav-sell" href="signup.html">Vann</a>
+    </nav>
+
+    <div id="header-actions">
+        <a id="login-button" href="login.html">Konekte</a>
+        <a id="signup-button" href="signup.html">Kreye kont</a>
+    </div>
+
+</header>
+
+<aside id="side-menu" aria-hidden="true">
+
+    <div id="side-menu-header">
+
+        <a id="side-menu-logo" href="index.html">
+            <span id="side-logo-mark">M</span>
+            <span id="side-logo-name">macheya</span>
+        </a>
+
+        <button
+            id="close-menu-button"
+            type="button"
+            aria-label="Fèmen meni">
+            ×
+        </button>
+
+    </div>
+
+    <nav id="side-menu-navigation">
+
+        <a id="menu-home" href="index.html">
+            Akèy
+        </a>
+
+        <a id="menu-marketplace" href="marketplace.html">
+            Marketplace
+        </a>
+
+        <a id="menu-orders" href="login.html">
+            Kòmand mwen
+        </a>
+
+        <a id="menu-wallet" href="login.html">
+            Wallet mwen
+        </a>
+
+        <a id="menu-account" href="login.html">
+            Kont mwen
+        </a>
+
+        <a id="menu-settings" href="#">
+            Paramèt
+        </a>
+
+        <a id="menu-help" href="#">
+            Èd
+        </a>
+
+        <a id="menu-logout" href="login.html">
+            Dekonekte
+        </a>
+
+    </nav>
+
+</aside>
+
+<div id="menu-overlay"></div>
+
+<main id="main-content">
+
+    <section id="hero-section">
+
+        <div id="hero-content">
+
+            <span id="hero-badge">
+                🇭🇹 Marketplace ayisyen
+            </span>
+
+            <h1 id="hero-title">
+                Tout sa w bezwen,
+                <span id="hero-title-highlight">yon sèl kote.</span>
+            </h1>
+
+            <p id="hero-description">
+                Achte ak vann pwodwi fizik ak dijital fasil,
+                rapid epi an sekirite sou Macheya.
+            </p>
+
+            <form id="search-form">
+
+                <input
+                    id="search-input"
+                    type="search"
+                    name="search"
+                    placeholder="Kisa w ap chèche?"
+                    autocomplete="off">
+
+                <button
+                    id="search-button"
+                    type="submit">
+                    Chèche
+                </button>
+
+            </form>
+
+            <div id="hero-actions">
+
+                <a
+                    id="hero-buy-button"
+                    href="marketplace.html">
+                    Eksplore pwodwi
+                </a>
+
+                <a
+                    id="hero-sell-button"
+                    href="signup.html">
+                    Kòmanse vann
+                </a>
+
+            </div>
+
+        </div>
+
+        <div id="hero-visual">
+
+            <div id="hero-card-marketplace">
+
+                <span id="marketplace-card-icon">🛍️</span>
+
+                <div id="marketplace-card-content">
+                    <strong id="marketplace-card-title">
+                        Marketplace
+                    </strong>
+
+                    <span id="marketplace-card-text">
+                        Tout bagay nan yon sèl plas
+                    </span>
+                </div>
+
+            </div>
+
+            <div id="hero-card-payment">
+
+                <span id="payment-card-icon">🔒</span>
+
+                <div id="payment-card-content">
+                    <strong id="payment-card-title">
+                        Peman lokal
+                    </strong>
+
+                    <span id="payment-card-text">
+                        MonCash & NatCash
+                    </span>
+                </div>
+
+            </div>
+
+            <div id="hero-card-digital">
+
+                <span id="digital-card-icon">📄</span>
+
+                <div id="digital-card-content">
+                    <strong id="digital-card-title">
+                        Pwodwi dijital
+                    </strong>
+
+                    <span id="digital-card-text">
+                        Aksè apre peman
+                    </span>
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+    <section id="categories-section">
+
+        <div id="categories-header">
+
+            <div id="categories-heading">
+
+                <span id="categories-label">
+                    Eksplore
+                </span>
+
+                <h2 id="categories-title">
+                    Chèche pa kategori
+                </h2>
+
+            </div>
+
+            <a
+                id="categories-all"
+                href="marketplace.html">
+                Tout kategori →
+            </a>
+
+        </div>
+
+        <div id="categories-grid">
+
+            <a
+                id="category-mode"
+                href="marketplace.html?category=mode"
+                data-category-id="mode">
+
+                <span id="category-mode-icon">👕</span>
+
+                <strong id="category-mode-name">
+                    Mode
+                </strong>
+
+                <small id="category-mode-description">
+                    Rad & akseswa
+                </small>
+
+            </a>
+
+            <a
+                id="category-electronique"
+                href="marketplace.html?category=electronique"
+                data-category-id="electronique">
+
+                <span id="category-electronique-icon">📱</span>
+
+                <strong id="category-electronique-name">
+                    Elektwonik
+                </strong>
+
+                <small id="category-electronique-description">
+                    Telefòn & teknoloji
+                </small>
+
+            </a>
+
+            <a
+                id="category-maison"
+                href="marketplace.html?category=maison"
+                data-category-id="maison">
+
+                <span id="category-maison-icon">🏠</span>
+
+                <strong id="category-maison-name">
+                    Kay
+                </strong>
+
+                <small id="category-maison-description">
+                    Kay & dekorasyon
+                </small>
+
+            </a>
+
+            <a
+                id="category-beaute"
+                href="marketplace.html?category=beaute"
+                data-category-id="beaute">
+
+                <span id="category-beaute-icon">✨</span>
+
+                <strong id="category-beaute-name">
+                    Bote
+                </strong>
+
+                <small id="category-beaute-description">
+                    Swen & bote
+                </small>
+
+            </a>
+
+            <a
+                id="category-digital"
+                href="marketplace.html?category=digital"
+                data-category-id="digital">
+
+                <span id="category-digital-icon">📄</span>
+
+                <strong id="category-digital-name">
+                    Dijital
+                </strong>
+
+                <small id="category-digital-description">
+                    PDF, kou & fichye
+                </small>
+
+            </a>
+
+            <a
+                id="category-other"
+                href="marketplace.html?category=lot"
+                data-category-id="lot">
+
+                <span id="category-other-icon">•••</span>
+
+                <strong id="category-other-name">
+                    Lòt
+                </strong>
+
+                <small id="category-other-description">
+                    Plis pwodwi
+                </small>
+
+            </a>
+
+        </div>
+
+    </section>
+
+    <section id="why-section">
+
+        <div id="why-content">
+
+            <span id="why-label">
+                Poukisa Macheya?
+            </span>
+
+            <h2 id="why-title">
+                Yon marketplace ki fèt pou nou.
+            </h2>
+
+            <p id="why-description">
+                Macheya fèt pou rann achte ak vann sou entènèt
+                pi senp pou moun ann Ayiti.
+            </p>
+
+        </div>
+
+        <div id="benefits-grid">
+
+            <article id="benefit-security">
+                <span id="benefit-security-icon">🔒</span>
+                <h3 id="benefit-security-title">Sekirite</h3>
+                <p id="benefit-security-text">
+                    Nou mete sekirite itilizatè yo ak tranzaksyon yo an premye.
+                </p>
+            </article>
+
+            <article id="benefit-payment">
+                <span id="benefit-payment-icon">💳</span>
+                <h3 id="benefit-payment-title">Peman lokal</h3>
+                <p id="benefit-payment-text">
+                    Peman lokal pou fè acha ak tranzaksyon pi fasil.
+                </p>
+            </article>
+
+            <article id="benefit-digital">
+                <span id="benefit-digital-icon">📦</span>
+                <h3 id="benefit-digital-title">Fizik & dijital</h3>
+                <p id="benefit-digital-text">
+                    Achte pwodwi fizik oswa jwenn aksè ak pwodwi dijital.
+                </p>
+            </article>
+
+            <article id="benefit-sellers">
+                <span id="benefit-sellers-icon">🤝</span>
+                <h3 id="benefit-sellers-title">Pou tout moun</h3>
+                <p id="benefit-sellers-text">
+                    Yon espas pou achtè ak vandè devlope ansanm.
+                </p>
+            </article>
+
+        </div>
+
+    </section>
+
+    <section id="final-cta-section">
+
+        <div id="final-cta-content">
+
+            <span id="final-cta-label">
+                Pare pou kòmanse?
+            </span>
+
+            <h2 id="final-cta-title">
+                Antre nan Macheya.
+            </h2>
+
+            <p id="final-cta-description">
+                Kreye kont ou gratis epi kòmanse eksplore.
+            </p>
+
+            <div id="final-cta-actions">
+
+                <a
+                    id="final-cta-signup"
+                    href="signup.html">
+                    Kreye kont
+                </a>
+
+                <a
+                    id="final-cta-marketplace"
+                    href="marketplace.html">
+                    Eksplore marketplace
+                </a>
+
+            </div>
+
+        </div>
+
+    </section>
+
+</main>
+
+<footer id="main-footer">
+
+    <div id="footer-brand">
+
+        <a id="footer-logo" href="index.html">
+            <span id="footer-logo-mark">M</span>
+            <span id="footer-logo-name">macheya</span>
+        </a>
+
+        <p id="footer-description">
+            Marketplace ayisyen pou tout kalite pwodwi.
+        </p>
+
+    </div>
+
+    <div id="footer-navigation">
+
+        <div id="footer-buy">
+            <h3 id="footer-buy-title">Achte</h3>
+            <a id="footer-buy-marketplace" href="marketplace.html">
+                Marketplace
+            </a>
+            <a id="footer-buy-orders" href="login.html">
+                Kòmand mwen
+            </a>
+        </div>
+
+        <div id="footer-sell">
+            <h3 id="footer-sell-title">Vann</h3>
+            <a id="footer-sell-start" href="signup.html">
+                Vin vandè
+            </a>
+            <a id="footer-sell-login" href="login.html">
+                Konekte
+            </a>
+        </div>
+
+        <div id="footer-help">
+            <h3 id="footer-help-title">Èd</h3>
+            <a id="footer-help-contact" href="#">
+                Kontakte nou
+            </a>
+            <a id="footer-help-security" href="#">
+                Sekirite
+            </a>
+        </div>
+
+    </div>
+
+    <div id="footer-bottom">
+
+        <span id="footer-copyright">
+            © 2026 Macheya. Tout dwa rezève.
+        </span>
+
+        <span id="footer-country">
+            🇭🇹 Fèt pou Ayiti.
+        </span>
+
+    </div>
+
+</footer>
+
+<script src="js/app.js"></script>
+
+</body>
+          </html>
