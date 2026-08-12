@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="Macheya — Eksplore pwodwi fizik ak dijital moun ap vann ann Ayiti."
+    >
+
+    <title>Macheya | Marketplace</title>
+
+    <link rel="stylesheet" href="marketplace.css">
+</head>
+
+<body id="marketplace-app">
+
+<header id="marketplace-header">
+
+    <div id="marketplace-header-left">
+
+        <button
+            id="marketplace-menu-button"
+            type="button"
+            aria-label="Louvri meni"
+            aria-expanded="false">
+            ⋮
+        </button>
+
+        <a
+            id="marketplace-logo"
+            href="index.html">
+
+            <span id="marketplace-logo-mark">M</span>
+            <span id="marketplace-logo-name">macheya</span>
+
+        </a>
+
+    </div>
+
+    <nav id="marketplace-navigation">
+
+        <a
+            id="marketplace-nav-home"
+            href="index.html">
+            Akèy
+        </a>
+
+        <a
+            id="marketplace-nav-marketplace"
+            href="marketplace.html"
+            aria-current="page">
+            Achte
+        </a>
+
+        <a
+            id="marketplace-nav-sell"
+            href="signup.html">
+            Vann
+        </a>
+
+    </nav>
+
+    <div id="marketplace-header-actions">
+
+        <a
+            id="marketplace-login-button"
+            href="login.html">
+            Konekte
+        </a>
+
+        <a
+            id="marketplace-signup-button"
+            href="signup.html">
+            Kreye kont
+        </a>
+
+    </div>
+
+</header>
+
+
+<aside
+    id="marketplace-side-menu"
+    aria-hidden="true">
+
+    <div id="marketplace-side-menu-header">
+
+        <a
+            id="marketplace-side-menu-logo"
+            href="index.html">
+
+            <span id="marketplace-side-logo-mark">M</span>
+            <span id="marketplace-side-logo-name">macheya</span>
+
+        </a>
+
+        <button
+            id="marketplace-close-menu-button"
+            type="button"
+            aria-label="Fèmen meni">
+            ×
+        </button>
+
+    </div>
+
+
+    <nav id="marketplace-side-navigation">
+
+        <a
+            id="marketplace-menu-home"
+            href="index.html">
+            Akèy
+        </a>
+
+        <a
+            id="marketplace-menu-marketplace"
+            href="marketplace.html">
+            Marketplace
+        </a>
+
+        <a
+            id="marketplace-menu-orders"
+            href="login.html">
+            Kòmand mwen
+        </a>
+
+        <a
+            id="marketplace-menu-wallet"
+            href="login.html">
+            Wallet mwen
+        </a>
+
+        <a
+            id="marketplace-menu-account"
+            href="login.html">
+            Kont mwen
+        </a>
+
+        <a
+            id="marketplace-menu-settings"
+            href="#">
+            Paramèt
+        </a>
+
+        <a
+            id="marketplace-menu-help"
+            href="#">
+            Èd
+        </a>
+
+        <a
+            id="marketplace-menu-logout"
+            href="login.html">
+            Dekonekte
+        </a>
+
+    </nav>
+
+</aside>
+
+<div id="marketplace-menu-overlay"></div>
+
+
+<main id="marketplace-main">
+
+
+    <section id="marketplace-hero">
+
+        <div id="marketplace-hero-content">
+
+            <span id="marketplace-hero-label">
+                🇭🇹 Macheya Marketplace
+            </span>
+
+            <h1 id="marketplace-hero-title">
+                Jwenn sa w ap chèche a.
+            </h1>
+
+            <p id="marketplace-hero-description">
+                Eksplore pwodwi fizik ak dijital vandè yo mete
+                disponib sou Macheya.
+            </p>
+
+
+            <form id="marketplace-search-form">
+
+                <label
+                    id="marketplace-search-label"
+                    for="marketplace-search-input">
+                    Chèche yon pwodwi
+                </label>
+
+                <div id="marketplace-search-box">
+
+                    <input
+                        id="marketplace-search-input"
+                        type="search"
+                        name="search"
+                        placeholder="Egzanp: telefòn, soulye, PDF..."
+                        autocomplete="off">
+
+                    <button
+                        id="marketplace-search-button"
+                        type="submit">
+                        Chèche
+                    </button>
+
+                </div>
+
+            </form>
+
+        </div>
+
+    </section>
+
+
+    <section id="marketplace-content-section">
+
+
+        <div id="marketplace-toolbar">
+
+            <div id="marketplace-category-area">
+
+                <span id="marketplace-category-label">
+                    Kategori
+                </span>
+
+                <div id="marketplace-category-list">
+
+                    <button
+                        id="marketplace-category-all"
+                        type="button"
+                        data-category-id="all">
+                        Tout
+                    </button>
+
+                    <button
+                        id="marketplace-category-mode"
+                        type="button"
+                        data-category-id="mode">
+                        👕 Mode
+                    </button>
+
+                    <button
+                        id="marketplace-category-electronique"
+                        type="button"
+                        data-category-id="electronique">
+                        📱 Elektwonik
+                    </button>
+
+                    <button
+                        id="marketplace-category-maison"
+                        type="button"
+                        data-category-id="maison">
+                        🏠 Kay
+                    </button>
+
+                    <button
+                        id="marketplace-category-beaute"
+                        type="button"
+                        data-category-id="beaute">
+                        ✨ Bote
+                    </button>
+
+                    <button
+                        id="marketplace-category-digital"
+                        type="button"
+                        data-category-id="digital">
+                        📄 Dijital
+                    </button>
+
+                    <button
+                        id="marketplace-category-lot"
+                        type="button"
+                        data-category-id="lot">
+                        ••• Lòt
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <div id="marketplace-sort-area">
+
+                <label
+                    id="marketplace-sort-label"
+                    for="marketplace-sort-select">
+                    Triye
+                </label>
+
+                <select
+                    id="marketplace-sort-select"
+                    name="sort">
+
+                    <option
+                        id="marketplace-sort-default"
+                        value="default">
+                        Pi resan
+                    </option>
+
+                    <option
+                        id="marketplace-sort-low-price"
+                        value="price-low">
+                        Pri: pi ba
+                    </option>
+
+                    <option
+                        id="marketplace-sort-high-price"
+                        value="price-high">
+                        Pri: pi wo
+                    </option>
+
+                    <option
+                        id="marketplace-sort-name"
+                        value="name">
+                        Non A-Z
+                    </option>
+
+                </select>
+
+            </div>
+
+        </div>
+
+
+        <div id="marketplace-results-header">
+
+            <div id="marketplace-results-title-area">
+
+                <span id="marketplace-results-label">
+                    Pwodwi
+                </span>
+
+                <h2 id="marketplace-results-title">
+                    Tout pwodwi
+                </h2>
+
+            </div>
+
+            <span id="marketplace-results-count">
+                0 pwodwi
+            </span>
+
+        </div>
+
+
+        <div
+            id="marketplace-products-grid"
+            aria-live="polite">
+
+            <!--
+                Pwodwi yo pral parèt isit la.
+                JavaScript ak Supabase pral ranpli seksyon sa a
+                nan pwochen etap yo.
+            -->
+
+        </div>
+
+
+        <div
+            id="marketplace-empty-state"
+            aria-hidden="true">
+
+            <div id="marketplace-empty-icon">
+                🛍️
+            </div>
+
+            <h3 id="marketplace-empty-title">
+                Pa gen pwodwi pou montre.
+            </h3>
+
+            <p id="marketplace-empty-description">
+                Lè vandè yo ajoute pwodwi, yo pral parèt isit la.
+            </p>
+
+        </div>
+
+
+    </section>
+
+
+    <section id="marketplace-seller-cta">
+
+        <div id="marketplace-seller-cta-content">
+
+            <span id="marketplace-seller-cta-label">
+                Ou gen yon pwodwi pou vann?
+            </span>
+
+            <h2 id="marketplace-seller-cta-title">
+                Vin youn nan vandè Macheya yo.
+            </h2>
+
+            <p id="marketplace-seller-cta-description">
+                Kreye kont ou epi kòmanse mete pwodwi ou yo
+                devan achtè ann Ayiti.
+            </p>
+
+            <a
+                id="marketplace-seller-cta-button"
+                href="signup.html">
+                Kòmanse vann
+            </a>
+
+        </div>
+
+    </section>
+
+
+</main>
+
+
+<footer id="marketplace-footer">
+
+    <div id="marketplace-footer-brand">
+
+        <a
+            id="marketplace-footer-logo"
+            href="index.html">
+
+            <span id="marketplace-footer-logo-mark">M</span>
+            <span id="marketplace-footer-logo-name">macheya</span>
+
+        </a>
+
+        <p id="marketplace-footer-description">
+            Marketplace ayisyen pou achte ak vann
+            pwodwi fizik ak dijital.
+        </p>
+
+    </div>
+
+
+    <div id="marketplace-footer-navigation">
+
+        <div id="marketplace-footer-buy">
+
+            <h3 id="marketplace-footer-buy-title">
+                Achte
+            </h3>
+
+            <a
+                id="marketplace-footer-buy-home"
+                href="marketplace.html">
+                Marketplace
+            </a>
+
+            <a
+                id="marketplace-footer-buy-orders"
+                href="login.html">
+                Kòmand mwen
+            </a>
+
+        </div>
+
+
+        <div id="marketplace-footer-sell">
+
+            <h3 id="marketplace-footer-sell-title">
+                Vann
+            </h3>
+
+            <a
+                id="marketplace-footer-sell-start"
+                href="signup.html">
+                Vin vandè
+            </a>
+
+            <a
+                id="marketplace-footer-sell-login"
+                href="login.html">
+                Konekte
+            </a>
+
+        </div>
+
+
+        <div id="marketplace-footer-help">
+
+            <h3 id="marketplace-footer-help-title">
+                Èd
+            </h3>
+
+            <a
+                id="marketplace-footer-help-contact"
+                href="#">
+                Kontakte nou
+            </a>
+
+            <a
+                id="marketplace-footer-help-security"
+                href="#">
+                Sekirite
+            </a>
+
+        </div>
+
+    </div>
+
+
+    <div id="marketplace-footer-bottom">
+
+        <span id="marketplace-footer-copyright">
+            © 2026 Macheya. Tout dwa rezève.
+        </span>
+
+        <span id="marketplace-footer-country">
+            🇭🇹 Fèt pou Ayiti.
+        </span>
+
+    </div>
+
+</footer>
+
+</body>
+  </html>
