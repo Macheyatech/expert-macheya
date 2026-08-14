@@ -47,10 +47,6 @@ script.onload = async () => {
 
     try {
 
-        /* =========================
-           VERIFYE SESSION
-        ========================= */
-
         const {
             data: {
                 session
@@ -71,16 +67,14 @@ script.onload = async () => {
             session.user;
 
 
-        /* =========================
-           CHÈCHE PROFIL LA
-        ========================= */
-
         const {
             data: profile,
             error: profileError
         } = await supabase
             .from("profiles")
-            .select("nom, role")
+            .select(
+                "nom_complet, telephone, est_acheteur, est_vendeur, role"
+            )
             .eq("id", user.id)
             .single();
 
@@ -100,23 +94,17 @@ script.onload = async () => {
 
 
         const name =
-            profile.nom || "Macheya User";
+            profile.nom_complet ||
+            "Macheya User";
+
 
         const role =
             profile.role;
 
 
-        /* =========================
-           NON ITILIZATÈ
-        ========================= */
-
         welcomeName.textContent =
             `Bonjou, ${name} 👋`;
 
-
-        /* =========================
-           ACHETÈ
-        ========================= */
 
         if (role === "acheteur") {
 
@@ -135,10 +123,6 @@ script.onload = async () => {
         }
 
 
-        /* =========================
-           VENDEUR
-        ========================= */
-
         else if (role === "vendeur") {
 
             userRole.textContent =
@@ -156,10 +140,6 @@ script.onload = async () => {
         }
 
 
-        /* =========================
-           ROLE PA VALAB
-        ========================= */
-
         else {
 
             throw new Error(
@@ -168,10 +148,6 @@ script.onload = async () => {
 
         }
 
-
-        /* =========================
-           DEKONEKTE
-        ========================= */
 
         if (logoutButton) {
 
@@ -188,7 +164,8 @@ script.onload = async () => {
 
                     const {
                         error
-                    } = await supabase.auth.signOut();
+                    } =
+                        await supabase.auth.signOut();
 
 
                     if (error) {
@@ -231,7 +208,9 @@ script.onload = async () => {
         }
 
 
-    } catch (error) {
+    }
+
+    catch (error) {
 
         console.error(
             "Dashboard error:",
