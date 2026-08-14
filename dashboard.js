@@ -47,11 +47,23 @@ script.onload = async () => {
 
     try {
 
+        /* =========================
+           VERIFYE SESSION
+        ========================= */
+
         const {
-            data: {
-                session
-            }
+            data: sessionData,
+            error: sessionError
         } = await supabase.auth.getSession();
+
+
+        if (sessionError) {
+            throw sessionError;
+        }
+
+
+        const session =
+            sessionData.session;
 
 
         if (!session || !session.user) {
@@ -67,87 +79,214 @@ script.onload = async () => {
             session.user;
 
 
+        /* =========================
+           CHÈCHE PROFILE LA
+        ========================= */
+
         const {
-            data: profile,
+            data: profiles,
             error: profileError
         } = await supabase
             .from("profiles")
             .select(
-                "nom_complet, telephone, est_acheteur, est_vendeur, role"
+                "id, nom_complet, telephone, est_acheteur, est_vendeur, role"
             )
             .eq("id", user.id)
-            .single();
+            .limit(1);
 
 
         if (profileError) {
-
             throw profileError;
         }
 
 
-        if (!profile) {
+        /* =========================
+           PREPARE DONE PROFILE
+        ========================= */
 
-            throw new Error(
-                "Profil itilizatè a pa jwenn."
-            );
+        let profile = null;
+
+
+        if (
+            profiles &&
+            profiles.length > 0
+        ) {
+
+            profile =
+                profiles[0];
+
         }
 
 
+        /* =========================
+           NON UTILIZATÈ
+        ========================= */
+
         const name =
-            profile.nom_complet ||
+            profile?.nom_complet ||
+            user.user_metadata?.nom_complet ||
+            user.user_metadata?.name ||
             "Macheya User";
 
 
-        const role =
-            profile.role;
+        /* =========================
+           DETÈMINE ROLE
+        ========================= */
+
+        let role =
+            profile?.role ||
+            user.user_metadata?.role ||
+            null;
 
 
-        welcomeName.textContent =
-            `Bonjou, ${name} 👋`;
+        if (!role) {
+
+            if (
+                profile?.est_vendeur === true
+            ) {
+
+                role =
+                    "vendeur";
+
+            }
+
+            else if (
+                profile?.est_acheteur === true
+            ) {
+
+                role =
+                    "acheteur";
+
+            }
+
+        }
 
 
-        if (role === "acheteur") {
+        /* =========================
+           SI PROFILE PA GEN ROLE
+        ========================= */
 
-            userRole.textContent =
-                "Acheteur";
+        if (!role) {
 
-            welcomeText.textContent =
-                "Dekouvri pwodwi, jere panier ou epi swiv kòmand ou yo.";
-
-            buyerDashboard.style.display =
-                "block";
-
-            sellerDashboard.style.display =
-                "none";
+            throw new Error(
+                "Nou jwenn kont lan, men wòl itilizatè a poko defini nan Supabase."
+            );
 
         }
 
 
-        else if (role === "vendeur") {
+        /* =========================
+           AFFICHE NON
+        ========================= */
 
-            userRole.textContent =
-                "Vendeur";
+        if (welcomeName) {
 
-            welcomeText.textContent =
-                "Jere pwodwi ou yo, kòmand kliyan yo ak aktivite biznis ou.";
-
-            sellerDashboard.style.display =
-                "block";
-
-            buyerDashboard.style.display =
-                "none";
+            welcomeName.textContent =
+                `Bonjou, ${name} 👋`;
 
         }
 
+
+        /* =========================
+           ACHETÈ
+        ========================= */
+
+        if (
+            role === "acheteur"
+        ) {
+
+            if (userRole) {
+
+                userRole.textContent =
+                    "Acheteur";
+
+            }
+
+
+            if (welcomeText) {
+
+                welcomeText.textContent =
+                    "Dekouvri pwodwi, jere panier ou epi swiv kòmand ou yo.";
+
+            }
+
+
+            if (buyerDashboard) {
+
+                buyerDashboard.style.display =
+                    "block";
+
+            }
+
+
+            if (sellerDashboard) {
+
+                sellerDashboard.style.display =
+                    "none";
+
+            }
+
+        }
+
+
+        /* =========================
+           VENDEUR
+        ========================= */
+
+        else if (
+            role === "vendeur"
+        ) {
+
+            if (userRole) {
+
+                userRole.textContent =
+                    "Vendeur";
+
+            }
+
+
+            if (welcomeText) {
+
+                welcomeText.textContent =
+                    "Jere pwodwi ou yo, kòmand kliyan yo ak aktivite biznis ou.";
+
+            }
+
+
+            if (sellerDashboard) {
+
+                sellerDashboard.style.display =
+                    "block";
+
+            }
+
+
+            if (buyerDashboard) {
+
+                buyerDashboard.style.display =
+                    "none";
+
+            }
+
+        }
+
+
+        /* =========================
+           ROLE PA VALAB
+        ========================= */
 
         else {
 
             throw new Error(
-                "Wòl itilizatè a pa rekonèt."
+                `Wòl "${role}" pa rekonèt.`
             );
 
         }
 
+
+        /* =========================
+           DEKONEKTE
+        ========================= */
 
         if (logoutButton) {
 
@@ -218,19 +357,37 @@ script.onload = async () => {
         );
 
 
-        buyerDashboard.style.display =
-            "none";
+        if (buyerDashboard) {
 
-        sellerDashboard.style.display =
-            "none";
+            buyerDashboard.style.display =
+                "none";
 
-        dashboardError.style.display =
-            "block";
+        }
 
 
-        errorMessage.textContent =
-            error.message ||
-            "Yon erè rive pandan chajman dashboard la.";
+        if (sellerDashboard) {
+
+            sellerDashboard.style.display =
+                "none";
+
+        }
+
+
+        if (dashboardError) {
+
+            dashboardError.style.display =
+                "block";
+
+        }
+
+
+        if (errorMessage) {
+
+            errorMessage.textContent =
+                error.message ||
+                "Yon erè rive pandan chajman dashboard la.";
+
+        }
 
     }
 
