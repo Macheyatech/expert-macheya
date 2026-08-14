@@ -80,7 +80,7 @@ script.onload = async () => {
             error: profileError
         } = await supabase
             .from("profiles")
-            .select("name, role")
+            .select("nom, role")
             .eq("id", user.id)
             .single();
 
@@ -100,7 +100,7 @@ script.onload = async () => {
 
 
         const name =
-            profile.name || "Macheya User";
+            profile.nom || "Macheya User";
 
         const role =
             profile.role;
@@ -173,58 +173,62 @@ script.onload = async () => {
            DEKONEKTE
         ========================= */
 
-        logoutButton.addEventListener(
-            "click",
-            async () => {
+        if (logoutButton) {
 
-                logoutButton.disabled =
-                    true;
-
-                logoutButton.textContent =
-                    "Dekoneksyon...";
-
-
-                const {
-                    error
-                } = await supabase.auth.signOut();
-
-
-                if (error) {
-
-                    console.error(error);
+            logoutButton.addEventListener(
+                "click",
+                async () => {
 
                     logoutButton.disabled =
-                        false;
+                        true;
 
                     logoutButton.textContent =
-                        "Dekonekte";
+                        "Dekoneksyon...";
 
-                    alert(
-                        "Nou pa t kapab dekonekte."
+
+                    const {
+                        error
+                    } = await supabase.auth.signOut();
+
+
+                    if (error) {
+
+                        console.error(error);
+
+                        logoutButton.disabled =
+                            false;
+
+                        logoutButton.textContent =
+                            "Dekonekte";
+
+                        alert(
+                            "Nou pa t kapab dekonekte."
+                        );
+
+                        return;
+                    }
+
+
+                    localStorage.removeItem(
+                        "macheyaUserName"
                     );
 
-                    return;
+                    localStorage.removeItem(
+                        "macheyaUserRole"
+                    );
+
+                    localStorage.removeItem(
+                        "macheyaUserId"
+                    );
+
+
+                    window.location.href =
+                        "login.html";
+
                 }
+            );
 
-
-                localStorage.removeItem(
-                    "macheyaUserName"
-                );
-
-                localStorage.removeItem(
-                    "macheyaUserRole"
-                );
-
-                localStorage.removeItem(
-                    "macheyaUserId"
-                );
-
-
-                window.location.href =
-                    "login.html";
-
-            }
-        );
+        }
 
 
     } catch (error) {
