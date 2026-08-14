@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="ht">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard | Macheya</title>
+
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+
+<body>
+
+    <header class="dashboard-header">
+
+        <a href="index.html" class="brand">
+            <span class="logo">M</span>
+            <span class="brand-name">macheya</span>
+        </a>
+
+        <div class="header-right">
+
+            <span id="userRole" class="role-badge">
+                Kont
+            </span>
+
+            <button id="logoutButton" class="logout-btn">
+                Dekonekte
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <main class="dashboard">
+
+        <section class="welcome-section">
+
+            <div>
+
+                <span class="welcome-label">
+                    Byenveni sou Macheya 👋
+                </span>
+
+                <h1 id="welcomeName">
+                    Byenveni
+                </h1>
+
+                <p id="welcomeText">
+                    N ap prepare espas pèsonèl ou.
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- DASHBOARD ACHETÈ -->
+
+        <section
+            id="buyerDashboard"
+            class="dashboard-content"
+            style="display: none;"
+        >
+
+            <div class="section-title">
+
+                <div>
+                    <span class="section-label">
+                        Espas achtè
+                    </span>
+
+                    <h2>
+                        Tout sa ou bezwen
+                    </h2>
+                </div>
+
+                <a href="index.html" class="primary-link">
+                    Eksplore pwodwi
+                </a>
+
+            </div>
+
+
+            <div class="dashboard-grid">
+
+                <div class="dashboard-card">
+
+                    <div class="card-icon">
+                        🛍️
+                    </div>
+
+                    <h3>
+                        Eksplore pwodwi
+                    </h3>
+
+                    <p>
+                        Dekouvri pwodwi vandè yo mete
+                        sou Macheya.
+                    </p>
+
+                    <a href="index.html">
+                        Gade pwodwi →
+                    </a>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div class="card-icon">
+                        🛒
+                    </div>
+
+                    <h3>
+                        Panier
+                    </h3>
+
+                    <p>
+                        Gade pwodwi ou chwazi pou achte.
+                    </p>
+
+                    <a href="#">
+                        Wè panier →
+                    </a>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div class="card-icon">
+                        📦
+                    </div>
+
+                    <h3>
+                        Kòmand mwen yo
+                    </h3>
+
+                    <p>
+                        Swiv pwodwi ou deja achte yo.
+                    </p>
+
+                    <a href="#">
+                        Gade kòmand →
+                    </a>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div class="card-icon">
+                        👤
+                    </div>
+
+                    <h3>
+                        Pwofil mwen
+                    </h3>
+
+                    <p>
+                        Jere enfòmasyon pèsonèl ou.
+                    </p>
+
+                    <a href="#">
+                        Wè pwofil →
+                    </a>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- DASHBOARD VENDEUR -->
+
+        <section
+            id="sellerDashboard"
+            class="dashboard-content"
+            style="display: none;"
+        >
+
+            <div class="section-title">
+
+                <div>
+                    <span class="section-label">
+                        Espas vandè
+                    </span>
+
+                    <h2>
+                        Jere biznis ou
+                    </h2>
+                </div>
+
+                <a href="addproduct.html" class="primary-link">
+                    + Ajoute pwodwi
+                </a>
+
+            </div>
+
+
+            <div class="dashboard-grid">
+
+                <div class="dashboard-card">
+
+                    <div class="card-icon">
+                        📦
+                    </div>
+
+                    <h3>
+                        Pwodwi mwen yo
+                    </h3>
+
+                    <p>
+                        Jere pwodwi ou mete sou Macheya.
+                    </p>
+
+                    <a href="seller.html">
+                        Gade pwodwi →
+                    </a>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div class="card-icon">
+                        ➕
+                    </div>
+
+                    <h3>
+                        Ajoute pwodwi
+                    </h3>
+
+                    <p>
+                        Mete yon nouvo pwodwi pou kliyan
+                        yo ka dekouvri.
+                    </p>
+
+                    <a href="addproduct.html">
+                        Ajoute pwodwi →
+                    </a>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div class="card-icon">
+                        🛒
+                    </div>
+
+                    <h3>
+                        Kòmand kliyan
+                    </h3>
+
+                    <p>
+                        Swiv kòmand kliyan yo fè.
+                    </p>
+
+                    <a href="#">
+                        Gade kòmand →
+                    </a>
+
+                </div>
+
+
+                <div class="dashboard-card">
+
+                    <div class="card-icon">
+                        👤
+                    </div>
+
+                    <h3>
+                        Pwofil mwen
+                    </h3>
+
+                    <p>
+                        Jere enfòmasyon kont vandè ou.
+                    </p>
+
+                    <a href="#">
+                        Wè pwofil →
+                    </a>
+
+                </div>
+
+            </div>
+
+
+            <section class="stats-section">
+
+                <div class="stat-card">
+
+                    <span>
+                        Pwodwi
+                    </span>
+
+                    <strong id="productCount">
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        Kòmand
+                    </span>
+
+                    <strong>
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="stat-card">
+
+                    <span>
+                        Lavant
+                    </span>
+
+                    <strong>
+                        0 HTG
+                    </strong>
+
+                </div>
+
+            </section>
+
+        </section>
+
+
+        <!-- ERÈ -->
+
+        <section
+            id="dashboardError"
+            class="dashboard-error"
+            style="display: none;"
+        >
+
+            <div>
+                ⚠️
+            </div>
+
+            <h2>
+                Nou pa kapab chaje dashboard la.
+            </h2>
+
+            <p id="errorMessage">
+                Yon pwoblèm rive pandan verifikasyon kont lan.
+            </p>
+
+            <button
+                onclick="location.reload()"
+                class="primary-link"
+            >
+                Eseye ankò
+            </button>
+
+        </section>
+
+    </main>
+
+
+    <script src="dashboard.js"></script>
+
+</body>
+  </html>
