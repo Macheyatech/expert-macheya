@@ -1,125 +1,66 @@
-document.addEventListener("DOMContentLoaded", () => {
+const SUPABASE_URL = "https://iscktsymqntjgqaxcitv.supabase.co";
+const SUPABASE_KEY = "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
 
-  const signupForm = document.getElementById("signupForm");
-  const passwordInput = document.getElementById("password");
-  const confirmPasswordInput = document.getElementById("confirmPassword");
+const script = document.createElement("script");
+script.src = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
 
-  const togglePassword = document.getElementById("togglePassword");
-  const toggleConfirmPassword =
-    document.getElementById("toggleConfirmPassword");
+script.onload = () => {
+    const supabase = window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_KEY
+    );
 
-  const message = document.getElementById("signupMessage");
-  const signupButton = document.getElementById("signupButton");
+    const form = document.getElementById("signupForm");
 
-  // Montre / kache modpas
-  if (togglePassword) {
-    togglePassword.addEventListener("click", () => {
-      const isPassword = passwordInput.type === "password";
+    if (!form) return;
 
-      passwordInput.type = isPassword ? "text" : "password";
-      togglePassword.textContent = isPassword ? "🙈" : "👁️";
+    form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const password = document.getElementById("password").value;
+        const role = document.getElementById("role").value;
+
+        if (!name || !email || !password || !role) {
+            alert("Veuillez remplir tous les champs.");
+            return;
+        }
+
+        if (password.length < 6) {
+            alert("Le mot de passe doit contenir au moins 6 caractères.");
+            return;
+        }
+
+        try {
+            const { data, error } = await supabase.auth.signUp({
+                email: email,
+                password: password
+            });
+
+            if (error) throw error;
+
+            const user = data.user;
+
+            const { error: profileError } = await supabase
+                .from("profiles")
+                .insert({
+                    id: user.id,
+                    name: name,
+                    role: role
+                });
+
+            if (profileError) throw profileError;
+
+            alert("Compte créé avec succès !");
+
+            window.location.href = "login.html";
+
+        } catch (error) {
+            console.error(error);
+            alert(error.message);
+        }
     });
-  }
+};
 
-  // Montre / kache konfimasyon modpas
-  if (toggleConfirmPassword) {
-    toggleConfirmPassword.addEventListener("click", () => {
-      const isPassword = confirmPasswordInput.type === "password";
-
-      confirmPasswordInput.type = isPassword ? "text" : "password";
-      toggleConfirmPassword.textContent = isPassword ? "🙈" : "👁️";
-    });
-  }
-
-  function showMessage(text, type) {
-    message.textContent = text;
-    message.className = `message ${type}`;
-  }
-
-  function clearMessage() {
-    message.textContent = "";
-    message.className = "message";
-  }
-
-  signupForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    clearMessage();
-
-    const nom = document.getElementById("nom").value.trim();
-    const email = document.getElementById("email").value.trim();
-    const telephone =
-      document.getElementById("telephone").value.trim();
-
-    const password = passwordInput.value;
-    const confirmPassword = confirmPasswordInput.value;
-
-    const role = document.getElementById("role").value;
-
-    if (!nom || !email || !telephone || !password || !role) {
-      showMessage("Tanpri ranpli tout chan yo.", "error");
-      return;
-    }
-
-    if (password.length < 6) {
-      showMessage(
-        "Modpas la dwe gen omwen 6 karaktè.",
-        "error"
-      );
-      return;
-    }
-
-    if (password !== confirmPassword) {
-      showMessage(
-        "De modpas yo pa menm.",
-        "error"
-      );
-      return;
-    }
-
-    if (role !== "acheteur" && role !== "vendeur") {
-      showMessage(
-        "Tanpri chwazi yon kalite kont.",
-        "error"
-      );
-      return;
-    }
-
-    signupButton.disabled = true;
-    signupButton.textContent = "Kreyasyon kont...";
-
-      try {
-
-      /*
-       * Supabase Auth ap vini isit la.
-       *
-       * Nou pral konekte:
-       * 1. Supabase Auth
-       * 2. public.profiles
-       * 3. role = acheteur / vendeur
-       */
-
-      showMessage(
-        "Kont lan pare pou koneksyon ak Supabase.",
-        "success"
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-      showMessage(
-        "Yon erè rive pandan kreyasyon kont lan.",
-        "error"
-      );
-
-    } finally {
-
-      signupButton.disabled = false;
-      signupButton.textContent = "Kreye Kont";
-
-    }
-
-  });
-
-});
+document.head.appendChild(script);
