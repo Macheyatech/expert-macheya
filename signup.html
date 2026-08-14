@@ -1,144 +1,272 @@
 <!DOCTYPE html>
 <html lang="ht">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Kreye Kont | Macheya</title>
+    <title>Kreye Kont | Macheya</title>
 
-  <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="signup.css">
 </head>
 
 <body>
 
-  <div class="auth-container">
+    <header class="topbar">
 
-    <div class="auth-card">
+        <a href="marketplace.html" class="brand">
+            <span class="logo">M</span>
+            <span class="brand-name">macheya</span>
+        </a>
 
-      <div class="logo">
-        <div class="logo-circle">M</div>
-        <h1>Macheya</h1>
-      </div>
+        <a href="marketplace.html" class="back-btn">
+            Retounen
+        </a>
 
-      <h2>Kreye Kont</h2>
+    </header>
 
-      <p class="auth-subtitle">
-        Kreye kont ou pou kòmanse sou Macheya.
-      </p>
 
-      <form id="signupForm">
+    <main class="signup-page">
 
-        <div class="form-group">
-          <label for="nom">Non konplè</label>
-          <input
-            type="text"
-            id="nom"
-            placeholder="Antre non ou"
-            required
-          >
-        </div>
+        <section class="signup-card">
 
-        <div class="form-group">
-          <label for="email">Imèl</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="Antre imèl ou"
-            required
-          >
+            <div class="intro">
+
+                <div class="small-badge">
+                    🇭🇹 Macheya
+                </div>
+
+                <h1>
+                    Kreye kont ou.
+                </h1>
+
+                <p>
+                    Kòmanse vann oswa achte sou Macheya.
+                    Kreye kont ou rapid, fasil epi an sekirite.
+                </p>
+
             </div>
-                    <div class="form-group">
-          <label for="email">Imèl</label>
-          <input
-            type="email"
-            id="email"
-            placeholder="Antre imèl ou"
-            required
-          >
+
+
+            <form id="signupForm">
+
+                <div class="form-group">
+                    <label for="name">
+                        Non konplè
+                    </label>
+
+                    <input
+                        type="text"
+                        id="name"
+                        placeholder="Antre non ou"
+                        autocomplete="name"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="email">
+                        Imèl
+                    </label>
+
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Antre imèl ou"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="confirmEmail">
+                        Konfime imèl
+                    </label>
+
+                    <input
+                        type="email"
+                        id="confirmEmail"
+                        placeholder="Konfime imèl ou"
+                        autocomplete="email"
+                        required
+                    >
+                </div>
+
+
+                <div class="form-group">
+                    <label for="phone">
+                        Telefòn
+                    </label>
+
+                    <input
+                        type="tel"
+                        id="phone"
+                        placeholder="Antre nimewo telefòn ou"
+                        autocomplete="tel"
+                    >
+                </div>
+
+
+                <div class="form-group">
+
+                    <label for="password">
+                        Modpas
+                    </label>
+
+                    <div class="password-box">
+
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Kreye yon modpas"
+                            autocomplete="new-password"
+                            required
+                        >
+
+                        <button
+                            type="button"
+                            class="show-password"
+                            data-target="password"
+                        >
+                            👁️
+                        </button>
+
                     </div>
-                            <div class="form-group">
-          <label for="telephone">Telefòn</label>
-          <input
-            type="tel"
-            id="telephone"
-            placeholder="Antre nimewo telefòn ou"
-            required
-          >
-        </div>
 
-        <div class="form-group">
-          <label for="password">Modpas</label>
+                    <small>
+                        Modpas la dwe gen omwen 6 karaktè.
+                    </small>
 
-          <div class="password-box">
-            <input
-              type="password"
-              id="password"
-              placeholder="Kreye yon modpas"
-              required
-            >
+                </div>
 
-            <button
-              type="button"
-              id="togglePassword"
-              class="password-toggle"
-            >
-              👁️
-            </button>
-          </div>
-        </div>
 
-        <div class="form-group">
-          <label for="confirmPassword">Konfime modpas</label>
+                <div class="form-group">
 
-          <div class="password-box">
-            <input
-              type="password"
-              id="confirmPassword"
-              placeholder="Konfime modpas ou"
-              required
-            >
+                    <label for="confirmPassword">
+                        Konfime modpas
+                    </label>
 
-            <button
-              type="button"
-              id="toggleConfirmPassword"
-              class="password-toggle"
-            >
-              👁️
-            </button>
-          </div>
-        </div>
+                    <div class="password-box">
 
-        <div class="form-group">
-          <label for="role">Mwen vle</label>
+                        <input
+                            type="password"
+                            id="confirmPassword"
+                            placeholder="Konfime modpas ou"
+                            autocomplete="new-password"
+                            required
+                        >
 
-          <select id="role" required>
-            <option value="">Chwazi kalite kont</option>
-            <option value="acheteur">Achte sou Macheya</option>
-            <option value="vendeur">Vann sou Macheya</option>
-          </select>
-        </div>
+                        <button
+                            type="button"
+                            class="show-password"
+                            data-target="confirmPassword"
+                        >
+                            👁️
+                        </button>
 
-        <div id="signupMessage" class="message"></div>
+                    </div>
 
-        <button
-          type="submit"
-          id="signupButton"
-          class="auth-button"
-        >
-          Kreye Kont
-  </button>
-        </form>
+                </div>
 
-      <p class="auth-footer">
-        Ou deja gen yon kont?
-        <a href="login.html">Konekte</a>
-      </p>
 
-    </div>
+                <div class="form-group">
 
-  </div>
+                    <label for="role">
+                        Mwen vle
+                    </label>
 
-  <script src="script.js"></script>
+                    <select id="role" required>
+
+                        <option value="" selected disabled>
+                            Chwazi kalite kont
+                        </option>
+
+                        <option value="acheteur">
+                            Achte sou Macheya
+                        </option>
+
+                        <option value="vendeur">
+                            Vann sou Macheya
+                        </option>
+
+                    </select>
+
+                </div>
+
+
+                <button
+                    type="submit"
+                    class="signup-btn"
+                >
+                    Kreye Kont
+                </button>
+
+
+                <div class="login-link">
+
+                    <span>
+                        Ou deja gen yon kont?
+                    </span>
+
+                    <a href="login.html">
+                        Konekte
+                    </a>
+
+                </div>
+
+            </form>
+
+        </section>
+
+
+        <section class="signup-side">
+
+            <div class="side-content">
+
+                <div class="side-icon">
+                    🛍️
+                </div>
+
+                <h2>
+                    Tout sa w bezwen,
+                    yon sèl kote.
+                </h2>
+
+                <p>
+                    Sou Macheya, ou ka dekouvri pwodwi,
+                    achte sa w bezwen oswa kòmanse vann
+                    pwòp pwodwi pa w.
+                </p>
+
+
+                <div class="benefits">
+
+                    <div class="benefit">
+                        <span>✓</span>
+                        <p>Senp pou itilize</p>
+                    </div>
+
+                    <div class="benefit">
+                        <span>✓</span>
+                        <p>An sekirite</p>
+                    </div>
+
+                    <div class="benefit">
+                        <span>✓</span>
+                        <p>Fèt pou Ayiti</p>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <script src="signup.js"></script>
 
 </body>
-                                      </html>
+  </html>
