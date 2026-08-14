@@ -1,30 +1,64 @@
 <!DOCTYPE html>
 <html lang="ht">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
     <title>Dashboard | Macheya</title>
 
-    <link rel="stylesheet" href="dashboard.css">
+    <link
+        rel="stylesheet"
+        href="dashboard.css"
+    >
+
 </head>
+
 
 <body>
 
+
+    <!-- =========================
+         HEADER
+    ========================== -->
+
     <header class="dashboard-header">
 
-        <a href="index.html" class="brand">
-            <span class="logo">M</span>
-            <span class="brand-name">macheya</span>
+        <a
+            href="index.html"
+            class="brand"
+        >
+
+            <span class="logo">
+                M
+            </span>
+
+            <span class="brand-name">
+                macheya
+            </span>
+
         </a>
+
 
         <div class="header-right">
 
-            <span id="userRole" class="role-badge">
+            <span
+                id="userRole"
+                class="role-badge"
+            >
                 Kont
             </span>
 
-            <button id="logoutButton" class="logout-btn">
+
+            <button
+                id="logoutButton"
+                class="logout-btn"
+            >
                 Dekonekte
             </button>
 
@@ -33,7 +67,17 @@
     </header>
 
 
+
+    <!-- =========================
+         MAIN DASHBOARD
+    ========================== -->
+
     <main class="dashboard">
+
+
+        <!-- =========================
+             WELCOME
+        ========================== -->
 
         <section class="welcome-section">
 
@@ -43,9 +87,11 @@
                     Byenveni sou Macheya 👋
                 </span>
 
+
                 <h1 id="welcomeName">
                     Byenveni
                 </h1>
+
 
                 <p id="welcomeText">
                     N ap prepare espas pèsonèl ou.
@@ -56,7 +102,10 @@
         </section>
 
 
-        <!-- DASHBOARD ACHETÈ -->
+
+        <!-- ==================================================
+             DASHBOARD ACHETÈ
+        =================================================== -->
 
         <section
             id="buyerDashboard"
@@ -64,26 +113,45 @@
             style="display: none;"
         >
 
+
             <div class="section-title">
 
                 <div>
+
                     <span class="section-label">
                         Espas achtè
                     </span>
 
+
                     <h2>
                         Tout sa ou bezwen
                     </h2>
+
                 </div>
 
-                <a href="index.html" class="primary-link">
+
+                <!--
+                    PA INDEX.HTML
+                    Kounya li ale sou products.html
+                -->
+
+                <a
+                    href="products.html"
+                    class="primary-link"
+                >
                     Eksplore pwodwi
                 </a>
 
             </div>
 
 
+
             <div class="dashboard-grid">
+
+
+                <!-- =========================
+                     PRODUITS
+                ========================== -->
 
                 <div class="dashboard-card">
 
@@ -91,21 +159,31 @@
                         🛍️
                     </div>
 
+
                     <h3>
                         Eksplore pwodwi
                     </h3>
+
 
                     <p>
                         Dekouvri pwodwi vandè yo mete
                         sou Macheya.
                     </p>
 
-                    <a href="index.html">
+
+                    <a
+                        href="products.html"
+                    >
                         Gade pwodwi →
                     </a>
 
                 </div>
 
+
+
+                <!-- =========================
+                     PANIER
+                ========================== -->
 
                 <div class="dashboard-card">
 
@@ -113,13 +191,21 @@
                         🛒
                     </div>
 
+
                     <h3>
                         Panier
                     </h3>
 
+
                     <p>
                         Gade pwodwi ou chwazi pou achte.
                     </p>
+
+
+                    <!--
+                        Paj cart.html poko fèt.
+                        N ap konekte l lè nou kreye paj la.
+                    -->
 
                     <a href="#">
                         Wè panier →
@@ -128,19 +214,31 @@
                 </div>
 
 
+
+                <!-- =========================
+                     KÒMAND
+                ========================== -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         📦
                     </div>
 
+
                     <h3>
                         Kòmand mwen yo
                     </h3>
 
+
                     <p>
                         Swiv pwodwi ou deja achte yo.
                     </p>
+
+
+                    <!--
+                        Paj orders.html poko fèt.
+                    -->
 
                     <a href="#">
                         Gade kòmand →
@@ -149,19 +247,31 @@
                 </div>
 
 
+
+                <!-- =========================
+                     PROFIL
+                ========================== -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         👤
                     </div>
 
+
                     <h3>
                         Pwofil mwen
                     </h3>
 
+
                     <p>
                         Jere enfòmasyon pèsonèl ou.
                     </p>
+
+
+                    <!--
+                        Paj profile.html poko fèt.
+                    -->
 
                     <a href="#">
                         Wè pwofil →
@@ -169,12 +279,16 @@
 
                 </div>
 
+
             </div>
 
         </section>
 
 
-        <!-- DASHBOARD VENDEUR -->
+
+        <!-- ==================================================
+             DASHBOARD VENDEUR
+        =================================================== -->
 
         <section
             id="sellerDashboard"
@@ -182,26 +296,40 @@
             style="display: none;"
         >
 
+
             <div class="section-title">
 
                 <div>
+
                     <span class="section-label">
                         Espas vandè
                     </span>
 
+
                     <h2>
                         Jere biznis ou
                     </h2>
+
                 </div>
 
-                <a href="addproduct.html" class="primary-link">
+
+                <a
+                    href="addproduct.html"
+                    class="primary-link"
+                >
                     + Ajoute pwodwi
                 </a>
 
             </div>
 
 
+
             <div class="dashboard-grid">
+
+
+                <!-- =========================
+                     PWODWI MWEN YO
+                ========================== -->
 
                 <div class="dashboard-card">
 
@@ -209,13 +337,16 @@
                         📦
                     </div>
 
+
                     <h3>
                         Pwodwi mwen yo
                     </h3>
 
+
                     <p>
                         Jere pwodwi ou mete sou Macheya.
                     </p>
+
 
                     <a href="seller.html">
                         Gade pwodwi →
@@ -224,20 +355,28 @@
                 </div>
 
 
+
+                <!-- =========================
+                     AJOUTE PWODWI
+                ========================== -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         ➕
                     </div>
 
+
                     <h3>
                         Ajoute pwodwi
                     </h3>
+
 
                     <p>
                         Mete yon nouvo pwodwi pou kliyan
                         yo ka dekouvri.
                     </p>
+
 
                     <a href="addproduct.html">
                         Ajoute pwodwi →
@@ -246,19 +385,31 @@
                 </div>
 
 
+
+                <!-- =========================
+                     KÒMAND KLIYAN
+                ========================== -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         🛒
                     </div>
 
+
                     <h3>
                         Kòmand kliyan
                     </h3>
 
+
                     <p>
                         Swiv kòmand kliyan yo fè.
                     </p>
+
+
+                    <!--
+                        Paj seller-orders.html poko fèt.
+                    -->
 
                     <a href="#">
                         Gade kòmand →
@@ -267,19 +418,31 @@
                 </div>
 
 
+
+                <!-- =========================
+                     PROFIL VENDEUR
+                ========================== -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         👤
                     </div>
 
+
                     <h3>
                         Pwofil mwen
                     </h3>
 
+
                     <p>
                         Jere enfòmasyon kont vandè ou.
                     </p>
+
+
+                    <!--
+                        Paj profile.html poko fèt.
+                    -->
 
                     <a href="#">
                         Wè pwofil →
@@ -287,16 +450,24 @@
 
                 </div>
 
+
             </div>
 
 
+
+            <!-- =========================
+                 STATISTIK VENDEUR
+            ========================== -->
+
             <section class="stats-section">
+
 
                 <div class="stat-card">
 
                     <span>
                         Pwodwi
                     </span>
+
 
                     <strong id="productCount">
                         0
@@ -305,11 +476,13 @@
                 </div>
 
 
+
                 <div class="stat-card">
 
                     <span>
                         Kòmand
                     </span>
+
 
                     <strong>
                         0
@@ -318,11 +491,13 @@
                 </div>
 
 
+
                 <div class="stat-card">
 
                     <span>
                         Lavant
                     </span>
+
 
                     <strong>
                         0 HTG
@@ -330,12 +505,17 @@
 
                 </div>
 
+
             </section>
+
 
         </section>
 
 
-        <!-- ERÈ -->
+
+        <!-- ==================================================
+             ERÈ
+        =================================================== -->
 
         <section
             id="dashboardError"
@@ -343,17 +523,21 @@
             style="display: none;"
         >
 
+
             <div>
                 ⚠️
             </div>
+
 
             <h2>
                 Nou pa kapab chaje dashboard la.
             </h2>
 
+
             <p id="errorMessage">
                 Yon pwoblèm rive pandan verifikasyon kont lan.
             </p>
+
 
             <button
                 onclick="location.reload()"
@@ -362,12 +546,21 @@
                 Eseye ankò
             </button>
 
+
         </section>
+
 
     </main>
 
 
+
+    <!-- =========================
+         JAVASCRIPT
+    ========================== -->
+
     <script src="dashboard.js"></script>
 
+
 </body>
-  </html>
+
+                </html>
