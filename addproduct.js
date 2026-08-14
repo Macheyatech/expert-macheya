@@ -1,79 +1,69 @@
 /* =========================================================
-   MACHEYA — ADD PRODUCT
-   Supabase + Product Image Upload
+   MACHEYA
+   ADD PRODUCT SYSTEM
+   Physical + Digital + Service
 ========================================================= */
 
+
 /* =========================================================
-   SUPABASE CONFIG
+   1. SUPABASE CONFIGURATION
 ========================================================= */
 
 const SUPABASE_URL =
-    "https://iscktsymqntjgqaxcitv.supabase.co";
+    "METE_URL_SUPABASE_OU_LA";
 
-const SUPABASE_KEY =
-    "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
+const SUPABASE_ANON_KEY =
+    "METE_ANON_PUBLISHABLE_KEY_OU_LA";
 
-const PRODUCT_BUCKET = "product-images";
 
-let supabaseClient = null;
-let selectedImage = null;
+const supabaseClient =
+    window.supabase.createClient(
+        SUPABASE_URL,
+        SUPABASE_ANON_KEY
+    );
 
 
 /* =========================================================
-   LOAD SUPABASE
+   2. STORAGE BUCKETS
 ========================================================= */
 
-async function loadSupabase() {
+/*
+   Non teknik bucket yo.
+*/
 
-    if (window.supabase) {
-        supabaseClient = window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
+const IMAGE_BUCKET =
+    "product-images";
 
-        return;
-    }
-
-    try {
-
-        const module = await import(
-            "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm"
-        );
-
-        supabaseClient = module.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
-
-    } catch (error) {
-
-        console.error(
-            "Supabase pa t ka chaje:",
-            error
-        );
-
-        showMessage(
-            "Nou pa kapab konekte ak sistèm nan. Verifye koneksyon entènèt la.",
-            "error"
-        );
-
-        throw error;
-    }
-}
+const DIGITAL_BUCKET =
+    "digital-products";
 
 
 /* =========================================================
-   ELEMENTS
+   3. LIMITS
+========================================================= */
+
+const MAX_IMAGE_SIZE =
+    5 * 1024 * 1024; // 5 MB
+
+const MAX_DIGITAL_SIZE =
+    100 * 1024 * 1024; // 100 MB
+
+
+/* =========================================================
+   4. DOM ELEMENTS
 ========================================================= */
 
 const productForm =
     document.getElementById("productForm");
 
+const imageUpload =
+    document.getElementById("imageUpload");
+
 const productImage =
     document.getElementById("productImage");
 
-const imageUpload =
-    document.getElementById("imageUpload");
+const chooseImageButton =
+    document.getElementById("chooseImageButton");
 
 const imagePlaceholder =
     document.getElementById("imagePlaceholder");
@@ -81,35 +71,20 @@ const imagePlaceholder =
 const imagePreview =
     document.getElementById("imagePreview");
 
-const chooseImageButton =
-    document.getElementById("chooseImageButton");
-
 const imageError =
     document.getElementById("imageError");
 
-const productName =
-    document.getElementById("productName");
-
-const productPrice =
-    document.getElementById("productPrice");
-
-const productStock =
-    document.getElementById("productStock");
-
-const productCategory =
-    document.getElementById("productCategory");
-
 const productType =
     document.getElementById("productType");
-
-const productDescription =
-    document.getElementById("productDescription");
 
 const digitalFileSection =
     document.getElementById("digitalFileSection");
 
 const digitalFile =
     document.getElementById("digitalFile");
+
+const digitalFileError =
+    document.getElementById("digitalFileError");
 
 const formMessage =
     document.getElementById("formMessage");
@@ -119,14 +94,17 @@ const publishButton =
 
 
 /* =========================================================
-   IMAGE PICKER
+   5. OPEN IMAGE PICKER
 ========================================================= */
 
 function openImagePicker() {
 
     if (productImage) {
+
         productImage.click();
+
     }
+
 }
 
 
@@ -151,7 +129,7 @@ if (chooseImageButton) {
 
 
 /* =========================================================
-   IMAGE SELECTED
+   6. IMAGE PREVIEW
 ========================================================= */
 
 if (productImage) {
@@ -160,69 +138,58 @@ if (productImage) {
         "change",
         function () {
 
-            clearImageError();
+            imageError.textContent = "";
+
 
             const file =
-                productImage.files[0];
+                this.files[0];
+
 
             if (!file) {
+
                 return;
+
             }
 
-
-            /* Verify image type */
 
             if (!file.type.startsWith("image/")) {
 
-                showImageError(
-                    "Tanpri chwazi yon fichye imaj."
-                );
+                imageError.textContent =
+                    "Tanpri chwazi yon imaj ki valab.";
 
-                productImage.value = "";
+                this.value = "";
 
                 return;
+
             }
 
 
-            /* Maximum 5 MB */
+            if (file.size > MAX_IMAGE_SIZE) {
 
-            const maxSize =
-                5 * 1024 * 1024;
+                imageError.textContent =
+                    "Foto a pa dwe depase 5 MB.";
 
-            if (file.size > maxSize) {
-
-                showImageError(
-                    "Foto a twò lou. Li dwe pi piti pase 5 MB."
-                );
-
-                productImage.value = "";
+                this.value = "";
 
                 return;
+
             }
 
 
-            selectedImage = file;
+            const objectURL =
+                URL.createObjectURL(file);
 
 
-            /* Preview */
+            imagePreview.src =
+                objectURL;
 
-            const reader =
-                new FileReader();
 
-            reader.onload = function (event) {
+            imagePreview.style.display =
+                "block";
 
-                imagePreview.src =
-                    event.target.result;
 
-                imagePreview.style.display =
-                    "block";
-
-                imagePlaceholder.style.display =
-                    "none";
-
-            };
-
-            reader.readAsDataURL(file);
+            imagePlaceholder.style.display =
+                "none";
 
         }
     );
@@ -231,7 +198,7 @@ if (productImage) {
 
 
 /* =========================================================
-   PRODUCT TYPE
+   7. PRODUCT TYPE
 ========================================================= */
 
 if (productType) {
@@ -240,21 +207,35 @@ if (productType) {
         "change",
         function () {
 
-            if (
-                productType.value === "digital"
-            ) {
+            const selectedType =
+                this.value;
+
+
+            if (selectedType === "digital") {
 
                 digitalFileSection.style.display =
                     "block";
+
+
+                digitalFile.required =
+                    true;
 
             } else {
 
                 digitalFileSection.style.display =
                     "none";
 
-                if (digitalFile) {
-                    digitalFile.value = "";
-                }
+
+                digitalFile.required =
+                    false;
+
+
+                digitalFile.value =
+                    "";
+
+
+                digitalFileError.textContent =
+                    "";
 
             }
 
@@ -265,23 +246,21 @@ if (productType) {
 
 
 /* =========================================================
-   MESSAGES
+   8. MESSAGE FUNCTIONS
 ========================================================= */
 
 function showMessage(
     message,
-    type = "error"
+    type
 ) {
-
-    if (!formMessage) {
-        return;
-    }
 
     formMessage.textContent =
         message;
 
+
     formMessage.className =
         "form-message " + type;
+
 
     formMessage.style.display =
         "block";
@@ -291,11 +270,8 @@ function showMessage(
 
 function hideMessage() {
 
-    if (!formMessage) {
-        return;
-    }
-
-    formMessage.textContent = "";
+    formMessage.textContent =
+        "";
 
     formMessage.style.display =
         "none";
@@ -303,43 +279,17 @@ function hideMessage() {
 }
 
 
-function showImageError(message) {
-
-    if (!imageError) {
-        return;
-    }
-
-    imageError.textContent =
-        message;
-
-}
-
-
-function clearImageError() {
-
-    if (!imageError) {
-        return;
-    }
-
-    imageError.textContent = "";
-
-}
-
-
 /* =========================================================
-   BUTTON LOADING
+   9. LOADING
 ========================================================= */
 
 function setLoading(
     loading
 ) {
 
-    if (!publishButton) {
-        return;
-    }
-
     publishButton.disabled =
         loading;
+
 
     if (loading) {
 
@@ -353,39 +303,57 @@ function setLoading(
             "loading"
         );
 
-        publishButton.textContent =
-            "Pibliye pwodwi";
     }
 
 }
 
 
 /* =========================================================
-   GET FILE EXTENSION
+   10. UNIQUE FILE NAME
 ========================================================= */
 
-function getFileExtension(file) {
+function createFilePath(
+    userId,
+    file
+) {
 
-    if (!file || !file.name) {
-        return "jpg";
+    const extension =
+        file.name.includes(".")
+            ? file.name
+                .split(".")
+                .pop()
+                .toLowerCase()
+            : "";
+
+
+    const randomName =
+        crypto.randomUUID();
+
+
+    if (extension) {
+
+        return (
+            userId +
+            "/" +
+            randomName +
+            "." +
+            extension
+        );
+
     }
 
-    const parts =
-        file.name.split(".");
 
-    if (parts.length < 2) {
-        return "jpg";
-    }
-
-    return parts[
-        parts.length - 1
-    ].toLowerCase();
+    return (
+        userId +
+        "/" +
+        randomName
+    );
 
 }
 
 
 /* =========================================================
-   UPLOAD PRODUCT IMAGE
+   11. UPLOAD IMAGE
 ========================================================= */
 
 async function uploadProductImage(
@@ -393,78 +361,60 @@ async function uploadProductImage(
     file
 ) {
 
-    const extension =
-        getFileExtension(file);
-
-    const fileName =
-        `${crypto.randomUUID()}.${extension}`;
-
     const filePath =
-        `${userId}/${fileName}`;
+        createFilePath(
+            userId,
+            file
+        );
 
 
     const {
-        error: uploadError
-    } =
-        await supabaseClient
-            .storage
-            .from(PRODUCT_BUCKET)
-            .upload(
-                filePath,
-                file,
-                {
-                    cacheControl: "3600",
-                    upsert: false,
-                    contentType: file.type
-                }
-            );
-
-
-    if (uploadError) {
-
-        console.error(
-            "Upload image error:",
-            uploadError
+        error
+    } = await supabaseClient.storage
+        .from(IMAGE_BUCKET)
+        .upload(
+            filePath,
+            file,
+            {
+                cacheControl: "3600",
+                upsert: false,
+                contentType: file.type
+            }
         );
 
+
+    if (error) {
+
         throw new Error(
-            "Nou pa kapab mete foto pwodwi a sou sèvè a."
+            "Foto a pa t ka upload: " +
+            error.message
         );
 
     }
 
-
-    /* Get public URL */
 
     const {
         data
-    } =
-        supabaseClient
-            .storage
-            .from(PRODUCT_BUCKET)
-            .getPublicUrl(
-                filePath
-            );
-
-
-    if (
-        !data ||
-        !data.publicUrl
-    ) {
-
-        throw new Error(
-            "Nou pa kapab jwenn URL foto pwodwi a."
+    } = supabaseClient.storage
+        .from(IMAGE_BUCKET)
+        .getPublicUrl(
+            filePath
         );
 
-    }
 
+    return {
 
-    return data.publicUrl;
+        path: filePath,
+
+        url: data.publicUrl
+
+    };
+
 }
 
 
 /* =========================================================
-   UPLOAD DIGITAL FILE
+   12. UPLOAD DIGITAL FILE
 ========================================================= */
 
 async function uploadDigitalFile(
@@ -472,444 +422,579 @@ async function uploadDigitalFile(
     file
 ) {
 
-    if (!file) {
-        return null;
-    }
-
-
-    const extension =
-        getFileExtension(file);
-
-    const fileName =
-        `${crypto.randomUUID()}.${extension}`;
-
     const filePath =
-        `${userId}/digital/${fileName}`;
+        createFilePath(
+            userId,
+            file
+        );
 
 
     const {
         error
-    } =
-        await supabaseClient
-            .storage
-            .from(PRODUCT_BUCKET)
-            .upload(
-                filePath,
-                file,
-                {
-                    cacheControl: "3600",
-                    upsert: false,
-                    contentType: file.type
-                }
-            );
+    } = await supabaseClient.storage
+        .from(DIGITAL_BUCKET)
+        .upload(
+            filePath,
+            file,
+            {
+                cacheControl: "3600",
+                upsert: false,
+                contentType: file.type
+            }
+        );
 
 
     if (error) {
 
-        console.error(
-            "Digital file upload error:",
-            error
-        );
-
         throw new Error(
-            "Nou pa kapab mete fichye dijital la."
+            "Fichye dijital la pa t ka upload: " +
+            error.message
         );
 
     }
 
 
-    const {
-        data
-    } =
-        supabaseClient
-            .storage
-            .from(PRODUCT_BUCKET)
-            .getPublicUrl(
-                filePath
-            );
+    /*
+       IMPORTANT:
 
+       Pa itilize getPublicUrl()
+       pou bucket sa a.
 
-    return data.publicUrl;
+       Bucket la prive.
+
+       Nou sèlman mete PATH la
+       nan database la.
+    */
+
+    return {
+
+        path: filePath
+
+    };
+
 }
 
 
 /* =========================================================
-   SUBMIT PRODUCT
+   13. DELETE STORAGE FILE
 ========================================================= */
 
-if (productForm) {
+async function deleteStorageFile(
+    bucket,
+    path
+) {
 
-    productForm.addEventListener(
-        "submit",
-        async function (event) {
+    if (!path) {
 
-            event.preventDefault();
+        return;
 
-            hideMessage();
-            clearImageError();
+    }
 
 
-            try {
+    const {
+        error
+    } = await supabaseClient.storage
+        .from(bucket)
+        .remove([
+            path
+        ]);
 
-                setLoading(true);
 
+    if (error) {
 
-                /* =========================================
-                   CHECK SUPABASE
-                ========================================= */
+        console.warn(
+            "Netwayaj fichye echwe:",
+            error.message
+        );
 
-                if (!supabaseClient) {
+    }
 
-                    await loadSupabase();
+}
 
-                }
 
+/* =========================================================
+   14. GET CURRENT USER
+========================================================= */
 
-                /* =========================================
-                   GET CURRENT USER
-                ========================================= */
+async function getCurrentUser() {
 
-                const {
-                    data: sessionData,
-                    error: sessionError
-                } =
-                    await supabaseClient
-                        .auth
-                        .getSession();
+    const {
+        data,
+        error
+    } = await supabaseClient.auth
+        .getUser();
 
 
-                if (sessionError) {
+    if (error) {
 
-                    console.error(
-                        sessionError
-                    );
+        throw new Error(
+            "Nou pa ka verifye kont ou."
+        );
 
-                    throw new Error(
-                        "Nou pa kapab verifye kont ou."
-                    );
+    }
 
-                }
 
+    if (!data.user) {
 
-                const session =
-                    sessionData.session;
+        throw new Error(
+            "Ou dwe konekte pou ajoute yon pwodwi."
+        );
 
+    }
 
-                if (!session) {
 
-                    throw new Error(
-                        "Ou dwe konekte kòm vandè pou ajoute yon pwodwi."
-                    );
+    return data.user;
 
-                }
+}
 
 
-                const user =
-                    session.user;
+/* =========================================================
+   15. VALIDATE FORM
+========================================================= */
 
+function validateForm() {
 
-                /* =========================================
-                   CHECK IMAGE
-                ========================================= */
+    const name =
+        document
+            .getElementById("productName")
+            .value
+            .trim();
 
-                if (!selectedImage) {
 
-                    showImageError(
-                        "Tanpri chwazi yon foto pou pwodwi a."
-                    );
+    const price =
+        Number(
+            document
+                .getElementById("productPrice")
+                .value
+        );
 
-                    throw new Error(
-                        "Foto pwodwi a obligatwa."
-                    );
 
-                }
+    const stock =
+        Number(
+            document
+                .getElementById("productStock")
+                .value
+        );
 
 
-                /* =========================================
-                   GET FORM VALUES
-                ========================================= */
+    const category =
+        document
+            .getElementById("productCategory")
+            .value;
 
-                const name =
-                    productName.value.trim();
 
-                const description =
-                    productDescription.value.trim();
+    const type =
+        productType.value;
 
-                const category =
-                    productCategory.value;
 
-                const type =
-                    productType.value;
+    const description =
+        document
+            .getElementById(
+                "productDescription"
+            )
+            .value
+            .trim();
 
-                const price =
-                    Number(
-                        productPrice.value
-                    );
 
-                const stock =
-                    Number(
-                        productStock.value
-                    );
+    if (!name) {
 
+        throw new Error(
+            "Tanpri mete non pwodwi a."
+        );
 
-                /* =========================================
-                   VALIDATION
-                ========================================= */
+    }
 
-                if (!name) {
 
-                    throw new Error(
-                        "Tanpri mete non pwodwi a."
-                    );
+    if (
+        !Number.isFinite(price) ||
+        price < 0
+    ) {
 
-                }
+        throw new Error(
+            "Tanpri mete yon pri ki valab."
+        );
 
+    }
 
-                if (
-                    !Number.isFinite(price) ||
-                    price < 0
-                ) {
 
-                    throw new Error(
-                        "Tanpri mete yon pri ki valab."
-                    );
+    if (
+        !Number.isInteger(stock) ||
+        stock < 0
+    ) {
 
-                }
+        throw new Error(
+            "Stock la dwe yon kantite antye."
+        );
 
+    }
 
-                if (
-                    !Number.isInteger(stock) ||
-                    stock < 0
-                ) {
 
-                    throw new Error(
-                        "Tanpri mete yon stock ki valab."
-                    );
+    if (!category) {
 
-                }
+        throw new Error(
+            "Tanpri chwazi kategori a."
+        );
 
+    }
 
-                if (!category) {
 
-                    throw new Error(
-                        "Tanpri chwazi kategori pwodwi a."
-                    );
+    if (!type) {
 
-                }
+        throw new Error(
+            "Tanpri chwazi kalite pwodwi a."
+        );
 
+    }
 
-                if (!type) {
 
-                    throw new Error(
-                        "Tanpri chwazi kalite pwodwi a."
-                    );
+    if (!description) {
 
-                }
+        throw new Error(
+            "Tanpri mete yon deskripsyon."
+        );
 
+    }
 
-                if (!description) {
 
-                    throw new Error(
-                        "Tanpri mete yon deskripsyon."
-                    );
+    const imageFile =
+        productImage.files[0] ||
+        null;
 
-                }
 
+    if (imageFile) {
 
-                /* =========================================
-                   UPLOAD IMAGE
-                ========================================= */
+        if (
+            !imageFile.type.startsWith(
+                "image/"
+            )
+        ) {
 
-                const imageUrl =
+            throw new Error(
+                "Foto pwodwi a pa valab."
+            );
+
+        }
+
+
+        if (
+            imageFile.size >
+            MAX_IMAGE_SIZE
+        ) {
+
+            throw new Error(
+                "Foto pwodwi a pa dwe depase 5 MB."
+            );
+
+        }
+
+    }
+
+
+    const digitalProductFile =
+        digitalFile.files[0] ||
+        null;
+
+
+    if (type === "digital") {
+
+        if (!digitalProductFile) {
+
+            throw new Error(
+                "Pou yon pwodwi dijital, ou dwe chwazi fichye pwodwi a."
+            );
+
+        }
+
+
+        if (
+            digitalProductFile.size >
+            MAX_DIGITAL_SIZE
+        ) {
+
+            throw new Error(
+                "Fichye dijital la pa dwe depase 100 MB."
+            );
+
+        }
+
+    }
+
+
+    return {
+
+        name,
+
+        price,
+
+        stock,
+
+        category,
+
+        type,
+
+        description,
+
+        imageFile,
+
+        digitalProductFile
+
+    };
+
+}
+
+
+/* =========================================================
+   16. RESET FORM
+========================================================= */
+
+function resetProductForm() {
+
+    productForm.reset();
+
+
+    imagePreview.src =
+        "";
+
+
+    imagePreview.style.display =
+        "none";
+
+
+    imagePlaceholder.style.display =
+        "flex";
+
+
+    digitalFileSection.style.display =
+        "none";
+
+
+    digitalFile.required =
+        false;
+
+
+    imageError.textContent =
+        "";
+
+
+    digitalFileError.textContent =
+        "";
+
+}
+
+
+/* =========================================================
+   17. SUBMIT
+========================================================= */
+
+productForm.addEventListener(
+    "submit",
+    async function (event) {
+
+        event.preventDefault();
+
+
+        hideMessage();
+
+
+        setLoading(true);
+
+
+        let uploadedImagePath =
+            null;
+
+
+        let uploadedDigitalPath =
+            null;
+
+
+        try {
+
+            /* -----------------------------------------
+               USER
+            ----------------------------------------- */
+
+            const user =
+                await getCurrentUser();
+
+
+            /* -----------------------------------------
+               FORM
+            ----------------------------------------- */
+
+            const form =
+                validateForm();
+
+
+            /* -----------------------------------------
+               IMAGE
+            ----------------------------------------- */
+
+            let imageURL =
+                null;
+
+
+            if (form.imageFile) {
+
+                const imageResult =
                     await uploadProductImage(
                         user.id,
-                        selectedImage
+                        form.imageFile
                     );
 
 
-                /* =========================================
-                   DIGITAL FILE
-                ========================================= */
-
-                let digitalFileUrl = null;
+                uploadedImagePath =
+                    imageResult.path;
 
 
-                if (
-                    type === "digital" &&
-                    digitalFile &&
-                    digitalFile.files.length > 0
-                ) {
+                imageURL =
+                    imageResult.url;
 
-                    digitalFileUrl =
-                        await uploadDigitalFile(
-                            user.id,
-                            digitalFile.files[0]
-                        );
-
-                }
+            }
 
 
-                /* =========================================
-                   INSERT PRODUCT
-                ========================================= */
+            /* -----------------------------------------
+               DIGITAL FILE
+            ----------------------------------------- */
 
-                const productData = {
+            if (
+                form.type === "digital" &&
+                form.digitalProductFile
+            ) {
+
+                const digitalResult =
+                    await uploadDigitalFile(
+                        user.id,
+                        form.digitalProductFile
+                    );
+
+
+                uploadedDigitalPath =
+                    digitalResult.path;
+
+            }
+
+
+            /* -----------------------------------------
+               DATABASE
+            ----------------------------------------- */
+
+            const {
+                data: product,
+                error: productError
+            } = await supabaseClient
+                .from("products")
+                .insert({
 
                     seller_id:
                         user.id,
 
                     name:
-                        name,
+                        form.name,
 
                     description:
-                        description,
+                        form.description,
 
                     price:
-                        price,
+                        form.price,
 
                     category:
-                        category,
+                        form.category,
 
                     image_url:
-                        imageUrl,
+                        imageURL,
 
                     product_type:
-                        type,
+                        form.type,
 
                     digital_file_url:
-                        digitalFileUrl,
+                        uploadedDigitalPath,
 
                     stock:
-                        stock,
+                        form.stock,
 
                     is_active:
                         true
 
-                };
+                })
+                .select()
+                .single();
 
 
-                console.log(
-                    "Product data:",
-                    productData
+            if (productError) {
+
+                throw new Error(
+                    "Pwodwi a pa t ka anrejistre: " +
+                    productError.message
                 );
-
-
-                const {
-                    data: insertedProduct,
-                    error: insertError
-                } =
-                    await supabaseClient
-                        .from("products")
-                        .insert(
-                            productData
-                        )
-                        .select()
-                        .single();
-
-
-                if (insertError) {
-
-                    console.error(
-                        "Product insert error:",
-                        insertError
-                    );
-
-                    throw new Error(
-                        "Nou pa kapab anrejistre pwodwi a nan baz done a."
-                    );
-
-                }
-
-
-                console.log(
-                    "Product created:",
-                    insertedProduct
-                );
-
-
-                /* =========================================
-                   SUCCESS
-                ========================================= */
-
-                showMessage(
-                    "🎉 Pwodwi a pibliye avèk siksè!",
-                    "success"
-                );
-
-
-                /* Reset form */
-
-                productForm.reset();
-
-                selectedImage = null;
-
-                imagePreview.src = "";
-
-                imagePreview.style.display =
-                    "none";
-
-                imagePlaceholder.style.display =
-                    "flex";
-
-                digitalFileSection.style.display =
-                    "none";
-
-
-                /*
-                   Apre yon ti moman,
-                   voye vandè a nan seller.html
-                */
-
-                setTimeout(
-                    function () {
-
-                        window.location.href =
-                            "seller.html";
-
-                    },
-                    1200
-                );
-
-
-            } catch (error) {
-
-                console.error(
-                    "ADD PRODUCT ERROR:",
-                    error
-                );
-
-
-                showMessage(
-                    error.message ||
-                    "Yon erè rive pandan piblikasyon pwodwi a.",
-                    "error"
-                );
-
-
-            } finally {
-
-                setLoading(false);
 
             }
 
-        }
-    );
 
-}
+            /* -----------------------------------------
+               SUCCESS
+            ----------------------------------------- */
+
+            console.log(
+                "MACHEYA PRODUCT CREATED:",
+                product
+            );
 
 
-/* =========================================================
-   START
-========================================================= */
+            showMessage(
+                "🎉 Pwodwi a pibliye avèk siksè!",
+                "success"
+            );
 
-loadSupabase()
-    .catch(
-        function (error) {
+
+            resetProductForm();
+
+
+        } catch (error) {
 
             console.error(
-                "Initialisation error:",
+                "MACHEYA ADD PRODUCT ERROR:",
                 error
             );
 
+
+            /*
+               Si database la echwe apre upload,
+               efase fichye yo pou pa kite
+               fichye òfelen nan Storage.
+            */
+
+            if (uploadedImagePath) {
+
+                await deleteStorageFile(
+                    IMAGE_BUCKET,
+                    uploadedImagePath
+                );
+
+            }
+
+
+            if (uploadedDigitalPath) {
+
+                await deleteStorageFile(
+                    DIGITAL_BUCKET,
+                    uploadedDigitalPath
+                );
+
+            }
+
+
+            showMessage(
+                error.message ||
+                "Yon erè rive. Tanpri eseye ankò.",
+                "error"
+            );
+
+
+        } finally {
+
+            setLoading(false);
+
         }
-    );
+
+    }
+);
