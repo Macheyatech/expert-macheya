@@ -2,7 +2,6 @@
 <html lang="ht">
 
 <head>
-
     <meta charset="UTF-8">
 
     <meta
@@ -18,12 +17,10 @@
     <link
         rel="stylesheet"
         href="addproduct.css">
-
 </head>
 
 
 <body>
-
 
 <header class="add-header">
 
@@ -32,7 +29,6 @@
         class="back-button">
         ←
     </a>
-
 
     <div class="header-brand">
 
@@ -49,9 +45,12 @@
 </header>
 
 
-
 <main class="add-product-page">
 
+
+    <!-- =====================================================
+         TIT
+    ====================================================== -->
 
     <section class="page-heading">
 
@@ -70,16 +69,20 @@
     </section>
 
 
+    <!-- =====================================================
+         FORM
+    ====================================================== -->
 
     <section class="product-form-card">
-
 
         <form
             id="productForm"
             enctype="multipart/form-data">
 
 
-            <!-- FOTO PRODUIT -->
+            <!-- =================================================
+                 FOTO PRODUIT
+            ================================================== -->
 
             <div class="form-section">
 
@@ -90,7 +93,9 @@
 
                 <div
                     id="imageUpload"
-                    class="image-upload">
+                    class="image-upload"
+                    role="button"
+                    tabindex="0">
 
 
                     <div
@@ -121,6 +126,8 @@
                 </div>
 
 
+                <!-- INPUT FOTO -->
+
                 <input
                     type="file"
                     id="productImage"
@@ -128,6 +135,8 @@
                     accept="image/jpeg,image/png,image/webp,image/gif"
                     hidden>
 
+
+                <!-- BOUTON FOTO -->
 
                 <button
                     type="button"
@@ -147,8 +156,9 @@
             </div>
 
 
-
-            <!-- NON -->
+            <!-- =================================================
+                 NON PRODUIT
+            ================================================== -->
 
             <div class="form-section">
 
@@ -172,11 +182,14 @@
             </div>
 
 
-
-            <!-- PRI + STOCK -->
+            <!-- =================================================
+                 PRI + STOCK
+            ================================================== -->
 
             <div class="form-row">
 
+
+                <!-- PRI -->
 
                 <div class="form-section">
 
@@ -201,6 +214,7 @@
                 </div>
 
 
+                <!-- STOCK -->
 
                 <div class="form-section">
 
@@ -227,8 +241,9 @@
             </div>
 
 
-
-            <!-- KATEGORI -->
+            <!-- =================================================
+                 KATEGORI
+            ================================================== -->
 
             <div class="form-section">
 
@@ -291,8 +306,9 @@
             </div>
 
 
-
-            <!-- TYPE PRODUIT -->
+            <!-- =================================================
+                 TYPE PRODUIT
+            ================================================== -->
 
             <div class="form-section">
 
@@ -331,8 +347,9 @@
             </div>
 
 
-
-            <!-- DESCRIPTION -->
+            <!-- =================================================
+                 DESCRIPTION
+            ================================================== -->
 
             <div class="form-section">
 
@@ -356,8 +373,9 @@
             </div>
 
 
-
-            <!-- FICHYE DIJITAL -->
+            <!-- =================================================
+                 FICHYE DIJITAL
+            ================================================== -->
 
             <div
                 id="digitalFileSection"
@@ -376,11 +394,15 @@
                 <input
                     type="file"
                     id="digitalFile"
-                    name="digital_file">
+                    name="digital_file"
+                    accept=".pdf,.zip,.rar,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.epub,.mp4,.mp3,.png,.jpg,.jpeg">
 
 
                 <p class="form-help">
-                    Fichye sa a ap ale nan espas prive pwodwi dijital Macheya a.
+
+                    Fichye sa a ap ale nan espas prive
+                    pwodwi dijital Macheya a.
+
                 </p>
 
 
@@ -392,8 +414,9 @@
             </div>
 
 
-
-            <!-- MESSAGE -->
+            <!-- =================================================
+                 MESSAGE
+            ================================================== -->
 
             <div
                 id="formMessage"
@@ -402,8 +425,9 @@
             </div>
 
 
-
-            <!-- BUTTON -->
+            <!-- =================================================
+                 PUBLISH
+            ================================================== -->
 
             <button
                 type="submit"
@@ -417,17 +441,18 @@
 
         </form>
 
-
     </section>
-
 
 </main>
 
 
-
-<!-- SUPABASE JS -->
+<!-- =========================================================
+     SUPABASE
+========================================================== -->
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase-config.js"></script>
 
 <script src="addproduct.js"></script>
 
