@@ -1,6 +1,6 @@
 // ============================================================
-// MACHEYA — DASHBOARD.JS
-// VÈSYON KOREKTE
+// MACHEYA — DASHBOARD
+// KONPATIB AK supabase.config.js
 // ============================================================
 
 
@@ -54,30 +54,18 @@ const supabase =
 
 
 // ============================================================
-// NORMALIZE TEXT
+// HIDE ALL DASHBOARDS
 // ============================================================
 
-function normalizeText(value) {
+function hideDashboards() {
 
-    return String(value || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(
-            /[\u0300-\u036f]/g,
-            ""
-        );
-}
+    if (buyerDashboard) {
+        buyerDashboard.style.display = "none";
+    }
 
-
-// ============================================================
-// FORMAT MONEY
-// ============================================================
-
-function formatHTG(amount) {
-
-    return Number(amount || 0)
-        .toLocaleString("en-US") + " HTG";
+    if (sellerDashboard) {
+        sellerDashboard.style.display = "none";
+    }
 }
 
 
@@ -87,13 +75,7 @@ function formatHTG(amount) {
 
 function showError(message) {
 
-    if (buyerDashboard) {
-        buyerDashboard.style.display = "none";
-    }
-
-    if (sellerDashboard) {
-        sellerDashboard.style.display = "none";
-    }
+    hideDashboards();
 
     if (dashboardError) {
         dashboardError.style.display = "block";
@@ -118,18 +100,32 @@ function hideError() {
 
 
 // ============================================================
-// HIDE DASHBOARDS
+// NORMALIZE ROLE
 // ============================================================
 
-function hideDashboards() {
+function normalizeRole(value) {
 
-    if (buyerDashboard) {
-        buyerDashboard.style.display = "none";
-    }
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
+}
 
-    if (sellerDashboard) {
-        sellerDashboard.style.display = "none";
-    }
+
+// ============================================================
+// FORMAT MONEY
+// ============================================================
+
+function formatHTG(value) {
+
+    const amount =
+        Number(value || 0);
+
+    return (
+        amount.toLocaleString("en-US") +
+        " HTG"
+    );
 }
 
 
@@ -139,276 +135,278 @@ function hideDashboards() {
 
 async function loadDashboard() {
 
-    try {
+    hideError();
 
-        hideError();
-        hideDashboards();
-
-
-        // ====================================================
-        // VERIFY SUPABASE
-        // ====================================================
-
-        if (!supabase) {
-
-            showError(
-                "Koneksyon Macheya ak Supabase pa disponib."
-            );
-
-            return;
-        }
+    hideDashboards();
 
 
-        // ====================================================
-        // GET CURRENT USER
-        // ====================================================
+    // ========================================================
+    // CHECK SUPABASE
+    // ========================================================
 
-        const {
-            data,
-            error: authError
-        } =
-            await supabase.auth.getUser();
+    if (!supabase) {
 
+        console.error(
+            "Macheya: window.supabaseClient pa jwenn."
+        );
 
-        if (authError) {
+        showError(
+            "Koneksyon Macheya ak Supabase pa disponib."
+        );
 
-            console.error(
-                "Auth error:",
-                authError
-            );
-
-            showError(
-                "Nou pa kapab verifye kont ou."
-            );
-
-            return;
-        }
+        return;
+    }
 
 
-        const user =
-            data?.user;
+    // ========================================================
+    // GET CURRENT USER
+    // ========================================================
+
+    const {
+        data: sessionData,
+        error: sessionError
+    } = await supabase.auth.getSession();
 
 
-        // ====================================================
-        // NO USER
-        // ====================================================
+    if (sessionError) {
 
-        if (!user) {
+        console.error(
+            "Session error:",
+            sessionError
+        );
 
-            window.location.href =
-                "login.html";
+        showError(
+            "Nou pa kapab verifye sesyon kont ou."
+        );
 
-            return;
-        }
+        return;
+    }
 
 
-        console.log(
-            "Macheya user:",
+    const user =
+        sessionData?.session?.user;
+
+
+    // ========================================================
+    // NO USER
+    // ========================================================
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+    }
+
+
+    console.log(
+        "Macheya user:",
+        user.id
+    );
+
+
+    // ========================================================
+    // GET PROFILE
+    // ========================================================
+
+    const {
+        data: profile,
+        error: profileError
+    } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+
+
+    if (profileError) {
+
+        console.error(
+            "Macheya profile error:",
+            profileError
+        );
+
+        showError(
+            "Nou pa kapab jwenn pwofil kont ou."
+        );
+
+        return;
+    }
+
+
+    // ========================================================
+    // PROFILE DOES NOT EXIST
+    // ========================================================
+
+    if (!profile) {
+
+        console.error(
+            "Pa gen profile pou user:",
             user.id
         );
 
-
-        // ====================================================
-        // GET PROFILE
-        // ====================================================
-
-        const {
-            data: profile,
-            error: profileError
-        } =
-            await supabase
-                .from("profiles")
-                .select("*")
-                .eq(
-                    "id",
-                    user.id
-                )
-                .maybeSingle();
-
-
-        if (profileError) {
-
-            console.error(
-                "Profile error:",
-                profileError
-            );
-
-            showError(
-                "Nou pa kapab chaje pwofil kont ou."
-            );
-
-            return;
-        }
-
-
-        // ====================================================
-        // PROFILE NOT FOUND
-        // ====================================================
-
-        if (!profile) {
-
-            console.error(
-                "Pa gen profile pou user:",
-                user.id
-            );
-
-            showError(
-                "Nou jwenn kont lan, men pwofil li poko egziste."
-            );
-
-            return;
-        }
-
-
-        console.log(
-            "Macheya profile:",
-            profile
+        showError(
+            "Kont ou konekte, men pwofil Macheya a poko egziste."
         );
 
+        return;
+    }
 
-        // ====================================================
-        // USER NAME
-        // ====================================================
 
-        const name =
-            profile.nom_complet ||
-            profile.full_name ||
-            profile.name ||
-            profile.nom ||
-            user.user_metadata?.nom_complet ||
-            user.user_metadata?.full_name ||
-            user.email?.split("@")[0] ||
-            "Itilizatè";
+    console.log(
+        "Macheya profile:",
+        profile
+    );
 
+
+    // ========================================================
+    // USER NAME
+    // ========================================================
+
+    const name =
+
+        profile.nom_complet ||
+
+        profile.full_name ||
+
+        profile.name ||
+
+        profile.nom ||
+
+        user.user_metadata?.nom_complet ||
+
+        user.user_metadata?.full_name ||
+
+        user.email?.split("@")[0] ||
+
+        "Itilizatè";
+
+
+    if (welcomeName) {
 
         welcomeName.textContent =
             `Bonjou, ${name} 👋`;
+    }
 
 
-        // ====================================================
-        // ROLE
-        // ====================================================
+    // ========================================================
+    // ROLE
+    // ========================================================
 
-        const role =
-            normalizeText(
-                profile.role
-            );
+    const role =
+        normalizeRole(profile.role);
 
 
-        const isSeller =
-            profile.est_vendeur === true ||
-            profile.is_seller === true ||
-            profile.vendeur === true ||
-            role === "vendeur" ||
-            role === "vande" ||
-            role === "vander" ||
-            role === "seller";
+    const seller =
+        profile.est_vendeur === true ||
+        profile.is_seller === true ||
+        profile.vendeur === true;
 
 
-        const isBuyer =
-            profile.est_acheteur === true ||
-            profile.is_buyer === true ||
-            profile.acheteur === true ||
-            role === "acheteur" ||
-            role === "achte" ||
-            role === "buyer";
+    const buyer =
+        profile.est_acheteur === true ||
+        profile.is_buyer === true ||
+        profile.acheteur === true;
 
 
-        console.log(
-            "Macheya role:",
-            role
-        );
+    const isSeller =
+        seller ||
+        role === "vendeur" ||
+        role === "vande" ||
+        role === "vander" ||
+        role === "seller";
 
 
-        console.log(
-            "Macheya isSeller:",
-            isSeller
-        );
+    const isBuyer =
+        buyer ||
+        role === "acheteur" ||
+        role === "achte" ||
+        role === "buyer";
 
 
-        console.log(
-            "Macheya isBuyer:",
-            isBuyer
-        );
+    console.log(
+        "Macheya role:",
+        role,
+        "seller:",
+        isSeller,
+        "buyer:",
+        isBuyer
+    );
 
 
-        // ====================================================
-        // SELLER
-        // ====================================================
+    // ========================================================
+    // SELLER
+    // ========================================================
 
-        if (isSeller) {
+    if (isSeller) {
 
+        if (userRole) {
             userRole.textContent =
                 "Vandè";
+        }
 
 
+        if (welcomeText) {
             welcomeText.textContent =
                 "Men espas kote ou ka jere biznis ou.";
+        }
 
 
+        if (sellerDashboard) {
             sellerDashboard.style.display =
                 "block";
-
-
-            await loadSellerStats(
-                user.id
-            );
-
-
-            return;
         }
 
 
-        // ====================================================
-        // BUYER
-        // ====================================================
+        await loadSellerStats(
+            user.id
+        );
 
-        if (isBuyer) {
+        return;
+    }
 
+
+    // ========================================================
+    // BUYER
+    // ========================================================
+
+    if (isBuyer) {
+
+        if (userRole) {
             userRole.textContent =
                 "Achtè";
-
-
-            welcomeText.textContent =
-                "Dekouvri pwodwi epi swiv kòmand ou yo.";
-
-
-            buyerDashboard.style.display =
-                "block";
-
-
-            return;
         }
 
 
-        // ====================================================
-        // UNKNOWN ROLE
-        // ====================================================
-
-        console.error(
-            "Role pa rekonèt:",
-            profile
-        );
+        if (welcomeText) {
+            welcomeText.textContent =
+                "Dekouvri pwodwi epi swiv kòmand ou yo.";
+        }
 
 
-        showError(
-            "Kont ou konekte, men Macheya pa konnen si se yon kont achtè oswa vandè."
-        );
+        if (buyerDashboard) {
+            buyerDashboard.style.display =
+                "block";
+        }
 
+        return;
     }
 
-    catch (error) {
 
-        console.error(
-            "MACHEYA DASHBOARD ERROR:",
-            error
-        );
+    // ========================================================
+    // ROLE UNKNOWN
+    // ========================================================
+
+    console.error(
+        "Macheya: role pa rekonèt.",
+        profile
+    );
 
 
-        showError(
-            "Yon pwoblèm rive pandan chajman dashboard la."
-        );
-    }
+    showError(
+        "Kont ou konekte, men kalite kont lan pa defini nan pwofil la."
+    );
 }
 
 
@@ -418,58 +416,48 @@ async function loadDashboard() {
 
 async function loadSellerStats(userId) {
 
+
     // ========================================================
     // PRODUCT COUNT
     // ========================================================
 
-    try {
-
-        const {
-            count,
-            error
-        } =
-            await supabase
-                .from("products")
-                .select(
-                    "id",
-                    {
-                        count: "exact",
-                        head: true
-                    }
-                )
-                .eq(
-                    "seller_id",
-                    userId
-                );
+    const {
+        count,
+        error
+    } = await supabase
+        .from("products")
+        .select(
+            "id",
+            {
+                count: "exact",
+                head: true
+            }
+        )
+        .eq(
+            "seller_id",
+            userId
+        );
 
 
-        if (error) {
-
-            console.error(
-                "Product count error:",
-                error
-            );
-
-            productCount.textContent =
-                "0";
-
-        } else {
-
-            productCount.textContent =
-                count ?? 0;
-        }
-
-    }
-
-    catch (error) {
+    if (error) {
 
         console.error(
-            "Product statistics error:",
+            "Product count error:",
             error
         );
 
-        productCount.textContent =
-            "0";
+
+        if (productCount) {
+            productCount.textContent =
+                "0";
+        }
+
+    } else {
+
+        if (productCount) {
+            productCount.textContent =
+                count ?? 0;
+        }
     }
 
 
@@ -477,81 +465,33 @@ async function loadSellerStats(userId) {
     // ORDERS
     // ========================================================
 
-    try {
-
-        const {
-            data: orders,
-            error
-        } =
-            await supabase
-                .from("orders")
-                .select(
-                    "id, amount"
-                )
-                .eq(
-                    "seller_id",
-                    userId
-                );
-
-
-        // Orders table poko kreye
-        if (error) {
-
-            console.log(
-                "Orders poko disponib."
-            );
-
-
-            orderCount.textContent =
-                "0";
-
-
-            salesTotal.textContent =
-                "0 HTG";
-
-
-            return;
-        }
-
-
-        // ====================================================
-        // ORDER COUNT
-        // ====================================================
-
-        orderCount.textContent =
-            orders?.length ?? 0;
-
-
-        // ====================================================
-        // SALES TOTAL
-        // ====================================================
-
-        const total =
-            (orders || []).reduce(
-                (
-                    sum,
-                    order
-                ) => {
-
-                    return sum +
-                        Number(
-                            order.amount || 0
-                        );
-                },
-                0
-            );
-
-
-        salesTotal.textContent =
-            formatHTG(total);
-
+    if (!orderCount || !salesTotal) {
+        return;
     }
 
-    catch (error) {
+
+    const {
+        data: orders,
+        error: ordersError
+    } = await supabase
+        .from("orders")
+        .select(
+            "id, amount"
+        )
+        .eq(
+            "seller_id",
+            userId
+        );
+
+
+    // ========================================================
+    // ORDERS TABLE NOT READY
+    // ========================================================
+
+    if (ordersError) {
 
         console.log(
-            "Orders poko disponib:",
-            error
+            "Macheya: orders poko disponib."
         );
 
 
@@ -561,7 +501,44 @@ async function loadSellerStats(userId) {
 
         salesTotal.textContent =
             "0 HTG";
+
+
+        return;
     }
+
+
+    // ========================================================
+    // ORDER COUNT
+    // ========================================================
+
+    orderCount.textContent =
+        orders?.length ?? 0;
+
+
+    // ========================================================
+    // SALES
+    // ========================================================
+
+    const totalSales =
+        (orders || []).reduce(
+            (
+                total,
+                order
+            ) => {
+
+                return (
+                    total +
+                    Number(
+                        order.amount || 0
+                    )
+                );
+            },
+            0
+        );
+
+
+    salesTotal.textContent =
+        formatHTG(totalSales);
 }
 
 
@@ -575,44 +552,37 @@ if (logoutButton) {
         "click",
         async () => {
 
-            try {
-
-                const {
-                    error
-                } =
-                    await supabase.auth.signOut();
-
-
-                if (error) {
-
-                    console.error(
-                        "Logout error:",
-                        error
-                    );
-
-                    return;
-                }
-
-
-                window.location.href =
-                    "login.html";
-
+            if (!supabase) {
+                return;
             }
 
-            catch (error) {
+
+            const {
+                error
+            } =
+                await supabase.auth.signOut();
+
+
+            if (error) {
 
                 console.error(
                     "Logout error:",
                     error
                 );
+
+                return;
             }
+
+
+            window.location.href =
+                "login.html";
         }
     );
 }
 
 
 // ============================================================
-// RELOAD BUTTON
+// RELOAD
 // ============================================================
 
 if (reloadDashboard) {
@@ -631,8 +601,11 @@ if (reloadDashboard) {
 // ============================================================
 // START
 // ============================================================
-
-// IMPORTANT:
-// Tout element yo deja defini AVAN loadDashboard() lan.
+//
+// ENPÒTAN:
+// Nou rele loadDashboard() sèlman APRÈ tout
+// const elements yo fin defini.
+// Se la ansyen JS la te gen pwoblèm.
+//
 
 loadDashboard();
