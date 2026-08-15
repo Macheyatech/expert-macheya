@@ -29,17 +29,8 @@ const userRole =
 const logoutButton =
     document.getElementById("logoutButton");
 
-const reloadDashboard =
-    document.getElementById("reloadDashboard");
-
 const productCount =
     document.getElementById("productCount");
-
-const orderCount =
-    document.getElementById("orderCount");
-
-const salesTotal =
-    document.getElementById("salesTotal");
 
 
 // ========================================
@@ -48,13 +39,21 @@ const salesTotal =
 
 function showError(message) {
 
-    buyerDashboard.style.display = "none";
+    if (buyerDashboard) {
+        buyerDashboard.style.display = "none";
+    }
 
-    sellerDashboard.style.display = "none";
+    if (sellerDashboard) {
+        sellerDashboard.style.display = "none";
+    }
 
-    dashboardError.style.display = "block";
+    if (dashboardError) {
+        dashboardError.style.display = "block";
+    }
 
-    errorMessage.textContent = message;
+    if (errorMessage) {
+        errorMessage.textContent = message;
+    }
 }
 
 
@@ -64,7 +63,9 @@ function showError(message) {
 
 function hideError() {
 
-    dashboardError.style.display = "none";
+    if (dashboardError) {
+        dashboardError.style.display = "none";
+    }
 }
 
 
@@ -77,6 +78,20 @@ function formatHTG(amount) {
     const value = Number(amount || 0);
 
     return value.toLocaleString("en-US") + " HTG";
+}
+
+
+// ========================================
+// NORMALIZE ROLE
+// ========================================
+
+function normalizeRole(role) {
+
+    return String(role || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "");
 }
 
 
@@ -116,7 +131,6 @@ async function loadDashboard() {
         }
 
 
-
         // =================================
         // GET PROFILE
         // =================================
@@ -152,7 +166,6 @@ async function loadDashboard() {
         }
 
 
-
         // =================================
         // USER NAME
         // =================================
@@ -163,59 +176,65 @@ async function loadDashboard() {
             "Itilizatè";
 
 
-        welcomeName.textContent =
-            `Bonjou, ${name} 👋`;
+        if (welcomeName) {
 
+            welcomeName.textContent =
+                `Bonjou, ${name} 👋`;
+        }
 
 
         // =================================
         // DETERMINE ROLE
         // =================================
 
-        let role = profile.role;
+        const normalizedRole =
+            normalizeRole(profile.role);
 
 
-        if (!role) {
+        const isSeller =
+            profile.est_vendeur === true ||
+            normalizedRole === "vendeur" ||
+            normalizedRole === "vander" ||
+            normalizedRole === "seller";
 
-            if (profile.est_vendeur === true) {
 
-                role = "vendeur";
+        const isBuyer =
+            profile.est_acheteur === true ||
+            normalizedRole === "acheteur" ||
+            normalizedRole === "achte" ||
+            normalizedRole === "buyer";
 
-            } else if (
-                profile.est_acheteur === true
-            ) {
 
-                role = "acheteur";
+        // =================================
+        // SELLER DASHBOARD
+        // =================================
+
+        if (isSeller) {
+
+            if (userRole) {
+                userRole.textContent = "Vandè";
             }
-        }
 
 
+            if (welcomeText) {
 
-        // =================================
-        // SELLER
-        // =================================
-
-        if (
-            role === "vendeur" ||
-            role === "vendeur " ||
-            role === "seller" ||
-            profile.est_vendeur === true
-        ) {
-
-            userRole.textContent =
-                "Vandè";
+                welcomeText.textContent =
+                    "Men espas kote ou ka jere biznis ou.";
+            }
 
 
-            welcomeText.textContent =
-                "Men espas kote ou ka jere biznis ou.";
+            if (sellerDashboard) {
+
+                sellerDashboard.style.display =
+                    "block";
+            }
 
 
-            sellerDashboard.style.display =
-                "block";
+            if (buyerDashboard) {
 
-
-            buyerDashboard.style.display =
-                "none";
+                buyerDashboard.style.display =
+                    "none";
+            }
 
 
             await loadSellerStats(user.id);
@@ -224,38 +243,40 @@ async function loadDashboard() {
         }
 
 
-
         // =================================
-        // BUYER
+        // BUYER DASHBOARD
         // =================================
 
-        if (
-            role === "achte" ||
-            role === "acheteur" ||
-            role === "buyer" ||
-            role === "achtè" ||
-            profile.est_acheteur === true
-        ) {
+        if (isBuyer) {
 
-            userRole.textContent =
-                "Achtè";
+            if (userRole) {
+                userRole.textContent = "Achtè";
+            }
 
 
-            welcomeText.textContent =
-                "Dekouvri pwodwi epi swiv kòmand ou yo.";
+            if (welcomeText) {
+
+                welcomeText.textContent =
+                    "Dekouvri pwodwi epi swiv kòmand ou yo.";
+            }
 
 
-            buyerDashboard.style.display =
-                "block";
+            if (buyerDashboard) {
+
+                buyerDashboard.style.display =
+                    "block";
+            }
 
 
-            sellerDashboard.style.display =
-                "none";
+            if (sellerDashboard) {
+
+                sellerDashboard.style.display =
+                    "none";
+            }
 
 
             return;
         }
-
 
 
         // =================================
@@ -279,9 +300,7 @@ async function loadDashboard() {
         showError(
             "Yon pwoblèm rive pandan chajman dashboard la."
         );
-
     }
-
 }
 
 
@@ -290,7 +309,6 @@ async function loadDashboard() {
 // ========================================
 
 async function loadSellerStats(userId) {
-
 
     // ====================================
     // PRODUCTS
@@ -316,19 +334,35 @@ async function loadSellerStats(userId) {
         );
 
 
-        productCount.textContent = "0";
+        if (productCount) {
+            productCount.textContent = "0";
+        }
 
     } else {
 
-        productCount.textContent =
-            productsCount || 0;
-    }
+        if (productCount) {
 
+            productCount.textContent =
+                productsCount || 0;
+        }
+    }
 
 
     // ====================================
     // ORDERS
     // ====================================
+
+    const orderStat =
+        document.querySelector(
+            ".stats-section .stat-card:nth-child(2) strong"
+        );
+
+
+    const salesStat =
+        document.querySelector(
+            ".stats-section .stat-card:nth-child(3) strong"
+        );
+
 
     try {
 
@@ -337,19 +371,16 @@ async function loadSellerStats(userId) {
             error: ordersError
         } = await supabase
             .from("orders")
-            .select(
-                "id, amount"
-            )
-            .eq(
-                "seller_id",
-                userId
-            );
+            .select(`
+                id,
+                amount
+            `)
+            .eq("seller_id", userId);
 
 
-        /*
-         * orders table poko oblije egziste.
-         * Lè li poko la, nou montre 0.
-         */
+        // =================================
+        // ORDERS TABLE NOT READY
+        // =================================
 
         if (ordersError) {
 
@@ -359,30 +390,33 @@ async function loadSellerStats(userId) {
             );
 
 
-            orderCount.textContent =
-                "0";
+            if (orderStat) {
+                orderStat.textContent = "0";
+            }
 
 
-            salesTotal.textContent =
-                "0 HTG";
+            if (salesStat) {
+                salesStat.textContent = "0 HTG";
+            }
 
 
             return;
         }
 
 
-
         // =================================
         // ORDER COUNT
         // =================================
 
-        orderCount.textContent =
-            orders?.length || 0;
+        if (orderStat) {
 
+            orderStat.textContent =
+                orders?.length || 0;
+        }
 
 
         // =================================
-        // SALES
+        // TOTAL SALES
         // =================================
 
         const totalSales =
@@ -402,8 +436,11 @@ async function loadSellerStats(userId) {
             );
 
 
-        salesTotal.textContent =
-            formatHTG(totalSales);
+        if (salesStat) {
+
+            salesStat.textContent =
+                formatHTG(totalSales);
+        }
 
     }
 
@@ -415,14 +452,15 @@ async function loadSellerStats(userId) {
         );
 
 
-        orderCount.textContent =
-            "0";
+        if (orderStat) {
+            orderStat.textContent = "0";
+        }
 
 
-        salesTotal.textContent =
-            "0 HTG";
+        if (salesStat) {
+            salesStat.textContent = "0 HTG";
+        }
     }
-
 }
 
 
@@ -430,44 +468,33 @@ async function loadSellerStats(userId) {
 // LOGOUT
 // ========================================
 
-logoutButton.addEventListener(
-    "click",
-    async () => {
+if (logoutButton) {
 
-        const {
-            error
-        } = await supabase.auth.signOut();
+    logoutButton.addEventListener(
+        "click",
+        async () => {
 
-
-        if (error) {
-
-            console.error(
-                "Logout error:",
+            const {
                 error
-            );
+            } = await supabase.auth.signOut();
 
-            return;
+
+            if (error) {
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+
+                return;
+            }
+
+
+            window.location.href =
+                "login.html";
         }
-
-
-        window.location.href =
-            "login.html";
-    }
-);
-
-
-// ========================================
-// RELOAD
-// ========================================
-
-reloadDashboard.addEventListener(
-    "click",
-    () => {
-
-        window.location.reload();
-
-    }
-);
+    );
+}
 
 
 // ========================================
