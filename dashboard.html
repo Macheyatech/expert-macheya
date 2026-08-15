@@ -58,7 +58,6 @@
             <button
                 id="logoutButton"
                 class="logout-btn"
-                type="button"
             >
                 Dekonekte
             </button>
@@ -70,7 +69,7 @@
 
 
     <!-- =====================================================
-         MAIN DASHBOARD
+         MAIN
     ====================================================== -->
 
     <main class="dashboard">
@@ -111,9 +110,8 @@
         <section
             id="buyerDashboard"
             class="dashboard-content"
-            style="display: none;"
+            style="display:none;"
         >
-
 
             <div class="section-title">
 
@@ -139,7 +137,6 @@
                 </a>
 
             </div>
-
 
 
             <div class="dashboard-grid">
@@ -192,7 +189,7 @@
                     </p>
 
 
-                    <a href="cart.html">
+                    <a href="#">
                         Wè panier →
                     </a>
 
@@ -215,11 +212,11 @@
 
 
                     <p>
-                        Swiv pwodwi ou deja kòmande yo.
+                        Swiv pwodwi ou deja achte yo.
                     </p>
 
 
-                    <a href="orders.html">
+                    <a href="#">
                         Gade kòmand →
                     </a>
 
@@ -246,7 +243,7 @@
                     </p>
 
 
-                    <a href="profile.html">
+                    <a href="#">
                         Wè pwofil →
                     </a>
 
@@ -265,9 +262,8 @@
         <section
             id="sellerDashboard"
             class="dashboard-content"
-            style="display: none;"
+            style="display:none;"
         >
-
 
             <div class="section-title">
 
@@ -295,11 +291,10 @@
             </div>
 
 
-
             <div class="dashboard-grid">
 
 
-                <!-- PWODWI MWEN YO -->
+                <!-- PWODWI -->
 
                 <div class="dashboard-card">
 
@@ -326,7 +321,7 @@
 
 
 
-                <!-- AJOUTE PWODWI -->
+                <!-- AJOUTE -->
 
                 <div class="dashboard-card">
 
@@ -341,7 +336,7 @@
 
 
                     <p>
-                        Mete nouvo pwodwi pou kliyan
+                        Mete yon nouvo pwodwi pou kliyan
                         yo ka dekouvri.
                     </p>
 
@@ -354,7 +349,7 @@
 
 
 
-                <!-- KÒMAND KLIYAN -->
+                <!-- KÒMAND -->
 
                 <div class="dashboard-card">
 
@@ -369,12 +364,11 @@
 
 
                     <p>
-                        Swiv kòmand kliyan yo fè sou
-                        pwodwi ou yo.
+                        Swiv kòmand kliyan yo fè.
                     </p>
 
 
-                    <a href="seller-orders.html">
+                    <a href="#">
                         Gade kòmand →
                     </a>
 
@@ -382,7 +376,7 @@
 
 
 
-                <!-- PROFIL VENDEUR -->
+                <!-- PROFIL -->
 
                 <div class="dashboard-card">
 
@@ -401,7 +395,7 @@
                     </p>
 
 
-                    <a href="profile.html">
+                    <a href="#">
                         Wè pwofil →
                     </a>
 
@@ -412,13 +406,11 @@
 
 
             <!-- =================================================
-                 SELLER STATISTICS
+                 STATISTIK
             ================================================== -->
 
             <section class="stats-section">
 
-
-                <!-- PWODWI -->
 
                 <div class="stat-card">
 
@@ -435,8 +427,6 @@
 
 
 
-                <!-- KÒMAND -->
-
                 <div class="stat-card">
 
                     <span>
@@ -451,8 +441,6 @@
                 </div>
 
 
-
-                <!-- LAVANT -->
 
                 <div class="stat-card">
 
@@ -480,9 +468,8 @@
         <section
             id="dashboardError"
             class="dashboard-error"
-            style="display: none;"
+            style="display:none;"
         >
-
 
             <div>
                 ⚠️
@@ -502,7 +489,6 @@
             <button
                 id="reloadDashboard"
                 class="primary-link"
-                type="button"
             >
                 Eseye ankò
             </button>
@@ -514,19 +500,26 @@
 
 
     <!-- =====================================================
-         MACHEYA JAVASCRIPT
-         
-         dashboard.js ap enpòte
-         supabase.config.js li menm.
-         
-         PA mete CDN Supabase isit la.
-         PA mete supabase.config.js kòm yon
-         dezyèm script isit la.
+         SUPABASE LIBRARY
+    ====================================================== -->
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+
+    <!-- =====================================================
+         SUPABASE CONFIG
+    ====================================================== -->
+
+    <script src="supabase.config.js"></script>
+
+
+    <!-- =====================================================
+         DASHBOARD JS
     ====================================================== -->
 
     <script
         type="module"
-        src="./dashboard.js"
+        src="dashboard.js"
     ></script>
 
 
