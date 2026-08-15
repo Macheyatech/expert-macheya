@@ -21,7 +21,9 @@
 
 <body>
 
-    <!-- HEADER -->
+    <!-- =========================
+         HEADER
+    ========================== -->
 
     <header class="dashboard-header">
 
@@ -64,12 +66,16 @@
 
 
 
-    <!-- MAIN -->
+    <!-- =========================
+         MAIN DASHBOARD
+    ========================== -->
 
     <main class="dashboard">
 
 
-        <!-- WELCOME -->
+        <!-- =========================
+             WELCOME
+        ========================== -->
 
         <section class="welcome-section">
 
@@ -134,25 +140,20 @@
             <div class="dashboard-grid">
 
 
-                <!-- PRODUITS -->
-
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         🛍️
                     </div>
 
-
                     <h3>
                         Eksplore pwodwi
                     </h3>
-
 
                     <p>
                         Dekouvri pwodwi vandè yo mete
                         sou Macheya.
                     </p>
-
 
                     <a href="products.html">
                         Gade pwodwi →
@@ -162,24 +163,19 @@
 
 
 
-                <!-- PANIER -->
-
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         🛒
                     </div>
 
-
                     <h3>
                         Panier
                     </h3>
 
-
                     <p>
                         Gade pwodwi ou chwazi pou achte.
                     </p>
-
 
                     <a href="#">
                         Wè panier →
@@ -189,24 +185,19 @@
 
 
 
-                <!-- KÒMAND -->
-
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         📦
                     </div>
 
-
                     <h3>
                         Kòmand mwen yo
                     </h3>
 
-
                     <p>
                         Swiv pwodwi ou deja achte yo.
                     </p>
-
 
                     <a href="#">
                         Gade kòmand →
@@ -216,24 +207,19 @@
 
 
 
-                <!-- PROFIL -->
-
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         👤
                     </div>
 
-
                     <h3>
                         Pwofil mwen
                     </h3>
 
-
                     <p>
                         Jere enfòmasyon pèsonèl ou.
                     </p>
-
 
                     <a href="#">
                         Wè pwofil →
@@ -265,7 +251,6 @@
                         Espas vandè
                     </span>
 
-
                     <h2>
                         Jere biznis ou
                     </h2>
@@ -287,24 +272,19 @@
             <div class="dashboard-grid">
 
 
-                <!-- PWODWI MWEN YO -->
-
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         📦
                     </div>
 
-
                     <h3>
                         Pwodwi mwen yo
                     </h3>
 
-
                     <p>
                         Jere pwodwi ou mete sou Macheya.
                     </p>
-
 
                     <a href="seller.html">
                         Gade pwodwi →
@@ -314,25 +294,20 @@
 
 
 
-                <!-- AJOUTE PWODWI -->
-
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         ➕
                     </div>
 
-
                     <h3>
                         Ajoute pwodwi
                     </h3>
-
 
                     <p>
                         Mete yon nouvo pwodwi pou kliyan
                         yo ka dekouvri.
                     </p>
-
 
                     <a href="addproduct.html">
                         Ajoute pwodwi →
@@ -342,24 +317,19 @@
 
 
 
-                <!-- KÒMAND KLIYAN -->
-
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         🛒
                     </div>
 
-
                     <h3>
                         Kòmand kliyan
                     </h3>
 
-
                     <p>
                         Swiv kòmand kliyan yo fè.
                     </p>
-
 
                     <a href="#">
                         Gade kòmand →
@@ -369,24 +339,19 @@
 
 
 
-                <!-- PROFIL VENDEUR -->
-
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         👤
                     </div>
 
-
                     <h3>
                         Pwofil mwen
                     </h3>
 
-
                     <p>
                         Jere enfòmasyon kont vandè ou.
                     </p>
-
 
                     <a href="#">
                         Wè pwofil →
@@ -399,20 +364,16 @@
 
 
             <!-- =========================
-                 STATISTIK
+                 STATISTIK VENDEUR
             ========================== -->
 
             <section class="stats-section">
-
-
-                <!-- PWODWI -->
 
                 <div class="stat-card">
 
                     <span>
                         Pwodwi
                     </span>
-
 
                     <strong id="productCount">
                         0
@@ -421,15 +382,11 @@
                 </div>
 
 
-
-                <!-- KÒMAND -->
-
                 <div class="stat-card">
 
                     <span>
                         Kòmand
                     </span>
-
 
                     <strong id="orderCount">
                         0
@@ -438,15 +395,11 @@
                 </div>
 
 
-
-                <!-- LAVANT -->
-
                 <div class="stat-card">
 
                     <span>
                         Lavant
                     </span>
-
 
                     <strong id="salesTotal">
                         0 HTG
@@ -474,16 +427,13 @@
                 ⚠️
             </div>
 
-
             <h2>
                 Nou pa kapab chaje dashboard la.
             </h2>
 
-
             <p id="errorMessage">
                 Yon pwoblèm rive pandan verifikasyon kont lan.
             </p>
-
 
             <button
                 id="reloadDashboard"
@@ -498,12 +448,36 @@
 
 
 
-    <!-- JAVASCRIPT -->
+    <!-- =========================
+         SUPABASE LIBRARY
+    ========================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+
+    <!-- =========================
+         MACHEYA SUPABASE CONFIG
+    ========================== -->
+
+    <script
+        type="module"
+        src="supabase.config.js"
+    ></script>
+
+
+
+    <!-- =========================
+         DASHBOARD JAVASCRIPT
+    ========================== -->
 
     <script
         type="module"
         src="dashboard.js"
     ></script>
+
 
 </body>
 
