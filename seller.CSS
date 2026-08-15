@@ -1,0 +1,1016 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+:root {
+    --orange: #f97316;
+    --orange-dark: #ea580c;
+    --orange-light: #fff7ed;
+
+    --navy: #172033;
+
+    --white: #ffffff;
+
+    --background: #fffaf5;
+
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+
+    --green: #16a34a;
+    --green-light: #f0fdf4;
+
+    --red: #dc2626;
+    --red-light: #fef2f2;
+
+    --shadow:
+        0 8px 25px rgba(0, 0, 0, 0.06);
+
+    --radius: 18px;
+}
+
+
+html {
+    scroll-behavior: smooth;
+}
+
+
+body {
+    font-family: "Poppins", sans-serif;
+
+    background: var(--background);
+
+    color: var(--navy);
+
+    min-height: 100vh;
+}
+
+
+/* =========================================
+   HEADER
+========================================= */
+
+.seller-header {
+    width: 100%;
+
+    height: 72px;
+
+    background: var(--white);
+
+    border-bottom:
+        1px solid var(--gray-200);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: space-between;
+
+    padding:
+        0 20px;
+
+    position: sticky;
+
+    top: 0;
+
+    z-index: 100;
+}
+
+
+.back-button {
+    width: 44px;
+
+    height: 44px;
+
+    border-radius: 50%;
+
+    background: var(--gray-100);
+
+    color: var(--navy);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-decoration: none;
+
+    font-size: 24px;
+
+    transition:
+        0.2s ease;
+}
+
+
+.back-button:hover {
+    background:
+        var(--gray-200);
+
+    transform:
+        translateX(-2px);
+}
+
+
+.header-brand {
+    display: flex;
+
+    align-items: center;
+
+    gap: 10px;
+}
+
+
+.logo {
+    width: 44px;
+
+    height: 44px;
+
+    border-radius: 50%;
+
+    background:
+        var(--orange);
+
+    color: var(--white);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 20px;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 5px 15px
+        rgba(249, 115, 22, 0.25);
+}
+
+
+.brand-name {
+    font-size: 21px;
+
+    font-weight: 700;
+
+    letter-spacing: -0.3px;
+}
+
+
+.header-space {
+    width: 44px;
+}
+
+
+/* =========================================
+   MAIN
+========================================= */
+
+.seller-page {
+    width: 100%;
+
+    max-width: 1100px;
+
+    margin:
+        0 auto;
+
+    padding:
+        32px 20px 70px;
+}
+
+
+/* =========================================
+   HEADING
+========================================= */
+
+.page-heading {
+    margin-bottom: 25px;
+}
+
+
+.heading-label {
+    display: inline-block;
+
+    color:
+        var(--orange);
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    letter-spacing: 1.2px;
+
+    margin-bottom: 7px;
+}
+
+
+.page-heading h1 {
+    font-size: 31px;
+
+    line-height: 1.2;
+
+    margin-bottom: 8px;
+
+    letter-spacing: -0.7px;
+}
+
+
+.page-heading p {
+    color:
+        var(--gray-500);
+
+    font-size: 14px;
+
+    line-height: 1.6;
+
+    max-width: 650px;
+}
+
+
+/* =========================================
+   STATISTICS
+========================================= */
+
+.seller-stats {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 15px;
+
+    margin-bottom: 22px;
+}
+
+
+.stat-card {
+    background:
+        var(--white);
+
+    border:
+        1px solid var(--gray-200);
+
+    border-radius:
+        var(--radius);
+
+    padding:
+        18px;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 13px;
+
+    box-shadow:
+        var(--shadow);
+}
+
+
+.stat-icon {
+    width: 45px;
+
+    height: 45px;
+
+    flex-shrink: 0;
+
+    border-radius: 13px;
+
+    background:
+        var(--orange-light);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 20px;
+}
+
+
+.stat-label {
+    display: block;
+
+    color:
+        var(--gray-500);
+
+    font-size: 11px;
+
+    margin-bottom: 2px;
+}
+
+
+.stat-value {
+    display: block;
+
+    font-size: 23px;
+
+    line-height: 1.2;
+
+    font-weight: 700;
+}
+
+
+/* =========================================
+   ACTION BUTTONS
+========================================= */
+
+.seller-actions {
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 11px;
+
+    margin-bottom: 24px;
+}
+
+
+.primary-button,
+.secondary-button {
+    min-height: 46px;
+
+    border-radius: 12px;
+
+    padding:
+        11px 17px;
+
+    display: inline-flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    gap: 7px;
+
+    font-family:
+        "Poppins",
+        sans-serif;
+
+    font-size: 13px;
+
+    font-weight: 600;
+
+    text-decoration: none;
+
+    cursor: pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.primary-button {
+    border:
+        1px solid var(--orange);
+
+    background:
+        var(--orange);
+
+    color:
+        var(--white);
+}
+
+
+.primary-button:hover {
+    background:
+        var(--orange-dark);
+
+    border-color:
+        var(--orange-dark);
+
+    transform:
+        translateY(-1px);
+}
+
+
+.secondary-button {
+    border:
+        1px solid var(--gray-200);
+
+    background:
+        var(--white);
+
+    color:
+        var(--navy);
+}
+
+
+.secondary-button:hover {
+    background:
+        var(--gray-100);
+
+    transform:
+        translateY(-1px);
+}
+
+
+/* =========================================
+   MESSAGE
+========================================= */
+
+.form-message {
+    width: 100%;
+
+    padding:
+        13px 15px;
+
+    margin-bottom: 20px;
+
+    border-radius: 12px;
+
+    font-size: 13px;
+
+    line-height: 1.5;
+}
+
+
+.form-message.success {
+    background:
+        var(--green-light);
+
+    color:
+        var(--green);
+
+    border:
+        1px solid #bbf7d0;
+}
+
+
+.form-message.error {
+    background:
+        var(--red-light);
+
+    color:
+        var(--red);
+
+    border:
+        1px solid #fecaca;
+}
+
+
+/* =========================================
+   LOADING
+========================================= */
+
+.loading-state {
+    width: 100%;
+
+    padding:
+        65px 20px;
+
+    text-align: center;
+
+    color:
+        var(--gray-500);
+}
+
+
+.loading-spinner {
+    width: 38px;
+
+    height: 38px;
+
+    margin:
+        0 auto 13px;
+
+    border:
+        4px solid #fed7aa;
+
+    border-top-color:
+        var(--orange);
+
+    border-radius: 50%;
+
+    animation:
+        sellerSpin 0.8s
+        linear infinite;
+}
+
+
+@keyframes sellerSpin {
+
+    from {
+        transform:
+            rotate(0deg);
+    }
+
+    to {
+        transform:
+            rotate(360deg);
+    }
+
+}
+
+
+/* =========================================
+   PRODUCTS GRID
+========================================= */
+
+.products-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, minmax(0, 1fr));
+
+    gap: 18px;
+}
+
+
+/* =========================================
+   PRODUCT CARD
+========================================= */
+
+.product-card {
+    background:
+        var(--white);
+
+    border:
+        1px solid var(--gray-200);
+
+    border-radius:
+        var(--radius);
+
+    overflow: hidden;
+
+    box-shadow:
+        var(--shadow);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+
+.product-card:hover {
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 12px 30px
+        rgba(0, 0, 0, 0.09);
+}
+
+
+/* =========================================
+   PRODUCT IMAGE
+========================================= */
+
+.product-image-container {
+    width: 100%;
+
+    height: 215px;
+
+    background:
+        var(--gray-100);
+
+    overflow: hidden;
+
+    position: relative;
+}
+
+
+.product-image {
+    width: 100%;
+
+    height: 100%;
+
+    object-fit: cover;
+
+    display: block;
+
+    transition:
+        transform 0.3s ease;
+}
+
+
+.product-card:hover
+.product-image {
+    transform:
+        scale(1.03);
+}
+
+
+/* =========================================
+   PRODUCT CONTENT
+========================================= */
+
+.product-content {
+    padding:
+        17px;
+}
+
+
+.product-name {
+    font-size: 17px;
+
+    font-weight: 700;
+
+    line-height: 1.35;
+
+    margin-bottom: 7px;
+
+    white-space: nowrap;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+}
+
+
+.product-price {
+    color:
+        var(--orange);
+
+    font-size: 18px;
+
+    font-weight: 700;
+
+    margin-bottom: 7px;
+}
+
+
+.product-category {
+    color:
+        var(--gray-500);
+
+    font-size: 12px;
+
+    margin-bottom: 8px;
+}
+
+
+.product-type {
+    display: inline-flex;
+
+    align-items: center;
+
+    background:
+        var(--orange-light);
+
+    color:
+        var(--orange-dark);
+
+    border-radius:
+        8px;
+
+    padding:
+        5px 8px;
+
+    font-size: 10px;
+
+    font-weight: 600;
+
+    margin-bottom: 9px;
+}
+
+
+.product-stock {
+    color:
+        var(--gray-500);
+
+    font-size: 12px;
+
+    margin-bottom: 14px;
+}
+
+
+/* =========================================
+   PRODUCT ACTIONS
+========================================= */
+
+.product-actions {
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 8px;
+}
+
+
+.view-button,
+.delete-button {
+    min-height: 40px;
+
+    border-radius: 10px;
+
+    padding:
+        8px;
+
+    border: none;
+
+    font-family:
+        "Poppins",
+        sans-serif;
+
+    font-size: 12px;
+
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        0.2s ease;
+}
+
+
+.view-button {
+    background:
+        var(--gray-100);
+
+    color:
+        var(--navy);
+}
+
+
+.view-button:hover {
+    background:
+        var(--gray-200);
+}
+
+
+.delete-button {
+    background:
+        var(--red-light);
+
+    color:
+        var(--red);
+}
+
+
+.delete-button:hover {
+    background:
+        #fee2e2;
+}
+
+
+/* =========================================
+   EMPTY STATE
+========================================= */
+
+.empty-state {
+    width: 100%;
+
+    background:
+        var(--white);
+
+    border:
+        1px dashed
+        var(--gray-200);
+
+    border-radius:
+        20px;
+
+    padding:
+        55px 20px;
+
+    text-align: center;
+
+    margin-top: 5px;
+}
+
+
+.empty-icon {
+    width: 70px;
+
+    height: 70px;
+
+    margin:
+        0 auto 15px;
+
+    border-radius: 20px;
+
+    background:
+        var(--orange-light);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    font-size: 31px;
+}
+
+
+.empty-state h2 {
+    font-size: 20px;
+
+    margin-bottom: 7px;
+}
+
+
+.empty-state p {
+    color:
+        var(--gray-500);
+
+    font-size: 13px;
+
+    line-height: 1.6;
+
+    max-width: 450px;
+
+    margin:
+        0 auto 20px;
+}
+
+
+/* =========================================
+   RESPONSIVE — TABLET
+========================================= */
+
+@media (max-width: 850px) {
+
+    .products-grid {
+        grid-template-columns:
+            repeat(2, minmax(0, 1fr));
+    }
+
+}
+
+
+/* =========================================
+   RESPONSIVE — MOBILE
+========================================= */
+
+@media (max-width: 600px) {
+
+    .seller-header {
+        height: 66px;
+
+        padding:
+            0 14px;
+    }
+
+
+    .back-button,
+    .header-space {
+        width: 40px;
+
+        height: 40px;
+    }
+
+
+    .logo {
+        width: 40px;
+
+        height: 40px;
+
+        font-size: 18px;
+    }
+
+
+    .brand-name {
+        font-size: 19px;
+    }
+
+
+    .seller-page {
+        padding:
+            25px 14px 55px;
+    }
+
+
+    .page-heading {
+        margin-bottom: 20px;
+    }
+
+
+    .page-heading h1 {
+        font-size: 26px;
+    }
+
+
+    .seller-stats {
+        gap: 8px;
+    }
+
+
+    .stat-card {
+        padding:
+            12px 9px;
+
+        gap: 8px;
+
+        border-radius: 14px;
+
+        display: block;
+
+        text-align: center;
+    }
+
+
+    .stat-icon {
+        width: 36px;
+
+        height: 36px;
+
+        margin:
+            0 auto 6px;
+
+        font-size: 16px;
+
+        border-radius: 10px;
+    }
+
+
+    .stat-label {
+        font-size: 9px;
+    }
+
+
+    .stat-value {
+        font-size: 19px;
+    }
+
+
+    .seller-actions {
+        display: grid;
+
+        grid-template-columns:
+            1fr 1fr;
+    }
+
+
+    .primary-button,
+    .secondary-button {
+        width: 100%;
+
+        padding:
+            10px 8px;
+
+        font-size: 12px;
+    }
+
+
+    .products-grid {
+        grid-template-columns:
+            1fr;
+
+        gap: 15px;
+    }
+
+
+    .product-image-container {
+        height: 245px;
+    }
+
+
+    .product-content {
+        padding:
+            15px;
+    }
+
+}
+
+
+/* =========================================
+   VERY SMALL PHONES
+========================================= */
+
+@media (max-width: 360px) {
+
+    .seller-page {
+        padding-left: 11px;
+        padding-right: 11px;
+    }
+
+
+    .brand-name {
+        font-size: 17px;
+    }
+
+
+    .seller-actions {
+        grid-template-columns: 1fr;
+    }
+
+
+    .seller-stats {
+        gap: 5px;
+    }
+
+
+    .stat-card {
+        padding:
+            10px 5px;
+    }
+
+
+    .stat-label {
+        font-size: 8px;
+    }
+
+
+    .stat-value {
+        font-size: 17px;
+    }
+
+}
