@@ -1,9 +1,55 @@
-import { supabase } from "./supabase.config.js";
+// ============================================================
+// MACHEYA — DASHBOARD
+// VÈSYON FINAL
+// ============================================================
 
 
-// ========================================
+// ============================================================
+// SUPABASE CLIENT
+// ============================================================
+
+const supabase =
+    window.supabaseClient;
+
+
+// ============================================================
+// VERIFY SUPABASE
+// ============================================================
+
+if (!supabase) {
+
+    console.error(
+        "Macheya: Supabase client pa disponib."
+    );
+
+    const errorBox =
+        document.getElementById("dashboardError");
+
+    const errorText =
+        document.getElementById("errorMessage");
+
+
+    if (errorBox) {
+        errorBox.style.display = "block";
+    }
+
+
+    if (errorText) {
+
+        errorText.textContent =
+            "Koneksyon Macheya ak Supabase pa disponib.";
+    }
+
+} else {
+
+    startDashboard();
+}
+
+
+
+// ============================================================
 // ELEMENTS
-// ========================================
+// ============================================================
 
 const buyerDashboard =
     document.getElementById("buyerDashboard");
@@ -32,298 +78,393 @@ const logoutButton =
 const productCount =
     document.getElementById("productCount");
 
+const orderCount =
+    document.getElementById("orderCount");
 
-// ========================================
-// SHOW ERROR
-// ========================================
-
-function showError(message) {
-
-    if (buyerDashboard) {
-        buyerDashboard.style.display = "none";
-    }
-
-    if (sellerDashboard) {
-        sellerDashboard.style.display = "none";
-    }
-
-    if (dashboardError) {
-        dashboardError.style.display = "block";
-    }
-
-    if (errorMessage) {
-        errorMessage.textContent = message;
-    }
-}
+const salesTotal =
+    document.getElementById("salesTotal");
 
 
-// ========================================
-// HIDE ERROR
-// ========================================
 
-function hideError() {
+// ============================================================
+// START DASHBOARD
+// ============================================================
 
-    if (dashboardError) {
-        dashboardError.style.display = "none";
-    }
-}
-
-
-// ========================================
-// FORMAT HTG
-// ========================================
-
-function formatHTG(amount) {
-
-    const value = Number(amount || 0);
-
-    return value.toLocaleString("en-US") + " HTG";
-}
-
-
-// ========================================
-// NORMALIZE ROLE
-// ========================================
-
-function normalizeRole(role) {
-
-    return String(role || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "");
-}
-
-
-// ========================================
-// LOAD DASHBOARD
-// ========================================
-
-async function loadDashboard() {
+async function startDashboard() {
 
     try {
 
         hideError();
 
+        await loadDashboard();
 
-        // =================================
-        // VERIFY USER
-        // =================================
-
-        const {
-            data: {
-                user
-            },
-            error: userError
-        } = await supabase.auth.getUser();
-
-
-        if (userError) {
-            throw userError;
-        }
-
-
-        if (!user) {
-
-            window.location.href = "login.html";
-
-            return;
-        }
-
-
-        // =================================
-        // GET PROFILE
-        // =================================
-
-        const {
-            data: profile,
-            error: profileError
-        } = await supabase
-            .from("profiles")
-            .select(`
-                id,
-                nom_complet,
-                est_acheteur,
-                est_vendeur,
-                role
-            `)
-            .eq("id", user.id)
-            .maybeSingle();
-
-
-        if (profileError) {
-            throw profileError;
-        }
-
-
-        if (!profile) {
-
-            showError(
-                "Nou pa jwenn pwofil kont sa a."
-            );
-
-            return;
-        }
-
-
-        // =================================
-        // USER NAME
-        // =================================
-
-        const name =
-            profile.nom_complet ||
-            user.email?.split("@")[0] ||
-            "Itilizatè";
-
-
-        if (welcomeName) {
-
-            welcomeName.textContent =
-                `Bonjou, ${name} 👋`;
-        }
-
-
-        // =================================
-        // DETERMINE ROLE
-        // =================================
-
-        const normalizedRole =
-            normalizeRole(profile.role);
-
-
-        const isSeller =
-            profile.est_vendeur === true ||
-            normalizedRole === "vendeur" ||
-            normalizedRole === "vander" ||
-            normalizedRole === "seller";
-
-
-        const isBuyer =
-            profile.est_acheteur === true ||
-            normalizedRole === "acheteur" ||
-            normalizedRole === "achte" ||
-            normalizedRole === "buyer";
-
-
-        // =================================
-        // SELLER DASHBOARD
-        // =================================
-
-        if (isSeller) {
-
-            if (userRole) {
-                userRole.textContent = "Vandè";
-            }
-
-
-            if (welcomeText) {
-
-                welcomeText.textContent =
-                    "Men espas kote ou ka jere biznis ou.";
-            }
-
-
-            if (sellerDashboard) {
-
-                sellerDashboard.style.display =
-                    "block";
-            }
-
-
-            if (buyerDashboard) {
-
-                buyerDashboard.style.display =
-                    "none";
-            }
-
-
-            await loadSellerStats(user.id);
-
-            return;
-        }
-
-
-        // =================================
-        // BUYER DASHBOARD
-        // =================================
-
-        if (isBuyer) {
-
-            if (userRole) {
-                userRole.textContent = "Achtè";
-            }
-
-
-            if (welcomeText) {
-
-                welcomeText.textContent =
-                    "Dekouvri pwodwi epi swiv kòmand ou yo.";
-            }
-
-
-            if (buyerDashboard) {
-
-                buyerDashboard.style.display =
-                    "block";
-            }
-
-
-            if (sellerDashboard) {
-
-                sellerDashboard.style.display =
-                    "none";
-            }
-
-
-            return;
-        }
-
-
-        // =================================
-        // UNKNOWN ROLE
-        // =================================
-
-        showError(
-            "Nou pa kapab detèmine kalite kont ou."
-        );
-
-    }
-
-    catch (error) {
+    } catch (error) {
 
         console.error(
-            "Dashboard error:",
+            "Macheya Dashboard Error:",
             error
         );
 
-
         showError(
-            "Yon pwoblèm rive pandan chajman dashboard la."
+            "Nou pa kapab chaje enfòmasyon kont ou."
         );
     }
 }
 
 
-// ========================================
-// SELLER STATISTICS
-// ========================================
 
-async function loadSellerStats(userId) {
+// ============================================================
+// SHOW ERROR
+// ============================================================
 
-    // ====================================
-    // PRODUCTS
-    // ====================================
+function showError(message) {
+
+    if (buyerDashboard) {
+
+        buyerDashboard.style.display =
+            "none";
+    }
+
+
+    if (sellerDashboard) {
+
+        sellerDashboard.style.display =
+            "none";
+    }
+
+
+    if (dashboardError) {
+
+        dashboardError.style.display =
+            "block";
+    }
+
+
+    if (errorMessage) {
+
+        errorMessage.textContent =
+            message;
+    }
+}
+
+
+
+// ============================================================
+// HIDE ERROR
+// ============================================================
+
+function hideError() {
+
+    if (dashboardError) {
+
+        dashboardError.style.display =
+            "none";
+    }
+}
+
+
+
+// ============================================================
+// NORMALIZE TEXT
+// ============================================================
+
+function normalizeText(value) {
+
+    return String(value || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(
+            /[\u0300-\u036f]/g,
+            ""
+        );
+}
+
+
+
+// ============================================================
+// LOAD DASHBOARD
+// ============================================================
+
+async function loadDashboard() {
+
+
+    // ========================================================
+    // GET CONNECTED USER
+    // ========================================================
 
     const {
-        count: productsCount,
+        data,
+        error: authError
+    } = await supabase.auth.getUser();
+
+
+    if (authError) {
+
+        throw authError;
+    }
+
+
+    const user =
+        data?.user;
+
+
+    if (!user) {
+
+        window.location.href =
+            "login.html";
+
+        return;
+    }
+
+
+
+    // ========================================================
+    // GET PROFILE
+    // ========================================================
+
+    /*
+       Nou itilize select("*") isit la.
+       Sa pèmèt dashboard la pa kraze si gen
+       yon kolòn profile nou poko konnen non egzak li.
+    */
+
+    const {
+        data: profile,
+        error: profileError
+    } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq(
+            "id",
+            user.id
+        )
+        .maybeSingle();
+
+
+    if (profileError) {
+
+        console.error(
+            "Profile error:",
+            profileError
+        );
+
+        throw profileError;
+    }
+
+
+    if (!profile) {
+
+        showError(
+            "Nou pa jwenn pwofil kont sa a nan Macheya."
+        );
+
+        return;
+    }
+
+
+
+    // ========================================================
+    // NAME
+    // ========================================================
+
+    const name =
+        profile.nom_complet ||
+        profile.full_name ||
+        profile.name ||
+        profile.nom ||
+        user.user_metadata?.nom_complet ||
+        user.user_metadata?.full_name ||
+        user.email?.split("@")[0] ||
+        "Itilizatè";
+
+
+    if (welcomeName) {
+
+        welcomeName.textContent =
+            `Bonjou, ${name} 👋`;
+    }
+
+
+
+    // ========================================================
+    // ROLE
+    // ========================================================
+
+    const role =
+        normalizeText(
+            profile.role
+        );
+
+
+    const sellerFlag =
+        profile.est_vendeur === true ||
+        profile.is_seller === true ||
+        profile.vendeur === true;
+
+
+    const buyerFlag =
+        profile.est_acheteur === true ||
+        profile.is_buyer === true ||
+        profile.acheteur === true;
+
+
+
+    // ========================================================
+    // CHECK SELLER
+    // ========================================================
+
+    const isSeller =
+        sellerFlag ||
+        role === "vendeur" ||
+        role === "seller" ||
+        role === "vandè" ||
+        role === "vande";
+
+
+
+    // ========================================================
+    // CHECK BUYER
+    // ========================================================
+
+    const isBuyer =
+        buyerFlag ||
+        role === "acheteur" ||
+        role === "buyer" ||
+        role === "achte" ||
+        role === "achtè";
+
+
+
+    // ========================================================
+    // SELLER DASHBOARD
+    // ========================================================
+
+    if (isSeller) {
+
+        if (userRole) {
+
+            userRole.textContent =
+                "Vandè";
+        }
+
+
+        if (welcomeText) {
+
+            welcomeText.textContent =
+                "Men espas kote ou ka jere biznis ou.";
+        }
+
+
+        if (sellerDashboard) {
+
+            sellerDashboard.style.display =
+                "block";
+        }
+
+
+        if (buyerDashboard) {
+
+            buyerDashboard.style.display =
+                "none";
+        }
+
+
+        await loadSellerStats(
+            user.id
+        );
+
+
+        return;
+    }
+
+
+
+    // ========================================================
+    // BUYER DASHBOARD
+    // ========================================================
+
+    if (isBuyer) {
+
+        if (userRole) {
+
+            userRole.textContent =
+                "Achtè";
+        }
+
+
+        if (welcomeText) {
+
+            welcomeText.textContent =
+                "Dekouvri pwodwi epi swiv kòmand ou yo.";
+        }
+
+
+        if (buyerDashboard) {
+
+            buyerDashboard.style.display =
+                "block";
+        }
+
+
+        if (sellerDashboard) {
+
+            sellerDashboard.style.display =
+                "none";
+        }
+
+
+        return;
+    }
+
+
+
+    // ========================================================
+    // ROLE UNKNOWN
+    // ========================================================
+
+    console.warn(
+        "Macheya: Role pa rekonèt.",
+        profile
+    );
+
+
+    showError(
+        "Nou jwenn kont ou, men nou pa jwenn kalite kont lan."
+    );
+}
+
+
+
+// ============================================================
+// SELLER STATISTICS
+// ============================================================
+
+async function loadSellerStats(
+    userId
+) {
+
+
+    // ========================================================
+    // PRODUCT COUNT
+    // ========================================================
+
+    const {
+        count,
         error: productsError
     } = await supabase
         .from("products")
-        .select("id", {
-            count: "exact",
-            head: true
-        })
-        .eq("seller_id", userId);
+        .select(
+            "id",
+            {
+                count: "exact",
+                head: true
+            }
+        )
+        .eq(
+            "seller_id",
+            userId
+        );
 
 
     if (productsError) {
@@ -335,7 +476,9 @@ async function loadSellerStats(userId) {
 
 
         if (productCount) {
-            productCount.textContent = "0";
+
+            productCount.textContent =
+                "0";
         }
 
     } else {
@@ -343,130 +486,114 @@ async function loadSellerStats(userId) {
         if (productCount) {
 
             productCount.textContent =
-                productsCount || 0;
+                count ?? 0;
         }
     }
 
 
-    // ====================================
+
+    // ========================================================
     // ORDERS
-    // ====================================
+    // ========================================================
 
-    const orderStat =
-        document.querySelector(
-            ".stats-section .stat-card:nth-child(2) strong"
-        );
+    if (!orderCount && !salesTotal) {
 
-
-    const salesStat =
-        document.querySelector(
-            ".stats-section .stat-card:nth-child(3) strong"
-        );
-
-
-    try {
-
-        const {
-            data: orders,
-            error: ordersError
-        } = await supabase
-            .from("orders")
-            .select(`
-                id,
-                amount
-            `)
-            .eq("seller_id", userId);
-
-
-        // =================================
-        // ORDERS TABLE NOT READY
-        // =================================
-
-        if (ordersError) {
-
-            console.warn(
-                "Orders table poko disponib:",
-                ordersError.message
-            );
-
-
-            if (orderStat) {
-                orderStat.textContent = "0";
-            }
-
-
-            if (salesStat) {
-                salesStat.textContent = "0 HTG";
-            }
-
-
-            return;
-        }
-
-
-        // =================================
-        // ORDER COUNT
-        // =================================
-
-        if (orderStat) {
-
-            orderStat.textContent =
-                orders?.length || 0;
-        }
-
-
-        // =================================
-        // TOTAL SALES
-        // =================================
-
-        const totalSales =
-            (orders || []).reduce(
-                (
-                    total,
-                    order
-                ) => {
-
-                    return total +
-                        Number(
-                            order.amount || 0
-                        );
-
-                },
-                0
-            );
-
-
-        if (salesStat) {
-
-            salesStat.textContent =
-                formatHTG(totalSales);
-        }
-
+        return;
     }
 
-    catch (error) {
 
-        console.warn(
-            "Orders poko disponib:",
-            error
+    const {
+        data: orders,
+        error: ordersError
+    } = await supabase
+        .from("orders")
+        .select(
+            "id, amount"
+        )
+        .eq(
+            "seller_id",
+            userId
         );
 
 
-        if (orderStat) {
-            orderStat.textContent = "0";
+    /*
+       Orders poko fèt nan sistèm nan.
+       Se poutèt sa nou pa konsidere sa kòm yon
+       erè ki dwe kraze dashboard la.
+    */
+
+    if (ordersError) {
+
+        console.log(
+            "Macheya: orders poko disponib."
+        );
+
+
+        if (orderCount) {
+
+            orderCount.textContent =
+                "0";
         }
 
 
-        if (salesStat) {
-            salesStat.textContent = "0 HTG";
+        if (salesTotal) {
+
+            salesTotal.textContent =
+                "0 HTG";
         }
+
+
+        return;
+    }
+
+
+
+    // ========================================================
+    // ORDER COUNT
+    // ========================================================
+
+    if (orderCount) {
+
+        orderCount.textContent =
+            orders?.length ?? 0;
+    }
+
+
+
+    // ========================================================
+    // TOTAL SALES
+    // ========================================================
+
+    const totalSales =
+        (orders || []).reduce(
+            (
+                total,
+                order
+            ) => {
+
+                return total +
+                    Number(
+                        order.amount || 0
+                    );
+            },
+            0
+        );
+
+
+    if (salesTotal) {
+
+        salesTotal.textContent =
+            totalSales.toLocaleString(
+                "en-US"
+            ) + " HTG";
     }
 }
 
 
-// ========================================
+
+// ============================================================
 // LOGOUT
-// ========================================
+// ============================================================
 
 if (logoutButton) {
 
@@ -474,31 +601,35 @@ if (logoutButton) {
         "click",
         async () => {
 
-            const {
-                error
-            } = await supabase.auth.signOut();
+            try {
+
+                const {
+                    error
+                } =
+                    await supabase.auth.signOut();
 
 
-            if (error) {
+                if (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
+                    );
+
+                    return;
+                }
+
+
+                window.location.href =
+                    "login.html";
+
+            } catch (error) {
 
                 console.error(
                     "Logout error:",
                     error
                 );
-
-                return;
             }
-
-
-            window.location.href =
-                "login.html";
         }
     );
 }
-
-
-// ========================================
-// START
-// ========================================
-
-loadDashboard();
