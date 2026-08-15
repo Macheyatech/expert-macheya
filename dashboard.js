@@ -1,18 +1,12 @@
 // ============================================================
 // MACHEYA — DASHBOARD.JS
-// Travay ak supabase.config.js ki itilize window.supabaseClient
+// Konpatib ak supabase.config.js ki itilize
+// window.supabaseClient
 // ============================================================
 
 
 // ============================================================
-// SUPABASE CLIENT
-// ============================================================
-
-const supabase = window.supabaseClient;
-
-
-// ============================================================
-// ELEMENTS
+// ELEMENTS — TOUJOU ANVAN KÒD KI KÒMANSE DASHBOARD LA
 // ============================================================
 
 const buyerDashboard =
@@ -39,6 +33,9 @@ const userRole =
 const logoutButton =
     document.getElementById("logoutButton");
 
+const reloadDashboard =
+    document.getElementById("reloadDashboard");
+
 const productCount =
     document.getElementById("productCount");
 
@@ -50,7 +47,15 @@ const salesTotal =
 
 
 // ============================================================
-// VERIFY SUPABASE
+// SUPABASE CLIENT
+// ============================================================
+
+const supabase =
+    window.supabaseClient;
+
+
+// ============================================================
+// VERIFY CLIENT
 // ============================================================
 
 if (!supabase) {
@@ -123,10 +128,12 @@ function normalizeRole(value) {
 // FORMAT HTG
 // ============================================================
 
-function formatHTG(amount) {
+function formatHTG(value) {
 
-    return Number(amount || 0)
-        .toLocaleString("en-US") + " HTG";
+    const number =
+        Number(value || 0);
+
+    return number.toLocaleString("en-US") + " HTG";
 }
 
 
@@ -146,20 +153,32 @@ async function loadDashboard() {
         // ====================================================
 
         const {
-            data: {
-                user
-            },
+            data,
             error: authError
-        } = await supabase.auth.getUser();
+        } =
+            await supabase.auth.getUser();
 
 
         if (authError) {
+
+            console.error(
+                "Auth error:",
+                authError
+            );
+
             throw authError;
         }
 
 
-        // Si pa gen moun konekte
+        const user =
+            data?.user;
+
+
         if (!user) {
+
+            console.warn(
+                "Macheya: Pa gen itilizatè konekte."
+            );
 
             window.location.href =
                 "login.html";
@@ -169,7 +188,7 @@ async function loadDashboard() {
 
 
         console.log(
-            "Macheya: User konekte:",
+            "Macheya user:",
             user.id
         );
 
@@ -181,17 +200,18 @@ async function loadDashboard() {
         const {
             data: profile,
             error: profileError
-        } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", user.id)
-            .maybeSingle();
+        } =
+            await supabase
+                .from("profiles")
+                .select("*")
+                .eq("id", user.id)
+                .maybeSingle();
 
 
         if (profileError) {
 
             console.error(
-                "Macheya: Profile error:",
+                "Profile error:",
                 profileError
             );
 
@@ -210,7 +230,7 @@ async function loadDashboard() {
 
 
         console.log(
-            "Macheya: Profile:",
+            "Macheya profile:",
             profile
         );
 
@@ -245,16 +265,17 @@ async function loadDashboard() {
             normalizeRole(profile.role);
 
 
-        const seller =
+        const isSeller =
             profile.est_vendeur === true ||
             profile.is_seller === true ||
             profile.vendeur === true ||
             role === "vendeur" ||
             role === "vande" ||
+            role === "vander" ||
             role === "seller";
 
 
-        const buyer =
+        const isBuyer =
             profile.est_acheteur === true ||
             profile.is_buyer === true ||
             profile.acheteur === true ||
@@ -267,9 +288,9 @@ async function loadDashboard() {
             "Macheya role:",
             role,
             "Seller:",
-            seller,
+            isSeller,
             "Buyer:",
-            buyer
+            isBuyer
         );
 
 
@@ -277,10 +298,11 @@ async function loadDashboard() {
         // SELLER
         // ====================================================
 
-        if (seller) {
+        if (isSeller) {
 
             if (userRole) {
-                userRole.textContent = "Vandè";
+                userRole.textContent =
+                    "Vandè";
             }
 
 
@@ -305,8 +327,10 @@ async function loadDashboard() {
             }
 
 
-            // Chaje kantite pwodwi
-            await loadSellerStats(user.id);
+            await loadSellerStats(
+                user.id
+            );
+
 
             return;
         }
@@ -316,10 +340,11 @@ async function loadDashboard() {
         // BUYER
         // ====================================================
 
-        if (buyer) {
+        if (isBuyer) {
 
             if (userRole) {
-                userRole.textContent = "Achtè";
+                userRole.textContent =
+                    "Achtè";
             }
 
 
@@ -327,4 +352,255 @@ async function loadDashboard() {
 
                 welcomeText.textContent =
                     "Dekouvri pwodwi epi swiv kòmand ou yo.";
-           
+            }
+
+
+            if (buyerDashboard) {
+
+                buyerDashboard.style.display =
+                    "block";
+            }
+
+
+            if (sellerDashboard) {
+
+                sellerDashboard.style.display =
+                    "none";
+            }
+
+
+            return;
+        }
+
+
+        // ====================================================
+        // ROLE UNKNOWN
+        // ====================================================
+
+        console.warn(
+            "Macheya: Role pa rekonèt.",
+            profile
+        );
+
+
+        showError(
+            "Kont lan egziste, men Macheya pa jwenn si se vandè oswa achtè."
+        );
+
+    }
+
+    catch (error) {
+
+        console.error(
+            "Macheya Dashboard Error:",
+            error
+        );
+
+
+        showError(
+            "Yon pwoblèm rive pandan chajman dashboard la. Verifye koneksyon Supabase la."
+        );
+    }
+}
+
+
+// ============================================================
+// SELLER STATISTICS
+// ============================================================
+
+async function loadSellerStats(userId) {
+
+
+    // ========================================================
+    // PRODUCT COUNT
+    // ========================================================
+
+    if (productCount) {
+
+        const {
+            count,
+            error
+        } =
+            await supabase
+                .from("products")
+                .select(
+                    "id",
+                    {
+                        count: "exact",
+                        head: true
+                    }
+                )
+                .eq(
+                    "seller_id",
+                    userId
+                );
+
+
+        if (error) {
+
+            console.error(
+                "Product count error:",
+                error
+            );
+
+            productCount.textContent =
+                "0";
+
+        } else {
+
+            productCount.textContent =
+                count ?? 0;
+        }
+    }
+
+
+    // ========================================================
+    // ORDERS
+    // ========================================================
+
+    if (!orderCount && !salesTotal) {
+        return;
+    }
+
+
+    const {
+        data: orders,
+        error: ordersError
+    } =
+        await supabase
+            .from("orders")
+            .select(
+                "id, amount"
+            )
+            .eq(
+                "seller_id",
+                userId
+            );
+
+
+    // ========================================================
+    // ORDERS TABLE PA EGZISTE ANKÒ
+    // ========================================================
+
+    if (ordersError) {
+
+        console.warn(
+            "Macheya: orders poko disponib.",
+            ordersError.message
+        );
+
+
+        if (orderCount) {
+            orderCount.textContent =
+                "0";
+        }
+
+
+        if (salesTotal) {
+            salesTotal.textContent =
+                "0 HTG";
+        }
+
+
+        return;
+    }
+
+
+    // ========================================================
+    // ORDER COUNT
+    // ========================================================
+
+    if (orderCount) {
+
+        orderCount.textContent =
+            orders?.length ?? 0;
+    }
+
+
+    // ========================================================
+    // SALES TOTAL
+    // ========================================================
+
+    const totalSales =
+        (orders || []).reduce(
+            (total, order) => {
+
+                return total +
+                    Number(
+                        order.amount || 0
+                    );
+
+            },
+            0
+        );
+
+
+    if (salesTotal) {
+
+        salesTotal.textContent =
+            formatHTG(totalSales);
+    }
+}
+
+
+// ============================================================
+// LOGOUT
+// ============================================================
+
+if (logoutButton) {
+
+    logoutButton.addEventListener(
+        "click",
+        async () => {
+
+            try {
+
+                const {
+                    error
+                } =
+                    await supabase.auth.signOut();
+
+
+                if (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
+                    );
+
+                    return;
+                }
+
+
+                window.location.href =
+                    "login.html";
+
+            }
+
+            catch (error) {
+
+                console.error(
+                    "Logout error:",
+                    error
+                );
+            }
+        }
+    );
+}
+
+
+// ============================================================
+// RELOAD
+// ============================================================
+
+if (reloadDashboard) {
+
+    reloadDashboard.addEventListener(
+        "click",
+        () => {
+
+            window.location.reload();
+
+        }
+    );
+}
