@@ -56,9 +56,9 @@
 
 
             <button
-                type="button"
                 id="logoutButton"
                 class="logout-btn"
+                type="button"
             >
                 Dekonekte
             </button>
@@ -70,7 +70,7 @@
 
 
     <!-- =====================================================
-         MAIN
+         MAIN DASHBOARD
     ====================================================== -->
 
     <main class="dashboard">
@@ -114,6 +114,7 @@
             style="display: none;"
         >
 
+
             <div class="section-title">
 
                 <div>
@@ -138,6 +139,7 @@
                 </a>
 
             </div>
+
 
 
             <div class="dashboard-grid">
@@ -190,7 +192,7 @@
                     </p>
 
 
-                    <a href="#">
+                    <a href="cart.html">
                         Wè panier →
                     </a>
 
@@ -213,11 +215,11 @@
 
 
                     <p>
-                        Swiv pwodwi ou deja achte yo.
+                        Swiv pwodwi ou deja kòmande yo.
                     </p>
 
 
-                    <a href="#">
+                    <a href="orders.html">
                         Gade kòmand →
                     </a>
 
@@ -244,7 +246,7 @@
                     </p>
 
 
-                    <a href="#">
+                    <a href="profile.html">
                         Wè pwofil →
                     </a>
 
@@ -265,6 +267,7 @@
             class="dashboard-content"
             style="display: none;"
         >
+
 
             <div class="section-title">
 
@@ -290,6 +293,7 @@
                 </a>
 
             </div>
+
 
 
             <div class="dashboard-grid">
@@ -337,7 +341,7 @@
 
 
                     <p>
-                        Mete yon nouvo pwodwi pou kliyan
+                        Mete nouvo pwodwi pou kliyan
                         yo ka dekouvri.
                     </p>
 
@@ -365,11 +369,12 @@
 
 
                     <p>
-                        Swiv kòmand kliyan yo fè.
+                        Swiv kòmand kliyan yo fè sou
+                        pwodwi ou yo.
                     </p>
 
 
-                    <a href="#">
+                    <a href="seller-orders.html">
                         Gade kòmand →
                     </a>
 
@@ -377,7 +382,7 @@
 
 
 
-                <!-- PROFIL -->
+                <!-- PROFIL VENDEUR -->
 
                 <div class="dashboard-card">
 
@@ -396,7 +401,7 @@
                     </p>
 
 
-                    <a href="#">
+                    <a href="profile.html">
                         Wè pwofil →
                     </a>
 
@@ -407,11 +412,13 @@
 
 
             <!-- =================================================
-                 STATISTIK
+                 SELLER STATISTICS
             ================================================== -->
 
             <section class="stats-section">
 
+
+                <!-- PWODWI -->
 
                 <div class="stat-card">
 
@@ -428,6 +435,8 @@
 
 
 
+                <!-- KÒMAND -->
+
                 <div class="stat-card">
 
                     <span>
@@ -442,6 +451,8 @@
                 </div>
 
 
+
+                <!-- LAVANT -->
 
                 <div class="stat-card">
 
@@ -472,6 +483,7 @@
             style="display: none;"
         >
 
+
             <div>
                 ⚠️
             </div>
@@ -488,9 +500,9 @@
 
 
             <button
-                type="button"
                 id="reloadDashboard"
                 class="primary-link"
+                type="button"
             >
                 Eseye ankò
             </button>
@@ -502,23 +514,22 @@
 
 
     <!-- =====================================================
-         SUPABASE
-         LÒD LA ENPÒTAN:
-         1. Supabase library
-         2. supabase.config.js
-         3. dashboard.js
+         MACHEYA JAVASCRIPT
+         
+         dashboard.js ap enpòte
+         supabase.config.js li menm.
+         
+         PA mete CDN Supabase isit la.
+         PA mete supabase.config.js kòm yon
+         dezyèm script isit la.
     ====================================================== -->
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-    <script src="supabase.config.js"></script>
 
     <script
         type="module"
-        src="dashboard.js"
+        src="./dashboard.js"
     ></script>
 
 
 </body>
 
-                </html>
+    </html>
