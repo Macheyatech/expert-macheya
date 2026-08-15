@@ -19,11 +19,13 @@
 
 </head>
 
+
 <body>
 
-    <!-- =========================
+
+    <!-- =====================================================
          HEADER
-    ========================== -->
+    ====================================================== -->
 
     <header class="dashboard-header">
 
@@ -54,6 +56,7 @@
 
 
             <button
+                type="button"
                 id="logoutButton"
                 class="logout-btn"
             >
@@ -66,16 +69,16 @@
 
 
 
-    <!-- =========================
-         MAIN DASHBOARD
-    ========================== -->
+    <!-- =====================================================
+         MAIN
+    ====================================================== -->
 
     <main class="dashboard">
 
 
-        <!-- =========================
+        <!-- =================================================
              WELCOME
-        ========================== -->
+        ================================================== -->
 
         <section class="welcome-section">
 
@@ -101,9 +104,9 @@
 
 
 
-        <!-- =========================
+        <!-- =================================================
              BUYER DASHBOARD
-        ========================== -->
+        ================================================== -->
 
         <section
             id="buyerDashboard"
@@ -140,20 +143,25 @@
             <div class="dashboard-grid">
 
 
+                <!-- PRODUITS -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         🛍️
                     </div>
 
+
                     <h3>
                         Eksplore pwodwi
                     </h3>
+
 
                     <p>
                         Dekouvri pwodwi vandè yo mete
                         sou Macheya.
                     </p>
+
 
                     <a href="products.html">
                         Gade pwodwi →
@@ -163,19 +171,24 @@
 
 
 
+                <!-- PANIER -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         🛒
                     </div>
 
+
                     <h3>
                         Panier
                     </h3>
 
+
                     <p>
                         Gade pwodwi ou chwazi pou achte.
                     </p>
+
 
                     <a href="#">
                         Wè panier →
@@ -185,19 +198,24 @@
 
 
 
+                <!-- KÒMAND -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         📦
                     </div>
 
+
                     <h3>
                         Kòmand mwen yo
                     </h3>
 
+
                     <p>
                         Swiv pwodwi ou deja achte yo.
                     </p>
+
 
                     <a href="#">
                         Gade kòmand →
@@ -207,19 +225,24 @@
 
 
 
+                <!-- PROFIL -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         👤
                     </div>
 
+
                     <h3>
                         Pwofil mwen
                     </h3>
 
+
                     <p>
                         Jere enfòmasyon pèsonèl ou.
                     </p>
+
 
                     <a href="#">
                         Wè pwofil →
@@ -233,9 +256,9 @@
 
 
 
-        <!-- =========================
+        <!-- =================================================
              SELLER DASHBOARD
-        ========================== -->
+        ================================================== -->
 
         <section
             id="sellerDashboard"
@@ -250,6 +273,7 @@
                     <span class="section-label">
                         Espas vandè
                     </span>
+
 
                     <h2>
                         Jere biznis ou
@@ -268,9 +292,10 @@
             </div>
 
 
-
             <div class="dashboard-grid">
 
+
+                <!-- PWODWI MWEN YO -->
 
                 <div class="dashboard-card">
 
@@ -278,13 +303,16 @@
                         📦
                     </div>
 
+
                     <h3>
                         Pwodwi mwen yo
                     </h3>
 
+
                     <p>
                         Jere pwodwi ou mete sou Macheya.
                     </p>
+
 
                     <a href="seller.html">
                         Gade pwodwi →
@@ -294,20 +322,25 @@
 
 
 
+                <!-- AJOUTE PWODWI -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         ➕
                     </div>
 
+
                     <h3>
                         Ajoute pwodwi
                     </h3>
+
 
                     <p>
                         Mete yon nouvo pwodwi pou kliyan
                         yo ka dekouvri.
                     </p>
+
 
                     <a href="addproduct.html">
                         Ajoute pwodwi →
@@ -317,19 +350,24 @@
 
 
 
+                <!-- KÒMAND KLIYAN -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         🛒
                     </div>
 
+
                     <h3>
                         Kòmand kliyan
                     </h3>
 
+
                     <p>
                         Swiv kòmand kliyan yo fè.
                     </p>
+
 
                     <a href="#">
                         Gade kòmand →
@@ -339,19 +377,24 @@
 
 
 
+                <!-- PROFIL -->
+
                 <div class="dashboard-card">
 
                     <div class="card-icon">
                         👤
                     </div>
 
+
                     <h3>
                         Pwofil mwen
                     </h3>
 
+
                     <p>
                         Jere enfòmasyon kont vandè ou.
                     </p>
+
 
                     <a href="#">
                         Wè pwofil →
@@ -363,17 +406,19 @@
 
 
 
-            <!-- =========================
-                 STATISTIK VENDEUR
-            ========================== -->
+            <!-- =================================================
+                 STATISTIK
+            ================================================== -->
 
             <section class="stats-section">
+
 
                 <div class="stat-card">
 
                     <span>
                         Pwodwi
                     </span>
+
 
                     <strong id="productCount">
                         0
@@ -382,11 +427,13 @@
                 </div>
 
 
+
                 <div class="stat-card">
 
                     <span>
                         Kòmand
                     </span>
+
 
                     <strong id="orderCount">
                         0
@@ -395,11 +442,13 @@
                 </div>
 
 
+
                 <div class="stat-card">
 
                     <span>
                         Lavant
                     </span>
+
 
                     <strong id="salesTotal">
                         0 HTG
@@ -413,9 +462,9 @@
 
 
 
-        <!-- =========================
+        <!-- =================================================
              ERROR
-        ========================== -->
+        ================================================== -->
 
         <section
             id="dashboardError"
@@ -427,15 +476,19 @@
                 ⚠️
             </div>
 
+
             <h2>
                 Nou pa kapab chaje dashboard la.
             </h2>
+
 
             <p id="errorMessage">
                 Yon pwoblèm rive pandan verifikasyon kont lan.
             </p>
 
+
             <button
+                type="button"
                 id="reloadDashboard"
                 class="primary-link"
             >
@@ -448,19 +501,24 @@
 
 
 
-    <!-- =========================
-         SUPABASE LIBRARY
-    ========================== -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- =====================================================
+         SUPABASE
+         LÒD LA ENPÒTAN:
+         1. Supabase library
+         2. supabase.config.js
+         3. dashboard.js
+    ====================================================== -->
 
-<script src="supabase.config.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-<script type="module" src="dashboard.js"></script>
+    <script src="supabase.config.js"></script>
+
+    <script
+        type="module"
+        src="dashboard.js"
+    ></script>
+
 
 </body>
-</html>
-    
 
-
-
-
+                </html>
