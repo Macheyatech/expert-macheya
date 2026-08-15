@@ -1,14 +1,8 @@
 // ============================================================
-// MACHEYA — DASHBOARD.JS
+// MACHEYA — DASHBOARD
 // ============================================================
 
-
-// ============================================================
-// SUPABASE CLIENT
-// ============================================================
-
-const supabase =
-    window.supabaseClient;
+import { supabase } from "./supabase.config.js";
 
 
 // ============================================================
@@ -53,31 +47,7 @@ const salesTotal =
 
 
 // ============================================================
-// CHECK SUPABASE
-// ============================================================
-
-if (!supabase) {
-
-    console.error(
-        "Macheya: window.supabaseClient pa disponib."
-    );
-
-    showError(
-        "Koneksyon Macheya ak Supabase pa disponib."
-    );
-
-} else {
-
-    console.log(
-        "Macheya: Dashboard jwenn Supabase client."
-    );
-
-    loadDashboard();
-}
-
-
-// ============================================================
-// SHOW ERROR
+// ERROR
 // ============================================================
 
 function showError(message) {
@@ -97,6 +67,8 @@ function showError(message) {
     if (errorMessage) {
         errorMessage.textContent = message;
     }
+
+    console.error("Macheya:", message);
 }
 
 
@@ -113,7 +85,7 @@ function hideError() {
 
 
 // ============================================================
-// NORMALIZE ROLE
+// ROLE
 // ============================================================
 
 function normalizeRole(value) {
@@ -127,12 +99,12 @@ function normalizeRole(value) {
 
 
 // ============================================================
-// FORMAT MONEY
+// FORMAT HTG
 // ============================================================
 
-function formatHTG(amount) {
+function formatHTG(value) {
 
-    return Number(amount || 0)
+    return Number(value || 0)
         .toLocaleString("en-US") + " HTG";
 }
 
@@ -143,40 +115,26 @@ function formatHTG(amount) {
 
 async function loadDashboard() {
 
+    hideError();
+
     try {
 
-        hideError();
-
-
         // ====================================================
-        // GET USER
+        // USER CONNECTED
         // ====================================================
 
         const {
-            data,
-            error
-        } =
-            await supabase.auth.getUser();
+            data: {
+                user
+            },
+            error: authError
+        } = await supabase.auth.getUser();
 
 
-        if (error) {
-            throw error;
+        if (authError) {
+            throw authError;
         }
 
-
-        const user =
-            data?.user;
-
-
-        console.log(
-            "Macheya user:",
-            user
-        );
-
-
-        // ====================================================
-        // NO USER
-        // ====================================================
 
         if (!user) {
 
@@ -187,41 +145,36 @@ async function loadDashboard() {
         }
 
 
+        console.log(
+            "Macheya — User:",
+            user.id
+        );
+
+
         // ====================================================
-        // GET PROFILE
+        // PROFILE
         // ====================================================
 
         const {
             data: profile,
             error: profileError
-        } =
-            await supabase
-                .from("profiles")
-                .select("*")
-                .eq("id", user.id)
-                .maybeSingle();
+        } = await supabase
+            .from("profiles")
+            .select("*")
+            .eq("id", user.id)
+            .maybeSingle();
 
 
         if (profileError) {
-
-            console.error(
-                "Macheya profile error:",
-                profileError
-            );
-
             throw profileError;
         }
 
 
         console.log(
-            "Macheya profile:",
+            "Macheya — Profile:",
             profile
         );
 
-
-        // ====================================================
-        // PROFILE NOT FOUND
-        // ====================================================
 
         if (!profile) {
 
@@ -257,9 +210,7 @@ async function loadDashboard() {
         // ====================================================
 
         const role =
-            normalizeRole(
-                profile.role
-            );
+            normalizeRole(profile.role);
 
 
         const isSeller =
@@ -281,16 +232,6 @@ async function loadDashboard() {
             role === "buyer";
 
 
-        console.log(
-            "Macheya role:",
-            role,
-            "Seller:",
-            isSeller,
-            "Buyer:",
-            isBuyer
-        );
-
-
         // ====================================================
         // SELLER
         // ====================================================
@@ -300,14 +241,11 @@ async function loadDashboard() {
             userRole.textContent =
                 "Vandè";
 
-
             welcomeText.textContent =
                 "Men espas kote ou ka jere biznis ou.";
 
-
             sellerDashboard.style.display =
                 "block";
-
 
             buyerDashboard.style.display =
                 "none";
@@ -316,7 +254,6 @@ async function loadDashboard() {
             await loadSellerStats(
                 user.id
             );
-
 
             return;
         }
@@ -331,25 +268,21 @@ async function loadDashboard() {
             userRole.textContent =
                 "Achtè";
 
-
             welcomeText.textContent =
                 "Dekouvri pwodwi epi swiv kòmand ou yo.";
-
 
             buyerDashboard.style.display =
                 "block";
 
-
             sellerDashboard.style.display =
                 "none";
-
 
             return;
         }
 
 
         // ====================================================
-        // UNKNOWN ROLE
+        // ROLE NOT FOUND
         // ====================================================
 
         showError(
@@ -365,9 +298,8 @@ async function loadDashboard() {
             error
         );
 
-
         showError(
-            "Nou pa kapab chaje enfòmasyon kont ou."
+            "Yon pwoblèm rive pandan chajman dashboard la."
         );
     }
 }
@@ -380,39 +312,36 @@ async function loadDashboard() {
 async function loadSellerStats(userId) {
 
     // ========================================================
-    // PRODUCT COUNT
+    // PRODUCTS
     // ========================================================
 
     const {
         count,
-        error
-    } =
-        await supabase
-            .from("products")
-            .select(
-                "id",
-                {
-                    count: "exact",
-                    head: true
-                }
-            )
-            .eq(
-                "seller_id",
-                userId
-            );
-
-
-    if (error) {
-
-        console.error(
-            "Product count error:",
-            error
+        error: productsError
+    } = await supabase
+        .from("products")
+        .select(
+            "id",
+            {
+                count: "exact",
+                head: true
+            }
+        )
+        .eq(
+            "seller_id",
+            userId
         );
 
 
+    if (productsError) {
+
+        console.error(
+            "Product count error:",
+            productsError
+        );
+
         if (productCount) {
-            productCount.textContent =
-                "0";
+            productCount.textContent = "0";
         }
 
     } else {
@@ -432,40 +361,35 @@ async function loadSellerStats(userId) {
     const {
         data: orders,
         error: ordersError
-    } =
-        await supabase
-            .from("orders")
-            .select(
-                "id, amount"
-            )
-            .eq(
-                "seller_id",
-                userId
-            );
+    } = await supabase
+        .from("orders")
+        .select(
+            "id, amount"
+        )
+        .eq(
+            "seller_id",
+            userId
+        );
 
 
     // ========================================================
-    // ORDERS TABLE NOT READY
+    // ORDERS TABLE PA FÈT ANKO
     // ========================================================
 
     if (ordersError) {
 
-        console.log(
-            "Macheya: orders table poko pare."
+        console.warn(
+            "Orders pa disponib ankò:",
+            ordersError.message
         );
 
-
         if (orderCount) {
-            orderCount.textContent =
-                "0";
+            orderCount.textContent = "0";
         }
-
 
         if (salesTotal) {
-            salesTotal.textContent =
-                "0 HTG";
+            salesTotal.textContent = "0 HTG";
         }
-
 
         return;
     }
@@ -502,9 +426,7 @@ async function loadSellerStats(userId) {
     if (salesTotal) {
 
         salesTotal.textContent =
-            formatHTG(
-                totalSales
-            );
+            formatHTG(totalSales);
     }
 }
 
@@ -513,47 +435,48 @@ async function loadSellerStats(userId) {
 // LOGOUT
 // ============================================================
 
-if (logoutButton) {
+logoutButton?.addEventListener(
+    "click",
+    async () => {
 
-    logoutButton.addEventListener(
-        "click",
-        async () => {
+        const {
+            error
+        } =
+            await supabase.auth.signOut();
 
-            const {
+
+        if (error) {
+
+            console.error(
+                "Logout error:",
                 error
-            } =
-                await supabase.auth.signOut();
+            );
 
-
-            if (error) {
-
-                console.error(
-                    "Logout error:",
-                    error
-                );
-
-                return;
-            }
-
-
-            window.location.href =
-                "login.html";
+            return;
         }
-    );
-}
+
+
+        window.location.href =
+            "login.html";
+    }
+);
 
 
 // ============================================================
 // RELOAD
 // ============================================================
 
-if (reloadDashboard) {
+reloadDashboard?.addEventListener(
+    "click",
+    () => {
 
-    reloadDashboard.addEventListener(
-        "click",
-        () => {
+        window.location.reload();
+    }
+);
 
-            window.location.reload();
-        }
-    );
-            }
+
+// ============================================================
+// START
+// ============================================================
+
+loadDashboard();
