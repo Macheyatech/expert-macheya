@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ht">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="description"
+        content="Jere pwodwi ou yo sou macheya.">
+
+    <title>Pwodwi mwen yo | macheya</title>
+
+
+    <link
+        rel="stylesheet"
+        href="seller.css">
+
+</head>
+
+
+<body>
+
+
+<header class="seller-header">
+
+    <a
+        href="dashboard.html"
+        class="back-button"
+        aria-label="Retounen">
+
+        ←
+
+    </a>
+
+
+    <div class="header-brand">
+
+        <span class="logo">
+            M
+        </span>
+
+        <span class="brand-name">
+            macheya
+        </span>
+
+    </div>
+
+
+    <div class="header-space"></div>
+
+</header>
+
+
+
+<main class="seller-page">
+
+
+    <!-- =========================
+         TIT PAJ LA
+    ========================== -->
+
+    <section class="page-heading">
+
+        <span class="heading-label">
+            ESPAS VANDÈ
+        </span>
+
+
+        <h1>
+            Pwodwi mwen yo
+        </h1>
+
+
+        <p>
+            Jere tout pwodwi ou pibliye sou macheya.
+        </p>
+
+    </section>
+
+
+
+    <!-- =========================
+         STATISTIK
+    ========================== -->
+
+    <section class="seller-stats">
+
+
+        <div class="stat-card">
+
+            <span class="stat-icon">
+                📦
+            </span>
+
+            <div>
+
+                <span class="stat-label">
+                    Total pwodwi
+                </span>
+
+                <strong
+                    id="totalProducts"
+                    class="stat-value">
+
+                    0
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <span class="stat-icon">
+                🟢
+            </span>
+
+            <div>
+
+                <span class="stat-label">
+                    Pwodwi aktif
+                </span>
+
+                <strong
+                    id="activeProducts"
+                    class="stat-value">
+
+                    0
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="stat-card">
+
+            <span class="stat-icon">
+                📊
+            </span>
+
+            <div>
+
+                <span class="stat-label">
+                    Stock
+                </span>
+
+                <strong
+                    id="totalStock"
+                    class="stat-value">
+
+                    0
+
+                </strong>
+
+            </div>
+
+        </div>
+
+
+    </section>
+
+
+
+    <!-- =========================
+         AKSYON
+    ========================== -->
+
+    <section class="seller-actions">
+
+
+        <a
+            href="addproduct.html"
+            class="primary-button">
+
+            <span>
+                ＋
+            </span>
+
+            Ajoute pwodwi
+
+        </a>
+
+
+        <a
+            href="products.html"
+            class="secondary-button">
+
+            <span>
+                🛍️
+            </span>
+
+            Gade mache a
+
+        </a>
+
+
+    </section>
+
+
+
+    <!-- =========================
+         MESSAGE
+    ========================== -->
+
+    <div
+        id="formMessage"
+        class="form-message"
+        style="display:none;">
+
+    </div>
+
+
+
+    <!-- =========================
+         CHARGEMENT
+    ========================== -->
+
+    <div
+        id="loadingState"
+        class="loading-state">
+
+        <div class="loading-spinner"></div>
+
+        <p>
+            Ap chaje pwodwi ou yo...
+        </p>
+
+    </div>
+
+
+
+    <!-- =========================
+         LIS PWODWI YO
+    ========================== -->
+
+    <section
+        id="productsGrid"
+        class="products-grid"
+        aria-label="Pwodwi mwen yo">
+
+    </section>
+
+
+
+    <!-- =========================
+         PA GEN PWODWI
+    ========================== -->
+
+    <section
+        id="emptyState"
+        class="empty-state"
+        style="display:none;">
+
+        <div class="empty-icon">
+            📦
+        </div>
+
+
+        <h2>
+            Ou poko gen pwodwi
+        </h2>
+
+
+        <p>
+            Ajoute premye pwodwi ou sou macheya pou kòmanse vann.
+        </p>
+
+
+        <a
+            href="addproduct.html"
+            class="primary-button">
+
+            ＋ Ajoute premye pwodwi a
+
+        </a>
+
+    </section>
+
+
+
+</main>
+
+
+
+<!-- =========================
+     SUPABASE
+========================== -->
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2">
+</script>
+
+
+<script
+    src="supabase-config.js">
+</script>
+
+
+<!-- =========================
+     SELLER JAVASCRIPT
+========================== -->
+
+<script
+    src="seller.js">
+</script>
+
+
+</body>
+
+  </html>
