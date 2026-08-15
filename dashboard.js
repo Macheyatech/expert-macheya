@@ -1,98 +1,140 @@
-const SUPABASE_URL =
-    "https://iscktsymqntjgqaxcitv.supabase.co";
-
-const SUPABASE_KEY =
-    "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
+import { supabase } from "./supabase.config.js";
 
 
-const script = document.createElement("script");
+// ========================================
+// ELEMENTS
+// ========================================
 
-script.src =
-    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+const buyerDashboard =
+    document.getElementById("buyerDashboard");
+
+const sellerDashboard =
+    document.getElementById("sellerDashboard");
+
+const dashboardError =
+    document.getElementById("dashboardError");
+
+const errorMessage =
+    document.getElementById("errorMessage");
+
+const welcomeName =
+    document.getElementById("welcomeName");
+
+const welcomeText =
+    document.getElementById("welcomeText");
+
+const userRole =
+    document.getElementById("userRole");
+
+const logoutButton =
+    document.getElementById("logoutButton");
+
+const reloadDashboard =
+    document.getElementById("reloadDashboard");
+
+const productCount =
+    document.getElementById("productCount");
+
+const orderCount =
+    document.getElementById("orderCount");
+
+const salesTotal =
+    document.getElementById("salesTotal");
 
 
-script.onload = async () => {
+// ========================================
+// SHOW ERROR
+// ========================================
 
-    const supabase =
-        window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
-        );
+function showError(message) {
+
+    buyerDashboard.style.display = "none";
+
+    sellerDashboard.style.display = "none";
+
+    dashboardError.style.display = "block";
+
+    errorMessage.textContent = message;
+}
 
 
-    const welcomeName =
-        document.getElementById("welcomeName");
+// ========================================
+// HIDE ERROR
+// ========================================
 
-    const welcomeText =
-        document.getElementById("welcomeText");
+function hideError() {
 
-    const userRole =
-        document.getElementById("userRole");
+    dashboardError.style.display = "none";
+}
 
-    const buyerDashboard =
-        document.getElementById("buyerDashboard");
 
-    const sellerDashboard =
-        document.getElementById("sellerDashboard");
+// ========================================
+// FORMAT HTG
+// ========================================
 
-    const dashboardError =
-        document.getElementById("dashboardError");
+function formatHTG(amount) {
 
-    const errorMessage =
-        document.getElementById("errorMessage");
+    const value = Number(amount || 0);
 
-    const logoutButton =
-        document.getElementById("logoutButton");
+    return value.toLocaleString("en-US") + " HTG";
+}
 
+
+// ========================================
+// LOAD DASHBOARD
+// ========================================
+
+async function loadDashboard() {
 
     try {
 
-        /* =========================
-           VERIFYE SESSION
-        ========================= */
+        hideError();
+
+
+        // =================================
+        // VERIFY USER
+        // =================================
 
         const {
-            data: sessionData,
-            error: sessionError
-        } = await supabase.auth.getSession();
+            data: {
+                user
+            },
+            error: userError
+        } = await supabase.auth.getUser();
 
 
-        if (sessionError) {
-            throw sessionError;
+        if (userError) {
+            throw userError;
         }
 
 
-        const session =
-            sessionData.session;
+        if (!user) {
 
-
-        if (!session || !session.user) {
-
-            window.location.href =
-                "login.html";
+            window.location.href = "login.html";
 
             return;
         }
 
 
-        const user =
-            session.user;
 
-
-        /* =========================
-           CHÈCHE PROFILE LA
-        ========================= */
+        // =================================
+        // GET PROFILE
+        // =================================
 
         const {
-            data: profiles,
+            data: profile,
             error: profileError
         } = await supabase
             .from("profiles")
-            .select(
-                "id, nom_complet, telephone, est_acheteur, est_vendeur, role"
-            )
+            .select(`
+                id,
+                nom_complet,
+                est_acheteur,
+                est_vendeur,
+                role
+            `)
             .eq("id", user.id)
-            .limit(1);
+            .maybeSingle();
 
 
         if (profileError) {
@@ -100,252 +142,129 @@ script.onload = async () => {
         }
 
 
-        /* =========================
-           PREPARE DONE PROFILE
-        ========================= */
+        if (!profile) {
 
-        let profile = null;
+            showError(
+                "Nou pa jwenn pwofil kont sa a."
+            );
 
-
-        if (
-            profiles &&
-            profiles.length > 0
-        ) {
-
-            profile =
-                profiles[0];
-
+            return;
         }
 
 
-        /* =========================
-           NON UTILIZATÈ
-        ========================= */
+
+        // =================================
+        // USER NAME
+        // =================================
 
         const name =
-            profile?.nom_complet ||
-            user.user_metadata?.nom_complet ||
-            user.user_metadata?.name ||
-            "Macheya User";
+            profile.nom_complet ||
+            user.email?.split("@")[0] ||
+            "Itilizatè";
 
 
-        /* =========================
-           DETÈMINE ROLE
-        ========================= */
+        welcomeName.textContent =
+            `Bonjou, ${name} 👋`;
 
-        let role =
-            profile?.role ||
-            user.user_metadata?.role ||
-            null;
+
+
+        // =================================
+        // DETERMINE ROLE
+        // =================================
+
+        let role = profile.role;
 
 
         if (!role) {
 
-            if (
-                profile?.est_vendeur === true
+            if (profile.est_vendeur === true) {
+
+                role = "vendeur";
+
+            } else if (
+                profile.est_acheteur === true
             ) {
 
-                role =
-                    "vendeur";
-
+                role = "acheteur";
             }
-
-            else if (
-                profile?.est_acheteur === true
-            ) {
-
-                role =
-                    "acheteur";
-
-            }
-
         }
 
 
-        /* =========================
-           SI PROFILE PA GEN ROLE
-        ========================= */
 
-        if (!role) {
-
-            throw new Error(
-                "Nou jwenn kont lan, men wòl itilizatè a poko defini nan Supabase."
-            );
-
-        }
-
-
-        /* =========================
-           AFFICHE NON
-        ========================= */
-
-        if (welcomeName) {
-
-            welcomeName.textContent =
-                `Bonjou, ${name} 👋`;
-
-        }
-
-
-        /* =========================
-           ACHETÈ
-        ========================= */
+        // =================================
+        // SELLER
+        // =================================
 
         if (
-            role === "acheteur"
+            role === "vendeur" ||
+            role === "vendeur " ||
+            role === "seller" ||
+            profile.est_vendeur === true
         ) {
 
-            if (userRole) {
-
-                userRole.textContent =
-                    "Acheteur";
-
-            }
+            userRole.textContent =
+                "Vandè";
 
 
-            if (welcomeText) {
-
-                welcomeText.textContent =
-                    "Dekouvri pwodwi, jere panier ou epi swiv kòmand ou yo.";
-
-            }
+            welcomeText.textContent =
+                "Men espas kote ou ka jere biznis ou.";
 
 
-            if (buyerDashboard) {
-
-                buyerDashboard.style.display =
-                    "block";
-
-            }
+            sellerDashboard.style.display =
+                "block";
 
 
-            if (sellerDashboard) {
+            buyerDashboard.style.display =
+                "none";
 
-                sellerDashboard.style.display =
-                    "none";
 
-            }
+            await loadSellerStats(user.id);
 
+            return;
         }
 
 
-        /* =========================
-           VENDEUR
-        ========================= */
 
-        else if (
-            role === "vendeur"
+        // =================================
+        // BUYER
+        // =================================
+
+        if (
+            role === "achte" ||
+            role === "acheteur" ||
+            role === "buyer" ||
+            role === "achtè" ||
+            profile.est_acheteur === true
         ) {
 
-            if (userRole) {
-
-                userRole.textContent =
-                    "Vendeur";
-
-            }
+            userRole.textContent =
+                "Achtè";
 
 
-            if (welcomeText) {
-
-                welcomeText.textContent =
-                    "Jere pwodwi ou yo, kòmand kliyan yo ak aktivite biznis ou.";
-
-            }
+            welcomeText.textContent =
+                "Dekouvri pwodwi epi swiv kòmand ou yo.";
 
 
-            if (sellerDashboard) {
-
-                sellerDashboard.style.display =
-                    "block";
-
-            }
+            buyerDashboard.style.display =
+                "block";
 
 
-            if (buyerDashboard) {
+            sellerDashboard.style.display =
+                "none";
 
-                buyerDashboard.style.display =
-                    "none";
 
-            }
-
+            return;
         }
 
 
-        /* =========================
-           ROLE PA VALAB
-        ========================= */
 
-        else {
+        // =================================
+        // UNKNOWN ROLE
+        // =================================
 
-            throw new Error(
-                `Wòl "${role}" pa rekonèt.`
-            );
-
-        }
-
-
-        /* =========================
-           DEKONEKTE
-        ========================= */
-
-        if (logoutButton) {
-
-            logoutButton.addEventListener(
-                "click",
-                async () => {
-
-                    logoutButton.disabled =
-                        true;
-
-                    logoutButton.textContent =
-                        "Dekoneksyon...";
-
-
-                    const {
-                        error
-                    } =
-                        await supabase.auth.signOut();
-
-
-                    if (error) {
-
-                        console.error(error);
-
-                        logoutButton.disabled =
-                            false;
-
-                        logoutButton.textContent =
-                            "Dekonekte";
-
-                        alert(
-                            "Nou pa t kapab dekonekte."
-                        );
-
-                        return;
-                    }
-
-
-                    localStorage.removeItem(
-                        "macheyaUserName"
-                    );
-
-                    localStorage.removeItem(
-                        "macheyaUserRole"
-                    );
-
-                    localStorage.removeItem(
-                        "macheyaUserId"
-                    );
-
-
-                    window.location.href =
-                        "login.html";
-
-                }
-            );
-
-        }
-
+        showError(
+            "Nou pa kapab detèmine kalite kont ou."
+        );
 
     }
 
@@ -357,53 +276,202 @@ script.onload = async () => {
         );
 
 
-        if (buyerDashboard) {
-
-            buyerDashboard.style.display =
-                "none";
-
-        }
-
-
-        if (sellerDashboard) {
-
-            sellerDashboard.style.display =
-                "none";
-
-        }
-
-
-        if (dashboardError) {
-
-            dashboardError.style.display =
-                "block";
-
-        }
-
-
-        if (errorMessage) {
-
-            errorMessage.textContent =
-                error.message ||
-                "Yon erè rive pandan chajman dashboard la.";
-
-        }
+        showError(
+            "Yon pwoblèm rive pandan chajman dashboard la."
+        );
 
     }
 
-};
+}
 
 
-script.onerror = () => {
+// ========================================
+// SELLER STATISTICS
+// ========================================
 
-    console.error(
-        "Supabase library could not load."
-    );
-
-    window.location.href =
-        "login.html";
-
-};
+async function loadSellerStats(userId) {
 
 
-document.head.appendChild(script);
+    // ====================================
+    // PRODUCTS
+    // ====================================
+
+    const {
+        count: productsCount,
+        error: productsError
+    } = await supabase
+        .from("products")
+        .select("id", {
+            count: "exact",
+            head: true
+        })
+        .eq("seller_id", userId);
+
+
+    if (productsError) {
+
+        console.error(
+            "Products count error:",
+            productsError
+        );
+
+
+        productCount.textContent = "0";
+
+    } else {
+
+        productCount.textContent =
+            productsCount || 0;
+    }
+
+
+
+    // ====================================
+    // ORDERS
+    // ====================================
+
+    try {
+
+        const {
+            data: orders,
+            error: ordersError
+        } = await supabase
+            .from("orders")
+            .select(
+                "id, amount"
+            )
+            .eq(
+                "seller_id",
+                userId
+            );
+
+
+        /*
+         * orders table poko oblije egziste.
+         * Lè li poko la, nou montre 0.
+         */
+
+        if (ordersError) {
+
+            console.warn(
+                "Orders table poko disponib:",
+                ordersError.message
+            );
+
+
+            orderCount.textContent =
+                "0";
+
+
+            salesTotal.textContent =
+                "0 HTG";
+
+
+            return;
+        }
+
+
+
+        // =================================
+        // ORDER COUNT
+        // =================================
+
+        orderCount.textContent =
+            orders?.length || 0;
+
+
+
+        // =================================
+        // SALES
+        // =================================
+
+        const totalSales =
+            (orders || []).reduce(
+                (
+                    total,
+                    order
+                ) => {
+
+                    return total +
+                        Number(
+                            order.amount || 0
+                        );
+
+                },
+                0
+            );
+
+
+        salesTotal.textContent =
+            formatHTG(totalSales);
+
+    }
+
+    catch (error) {
+
+        console.warn(
+            "Orders poko disponib:",
+            error
+        );
+
+
+        orderCount.textContent =
+            "0";
+
+
+        salesTotal.textContent =
+            "0 HTG";
+    }
+
+}
+
+
+// ========================================
+// LOGOUT
+// ========================================
+
+logoutButton.addEventListener(
+    "click",
+    async () => {
+
+        const {
+            error
+        } = await supabase.auth.signOut();
+
+
+        if (error) {
+
+            console.error(
+                "Logout error:",
+                error
+            );
+
+            return;
+        }
+
+
+        window.location.href =
+            "login.html";
+    }
+);
+
+
+// ========================================
+// RELOAD
+// ========================================
+
+reloadDashboard.addEventListener(
+    "click",
+    () => {
+
+        window.location.reload();
+
+    }
+);
+
+
+// ========================================
+// START
+// ========================================
+
+loadDashboard();
