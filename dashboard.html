@@ -19,13 +19,9 @@
 
 </head>
 
-
 <body>
 
-
-    <!-- =========================
-         HEADER
-    ========================== -->
+    <!-- HEADER -->
 
     <header class="dashboard-header">
 
@@ -68,16 +64,12 @@
 
 
 
-    <!-- =========================
-         MAIN DASHBOARD
-    ========================== -->
+    <!-- MAIN -->
 
     <main class="dashboard">
 
 
-        <!-- =========================
-             WELCOME
-        ========================== -->
+        <!-- WELCOME -->
 
         <section class="welcome-section">
 
@@ -103,16 +95,15 @@
 
 
 
-        <!-- ==================================================
-             DASHBOARD ACHETÈ
-        =================================================== -->
+        <!-- =========================
+             BUYER DASHBOARD
+        ========================== -->
 
         <section
             id="buyerDashboard"
             class="dashboard-content"
             style="display: none;"
         >
-
 
             <div class="section-title">
 
@@ -130,11 +121,6 @@
                 </div>
 
 
-                <!--
-                    PA INDEX.HTML
-                    Kounya li ale sou products.html
-                -->
-
                 <a
                     href="products.html"
                     class="primary-link"
@@ -145,13 +131,10 @@
             </div>
 
 
-
             <div class="dashboard-grid">
 
 
-                <!-- =========================
-                     PRODUITS
-                ========================== -->
+                <!-- PRODUITS -->
 
                 <div class="dashboard-card">
 
@@ -171,9 +154,7 @@
                     </p>
 
 
-                    <a
-                        href="products.html"
-                    >
+                    <a href="products.html">
                         Gade pwodwi →
                     </a>
 
@@ -181,9 +162,7 @@
 
 
 
-                <!-- =========================
-                     PANIER
-                ========================== -->
+                <!-- PANIER -->
 
                 <div class="dashboard-card">
 
@@ -202,11 +181,6 @@
                     </p>
 
 
-                    <!--
-                        Paj cart.html poko fèt.
-                        N ap konekte l lè nou kreye paj la.
-                    -->
-
                     <a href="#">
                         Wè panier →
                     </a>
@@ -215,9 +189,7 @@
 
 
 
-                <!-- =========================
-                     KÒMAND
-                ========================== -->
+                <!-- KÒMAND -->
 
                 <div class="dashboard-card">
 
@@ -236,10 +208,6 @@
                     </p>
 
 
-                    <!--
-                        Paj orders.html poko fèt.
-                    -->
-
                     <a href="#">
                         Gade kòmand →
                     </a>
@@ -248,9 +216,7 @@
 
 
 
-                <!-- =========================
-                     PROFIL
-                ========================== -->
+                <!-- PROFIL -->
 
                 <div class="dashboard-card">
 
@@ -269,16 +235,11 @@
                     </p>
 
 
-                    <!--
-                        Paj profile.html poko fèt.
-                    -->
-
                     <a href="#">
                         Wè pwofil →
                     </a>
 
                 </div>
-
 
             </div>
 
@@ -286,16 +247,15 @@
 
 
 
-        <!-- ==================================================
-             DASHBOARD VENDEUR
-        =================================================== -->
+        <!-- =========================
+             SELLER DASHBOARD
+        ========================== -->
 
         <section
             id="sellerDashboard"
             class="dashboard-content"
             style="display: none;"
         >
-
 
             <div class="section-title">
 
@@ -327,9 +287,7 @@
             <div class="dashboard-grid">
 
 
-                <!-- =========================
-                     PWODWI MWEN YO
-                ========================== -->
+                <!-- PWODWI MWEN YO -->
 
                 <div class="dashboard-card">
 
@@ -356,9 +314,7 @@
 
 
 
-                <!-- =========================
-                     AJOUTE PWODWI
-                ========================== -->
+                <!-- AJOUTE PWODWI -->
 
                 <div class="dashboard-card">
 
@@ -386,9 +342,7 @@
 
 
 
-                <!-- =========================
-                     KÒMAND KLIYAN
-                ========================== -->
+                <!-- KÒMAND KLIYAN -->
 
                 <div class="dashboard-card">
 
@@ -407,10 +361,6 @@
                     </p>
 
 
-                    <!--
-                        Paj seller-orders.html poko fèt.
-                    -->
-
                     <a href="#">
                         Gade kòmand →
                     </a>
@@ -419,9 +369,7 @@
 
 
 
-                <!-- =========================
-                     PROFIL VENDEUR
-                ========================== -->
+                <!-- PROFIL VENDEUR -->
 
                 <div class="dashboard-card">
 
@@ -440,27 +388,24 @@
                     </p>
 
 
-                    <!--
-                        Paj profile.html poko fèt.
-                    -->
-
                     <a href="#">
                         Wè pwofil →
                     </a>
 
                 </div>
 
-
             </div>
 
 
 
             <!-- =========================
-                 STATISTIK VENDEUR
+                 STATISTIK
             ========================== -->
 
             <section class="stats-section">
 
+
+                <!-- PWODWI -->
 
                 <div class="stat-card">
 
@@ -477,6 +422,8 @@
 
 
 
+                <!-- KÒMAND -->
+
                 <div class="stat-card">
 
                     <span>
@@ -484,13 +431,15 @@
                     </span>
 
 
-                    <strong>
+                    <strong id="orderCount">
                         0
                     </strong>
 
                 </div>
 
 
+
+                <!-- LAVANT -->
 
                 <div class="stat-card">
 
@@ -499,30 +448,27 @@
                     </span>
 
 
-                    <strong>
+                    <strong id="salesTotal">
                         0 HTG
                     </strong>
 
                 </div>
 
-
             </section>
-
 
         </section>
 
 
 
-        <!-- ==================================================
-             ERÈ
-        =================================================== -->
+        <!-- =========================
+             ERROR
+        ========================== -->
 
         <section
             id="dashboardError"
             class="dashboard-error"
             style="display: none;"
         >
-
 
             <div>
                 ⚠️
@@ -540,27 +486,25 @@
 
 
             <button
-                onclick="location.reload()"
+                id="reloadDashboard"
                 class="primary-link"
             >
                 Eseye ankò
             </button>
 
-
         </section>
-
 
     </main>
 
 
 
-    <!-- =========================
-         JAVASCRIPT
-    ========================== -->
+    <!-- JAVASCRIPT -->
 
-    <script src="dashboard.js"></script>
-
+    <script
+        type="module"
+        src="dashboard.js"
+    ></script>
 
 </body>
 
-                </html>
+                        </html>
