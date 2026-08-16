@@ -4,11 +4,7 @@ const SUPABASE_URL =
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
 
-if (!window.supabase) {
-
-    console.error("Macheya: Supabase JS pa chaje.");
-
-} else {
+if (window.supabase) {
 
     window.supabaseClient =
         window.supabase.createClient(
@@ -16,7 +12,11 @@ if (!window.supabase) {
             SUPABASE_PUBLISHABLE_KEY
         );
 
-    console.log(
-        "Macheya: Supabase client pare."
+    console.log("MACHEYA: Supabase client OK");
+
+} else {
+
+    console.error(
+        "MACHEYA: Supabase library pa chaje."
     );
 }
