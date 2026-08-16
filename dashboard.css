@@ -42,7 +42,7 @@ body {
 
 
 /* ============================================================
-   IMPORTANT — HIDDEN ELEMENTS
+   HIDDEN ELEMENTS
 ============================================================ */
 
 [hidden] {
@@ -354,6 +354,8 @@ a {
     position: relative;
 
     z-index: 2;
+
+    max-width: 850px;
 }
 
 
@@ -385,18 +387,26 @@ a {
 
     font-size:
         clamp(
-            28px,
-            5vw,
+            32px,
+            4.5vw,
             42px
         );
 
-    line-height: 1.15;
+    line-height: 1.12;
+
+    letter-spacing: -0.8px;
 
     margin-bottom: 12px;
 
     font-weight: 800;
 
     color: #ffffff;
+
+    max-width: 900px;
+
+    overflow-wrap: break-word;
+
+    text-wrap: balance;
 }
 
 
@@ -407,6 +417,8 @@ a {
 .welcome-card p {
 
     font-size: 15px;
+
+    line-height: 1.6;
 
     color: #d1d5db;
 
@@ -927,7 +939,7 @@ a {
 
 
 /* ============================================================
-   MOBILE
+   TABLET
 ============================================================ */
 
 @media (
@@ -950,7 +962,7 @@ a {
 
 
 /* ============================================================
-   SMALL MOBILE
+   MOBILE
 ============================================================ */
 
 @media (
@@ -1006,35 +1018,61 @@ a {
     }
 
 
+    /* --------------------------------------------------------
+       WELCOME CARD MOBILE
+    -------------------------------------------------------- */
+
     .welcome-card {
 
         padding:
-            28px 23px;
+            30px 23px;
 
-        border-radius: 20px;
+        border-radius: 21px;
 
-        margin-bottom: 25px;
+        margin-bottom: 27px;
     }
 
 
     .welcome-card h1 {
 
-        color: #ffffff;
-
         font-size:
             clamp(
-                27px,
-                8vw,
+                30px,
+                8.5vw,
                 36px
             );
+
+        line-height: 1.08;
+
+        letter-spacing: -0.7px;
+
+        color: #ffffff;
+
+        max-width: 100%;
     }
 
 
     .welcome-card p {
 
         color: #d1d5db;
+
+        font-size: 14px;
+
+        line-height: 1.55;
     }
 
+
+    .welcome-label {
+
+        font-size: 13px;
+
+        margin-bottom: 9px;
+    }
+
+
+    /* --------------------------------------------------------
+       SPACE HEADING
+    -------------------------------------------------------- */
 
     .space-heading {
 
@@ -1051,6 +1089,10 @@ a {
         width: 100%;
     }
 
+
+    /* --------------------------------------------------------
+       CARDS
+    -------------------------------------------------------- */
 
     .dashboard-grid {
 
@@ -1069,6 +1111,10 @@ a {
     }
 
 
+    /* --------------------------------------------------------
+       STATISTICS
+    -------------------------------------------------------- */
+
     .seller-stats {
 
         grid-template-columns:
@@ -1081,7 +1127,7 @@ a {
 
 
 /* ============================================================
-   VERY SMALL SCREEN
+   VERY SMALL MOBILE
 ============================================================ */
 
 @media (
@@ -1103,11 +1149,20 @@ a {
     }
 
 
+    .welcome-card {
+
+        padding:
+            27px 20px;
+    }
+
+
     .welcome-card h1 {
 
-        font-size: 27px;
+        font-size: 29px;
+
+        line-height: 1.08;
 
         color: #ffffff;
     }
 
-       }
+   }
