@@ -9,35 +9,29 @@
     console.log("MACHEYA: login.js ap demare...");
 
 
-    // ========================================================
-    // SUPABASE
-    // ========================================================
-
-    const supabase =
-        window.supabaseClient;
-
-
-    if (!supabase) {
-
-        console.error(
-            "MACHEYA: Supabase client pa disponib."
-        );
-
-        alert(
-            "Macheya pa kapab konekte ak sèvis la kounye a."
-        );
-
-        return;
-    }
-
-
-    // ========================================================
-    // FORM
-    // ========================================================
+    // ============================================================
+    // ELEMENTS
+    // ============================================================
 
     const form =
         document.getElementById("loginForm");
 
+    const loginButton =
+        document.getElementById("loginButton");
+
+    const emailInput =
+        document.getElementById("email");
+
+    const passwordInput =
+        document.getElementById("password");
+
+    const forgotPassword =
+        document.getElementById("forgotPassword");
+
+
+    // ============================================================
+    // VERIFY FORM
+    // ============================================================
 
     if (!form) {
 
@@ -49,13 +43,57 @@
     }
 
 
-    const loginButton =
-        document.getElementById("loginButton");
+    // ============================================================
+    // GET SUPABASE CLIENT
+    // ============================================================
+
+    function getSupabaseClient() {
+
+        if (window.supabaseClient) {
+
+            return window.supabaseClient;
+        }
 
 
-    // ========================================================
+        // Si supabase-config.js poko kreye client la,
+        // nou kreye li avèk menm configuration Macheya a.
+
+        if (
+            window.supabase &&
+            typeof window.supabase.createClient ===
+            "function"
+        ) {
+
+            const SUPABASE_URL =
+                "https://iscktsymqntjgqaxcitv.supabase.co";
+
+            const SUPABASE_KEY =
+                "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
+
+
+            window.supabaseClient =
+                window.supabase.createClient(
+                    SUPABASE_URL,
+                    SUPABASE_KEY
+                );
+
+
+            console.log(
+                "MACHEYA: Supabase client kreye."
+            );
+
+
+            return window.supabaseClient;
+        }
+
+
+        return null;
+    }
+
+
+    // ============================================================
     // SHOW / HIDE PASSWORD
-    // ========================================================
+    // ============================================================
 
     document
         .querySelectorAll(".show-password")
@@ -102,9 +140,9 @@
         });
 
 
-    // ========================================================
+    // ============================================================
     // LOGIN
-    // ========================================================
+    // ============================================================
 
     form.addEventListener(
         "submit",
@@ -114,22 +152,20 @@
 
 
             const email =
-                document
-                    .getElementById("email")
-                    .value
+                emailInput
+                    ?.value
                     .trim()
                     .toLowerCase();
 
 
             const password =
-                document
-                    .getElementById("password")
-                    .value;
+                passwordInput
+                    ?.value || "";
 
 
-            // ==================================================
+            // ========================================================
             // VALIDATION
-            // ==================================================
+            // ========================================================
 
             if (!email || !password) {
 
@@ -141,9 +177,9 @@
             }
 
 
-            // ==================================================
+            // ========================================================
             // BUTTON
-            // ==================================================
+            // ========================================================
 
             if (loginButton) {
 
@@ -157,19 +193,34 @@
 
             try {
 
+                // ====================================================
+                // SUPABASE
+                // ====================================================
 
-                // ==================================================
-                // AUTH LOGIN
-                // ==================================================
+                const supabase =
+                    getSupabaseClient();
+
+
+                if (!supabase) {
+
+                    throw new Error(
+                        "Supabase client pa disponib."
+                    );
+                }
+
 
                 console.log(
-                    "MACHEYA: N ap verifye kont lan..."
+                    "MACHEYA: N ap konekte..."
                 );
 
 
+                // ====================================================
+                // AUTH
+                // ====================================================
+
                 const {
-                    data: authData,
-                    error: authError
+                    data,
+                    error
                 } =
                     await supabase.auth
                         .signInWithPassword({
@@ -183,33 +234,33 @@
                         });
 
 
-                if (authError) {
-                    throw authError;
+                if (error) {
+
+                    throw error;
                 }
 
 
                 const user =
-                    authData?.user;
+                    data?.user;
 
 
                 if (!user) {
 
                     throw new Error(
-                        "Macheya pa kapab jwenn kont ou."
+                        "Macheya pa jwenn kont ou."
                     );
-
                 }
 
 
                 console.log(
-                    "MACHEYA: User konekte:",
+                    "MACHEYA: Auth reyisi:",
                     user.id
                 );
 
 
-                // ==================================================
-                // GET PROFILE
-                // ==================================================
+                // ====================================================
+                // PROFILE
+                // ====================================================
 
                 const {
                     data: profile,
@@ -235,19 +286,19 @@
                     );
 
                     throw new Error(
-                        "Kont lan konekte, men nou pa kapab jwenn pwofil li."
+                        "Kont lan konekte, men Macheya pa kapab li pwofil ou."
                     );
                 }
 
 
-                // ==================================================
+                // ====================================================
                 // PROFILE NOT FOUND
-                // ==================================================
+                // ====================================================
 
                 if (!profile) {
 
                     throw new Error(
-                        "Kont lan konekte, men pwofil Macheya a pa egziste."
+                        "Kont lan konekte, men pwofil Macheya ou a pa jwenn."
                     );
                 }
 
@@ -258,9 +309,9 @@
                 );
 
 
-                // ==================================================
-                // VERIFY ROLE
-                // ==================================================
+                // ====================================================
+                // ROLE
+                // ====================================================
 
                 const role =
                     String(
@@ -270,30 +321,17 @@
                         .toLowerCase();
 
 
-                const isBuyer =
-                    role === "acheteur" &&
-                    profile.est_acheteur === true;
-
-
                 const isSeller =
-                    role === "vendeur" &&
+                    role === "vendeur" ||
+                    role === "vande" ||
                     profile.est_vendeur === true;
 
 
-                if (
-                    !isBuyer &&
-                    !isSeller
-                ) {
+                const isBuyer =
+                    role === "acheteur" ||
+                    role === "achte" ||
+                    profile.est_acheteur === true;
 
-                    throw new Error(
-                        "Pwofil ou pa gen yon kalite kont Macheya valab."
-                    );
-                }
-
-
-                // ==================================================
-                // SUCCESS
-                // ==================================================
 
                 console.log(
                     "MACHEYA ROLE:",
@@ -301,21 +339,44 @@
                 );
 
 
-                alert(
-                    "Koneksyon reyisi!"
+                console.log(
+                    "MACHEYA SELLER:",
+                    isSeller
                 );
 
 
-                // ==================================================
-                // DASHBOARD
-                // ==================================================
+                console.log(
+                    "MACHEYA BUYER:",
+                    isBuyer
+                );
+
+
+                // ====================================================
+                // VALID ROLE
+                // ====================================================
+
+                if (!isSeller && !isBuyer) {
+
+                    throw new Error(
+                        "Macheya pa jwenn kalite kont ou. Verifye role la nan profiles."
+                    );
+                }
+
+
+                // ====================================================
+                // LOGIN SUCCESS
+                // ====================================================
+
+                console.log(
+                    "MACHEYA: Koneksyon reyisi."
+                );
+
 
                 window.location.href =
                     "dashboard.html";
 
 
             } catch (error) {
-
 
                 console.error(
                     "MACHEYA LOGIN ERROR:",
@@ -326,11 +387,12 @@
                 const errorText =
                     String(
                         error?.message || ""
-                    ).toLowerCase();
+                    )
+                        .toLowerCase();
 
 
                 let message =
-                    "Yon erè rive pandan koneksyon an.";
+                    "Macheya pa kapab konekte ak sèvis la kounye a.";
 
 
                 if (
@@ -352,6 +414,15 @@
                         "Tanpri verifye imèl ou anvan ou konekte.";
 
                 } else if (
+                    errorText.includes(
+                        "supabase client"
+                    )
+                ) {
+
+                    message =
+                        "Macheya pa kapab konekte ak sèvis Supabase la.";
+
+                } else if (
                     error?.message
                 ) {
 
@@ -366,11 +437,6 @@
 
 
             } finally {
-
-
-                // ==================================================
-                // RESET BUTTON
-                // ==================================================
 
                 if (loginButton) {
 
@@ -387,15 +453,9 @@
     );
 
 
-    // ========================================================
+    // ============================================================
     // FORGOT PASSWORD
-    // ========================================================
-
-    const forgotPassword =
-        document.getElementById(
-            "forgotPassword"
-        );
-
+    // ============================================================
 
     if (forgotPassword) {
 
@@ -407,9 +467,8 @@
 
 
                 const email =
-                    document
-                        .getElementById("email")
-                        .value
+                    emailInput
+                        ?.value
                         .trim()
                         .toLowerCase();
 
@@ -425,6 +484,17 @@
 
 
                 try {
+
+                    const supabase =
+                        getSupabaseClient();
+
+
+                    if (!supabase) {
+
+                        throw new Error(
+                            "Supabase client pa disponib."
+                        );
+                    }
 
 
                     const {
@@ -442,6 +512,7 @@
 
 
                     if (error) {
+
                         throw error;
                     }
 
@@ -463,7 +534,6 @@
                         error?.message ||
                         "Nou pa t kapab voye lyen pou chanje modpas la."
                     );
-
                 }
 
             }
@@ -471,5 +541,9 @@
 
     }
 
+
+    console.log(
+        "MACHEYA: login.js pare."
+    );
 
 })();
