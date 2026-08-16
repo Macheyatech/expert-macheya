@@ -11,9 +11,9 @@
     );
 
 
-    // ========================================================
+    // =========================================================
     // ELEMENTS
-    // ========================================================
+    // =========================================================
 
     const loading =
         document.getElementById(
@@ -81,9 +81,9 @@
         );
 
 
-    // ========================================================
+    // =========================================================
     // HELPERS
-    // ========================================================
+    // =========================================================
 
     function hide(element) {
 
@@ -142,18 +142,18 @@
     }
 
 
-    // ========================================================
+    // =========================================================
     // SUPABASE CLIENT
-    // ========================================================
+    // =========================================================
 
-    function getClient() {
+    function getSupabaseClient() {
 
-        let client =
-            window.supabaseClient;
+        if (
+            window.supabaseClient
+        ) {
 
+            return window.supabaseClient;
 
-        if (client) {
-            return client;
         }
 
 
@@ -163,21 +163,17 @@
         ) {
 
             return null;
+
         }
 
 
-        const url =
-            "https://iscktsymqntjgqaxcitv.supabase.co";
-
-
-        const key =
-            "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
-
-
-        client =
+        const client =
             window.supabase.createClient(
-                url,
-                key
+
+                "https://iscktsymqntjgqaxcitv.supabase.co",
+
+                "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW"
+
             );
 
 
@@ -190,68 +186,116 @@
     }
 
 
-    // ========================================================
-    // PROFILE
-    // ========================================================
+    // =========================================================
+    // START
+    // =========================================================
 
-    async function getProfile(
-        client,
-        user
-    ) {
+    async function start() {
 
-        const {
-            data: profile,
-            error
-        } =
-            await client
-                .from("profiles")
-                .select("*")
-                .eq(
-                    "id",
-                    user.id
-                )
-                .maybeSingle();
+        hide(buyer);
+        hide(seller);
+        hide(errorBox);
+
+        show(loading);
 
 
-        if (error) {
+        const client =
+            getSupabaseClient();
 
-            console.warn(
-                "MACHEYA: profile pa disponib:",
-                error.message
+
+        if (!client) {
+
+            showError(
+                "Supabase pa disponib. Verifye koneksyon an."
             );
 
+            return;
+
         }
 
 
-        return profile || null;
+        console.log(
+            "MACHEYA: Supabase client pare."
+        );
 
-    }
+
+        // =====================================================
+        // USER
+        // =====================================================
+
+        let user = null;
 
 
-    // ========================================================
-    // CREATE / SYNC PROFILE
-    // ========================================================
+        try {
 
-    async function syncProfile(
-        client,
-        user,
-        profile,
-        name,
-        role
-    ) {
+            const {
+                data,
+                error
+            } =
+                await client.auth.getUser();
 
-        if (profile) {
-            return profile;
+
+            if (error) {
+
+                console.error(
+                    "AUTH ERROR:",
+                    error
+                );
+
+                showError(
+                    "Nou pa kapab verifye sesyon kont ou."
+                );
+
+                return;
+
+            }
+
+
+            user =
+                data?.user || null;
+
+
+        } catch (error) {
+
+            console.error(
+                "USER ERROR:",
+                error
+            );
+
+            showError(
+                "Nou pa kapab verifye kont ou."
+            );
+
+            return;
+
         }
 
 
-        if (
-            !name ||
-            !role
-        ) {
+        // =====================================================
+        // PA GEN USER
+        // =====================================================
 
-            return null;
+        if (!user) {
+
+            window.location.href =
+                "login.html";
+
+            return;
+
         }
+
+
+        console.log(
+            "MACHEYA USER:",
+            user
+        );
+
+
+        // =====================================================
+        // PROFILE
+        // =====================================================
+
+        let profile = null;
 
 
         try {
@@ -262,140 +306,35 @@
             } =
                 await client
                     .from("profiles")
-                    .upsert(
-                        {
-                            id: user.id,
-
-                            name: name,
-
-                            role: role
-
-                        },
-                        {
-                            onConflict: "id"
-                        }
+                    .select("*")
+                    .eq(
+                        "id",
+                        user.id
                     )
-                    .select()
-                    .single();
+                    .maybeSingle();
 
 
             if (error) {
 
                 console.warn(
-                    "MACHEYA: pa kapab sync profile:",
-                    error.message
+                    "PROFILE READ ERROR:",
+                    error
                 );
 
-                return null;
+            } else {
+
+                profile = data;
+
             }
-
-
-            return data || null;
 
         } catch (error) {
 
             console.warn(
-                "MACHEYA PROFILE SYNC ERROR:",
+                "PROFILE EXCEPTION:",
                 error
             );
 
-            return null;
         }
-
-    }
-
-
-    // ========================================================
-    // START
-    // ========================================================
-
-    async function start() {
-
-        show(loading);
-
-        hide(buyer);
-        hide(seller);
-        hide(errorBox);
-
-
-        // ====================================================
-        // CLIENT
-        // ====================================================
-
-        const client =
-            getClient();
-
-
-        if (!client) {
-
-            showError(
-                "Bibliyotèk Supabase la pa chaje. Verifye koneksyon entènèt la."
-            );
-
-            return;
-        }
-
-
-        console.log(
-            "MACHEYA: Supabase client pare."
-        );
-
-
-        // ====================================================
-        // AUTH USER
-        // ====================================================
-
-        const {
-            data,
-            error
-        } =
-            await client.auth.getUser();
-
-
-        if (error) {
-
-            console.error(
-                "MACHEYA AUTH ERROR:",
-                error
-            );
-
-
-            showError(
-                "Nou pa kapab verifye sesyon kont ou."
-            );
-
-            return;
-        }
-
-
-        const user =
-            data?.user;
-
-
-        if (!user) {
-
-            window.location.href =
-                "login.html";
-
-            return;
-        }
-
-
-        console.log(
-            "MACHEYA USER:",
-            user.id
-        );
-
-
-        // ====================================================
-        // PROFILE
-        // ====================================================
-
-        let profile =
-            await getProfile(
-                client,
-                user
-            );
 
 
         console.log(
@@ -404,41 +343,53 @@
         );
 
 
-        // ====================================================
+        // =====================================================
         // NAME
-        // ====================================================
+        // =====================================================
+
+        const metadata =
+            user.user_metadata || {};
+
 
         const name =
+            profile?.name ||
             profile?.nom_complet ||
             profile?.full_name ||
-            profile?.name ||
             profile?.nom ||
-            user.user_metadata?.nom_complet ||
-            user.user_metadata?.full_name ||
-            user.user_metadata?.name ||
-            localStorage.getItem(
-                "macheyaUserName"
-            ) ||
-            user.email?.split("@")[0] ||
-            "Itilizatè";
+            metadata.name ||
+            metadata.nom_complet ||
+            metadata.full_name ||
+            metadata.nom ||
+            (
+                user.email
+                    ? user.email.split("@")[0]
+                    : "Itilizatè"
+            );
 
 
         if (userName) {
 
             userName.textContent =
-                `Bonjou, ${name} 👋`;
+                "Bonjou, " +
+                name +
+                " 👋";
 
         }
 
 
-        // ====================================================
+        // =====================================================
         // ROLE
-        //
-        // Priority:
-        // 1. profiles.role
-        // 2. auth metadata role
-        // 3. localStorage
-        // ====================================================
+        // =====================================================
+
+        /*
+         * PRIORITE:
+         *
+         * 1. profiles.role
+         * 2. user.user_metadata.role
+         *
+         * Sa pèmèt yon nouvo achtè antre
+         * menm si profiles pa gen liy li ankò.
+         */
 
         let role =
             normalize(
@@ -450,102 +401,46 @@
 
             role =
                 normalize(
-                    user.user_metadata?.role
-                );
-
-        }
-
-
-        if (!role) {
-
-            role =
-                normalize(
-                    localStorage.getItem(
-                        "macheyaUserRole"
-                    )
+                    metadata.role
                 );
 
         }
 
 
         console.log(
-            "MACHEYA ROLE:",
+            "MACHEYA ROLE FINAL:",
             role
         );
 
 
-        // ====================================================
-        // SAVE LOCAL INFO
-        // ====================================================
-
-        localStorage.setItem(
-            "macheyaUserId",
-            user.id
-        );
-
-
-        localStorage.setItem(
-            "macheyaUserName",
-            name
-        );
-
-
-        if (role) {
-
-            localStorage.setItem(
-                "macheyaUserRole",
-                role
-            );
-
-        }
-
-
-        // ====================================================
-        // SYNC PROFILE IF MISSING
-        // ====================================================
-
-        if (
-            !profile &&
-            role
-        ) {
-
-            profile =
-                await syncProfile(
-                    client,
-                    user,
-                    profile,
-                    name,
-                    role
-                );
-
-        }
-
-
-        // ====================================================
-        // SELLER
-        // ====================================================
+        // =====================================================
+        // DETERMINE TYPE KONT
+        // =====================================================
 
         const isSeller =
             role === "vendeur" ||
             role === "vande" ||
-            role === "seller";
+            role === "seller" ||
+            role === "vandè";
 
-
-        // ====================================================
-        // BUYER
-        // ====================================================
 
         const isBuyer =
             role === "acheteur" ||
             role === "achte" ||
-            role === "buyer";
+            role === "buyer" ||
+            role === "achtè";
 
 
-        // ====================================================
-        // SELLER SPACE
-        // ====================================================
+        // =====================================================
+        // SELLER
+        // =====================================================
 
         if (isSeller) {
+
+            console.log(
+                "MACHEYA: kont VANDÈ."
+            );
+
 
             if (roleBadge) {
 
@@ -575,14 +470,20 @@
 
 
             return;
+
         }
 
 
-        // ====================================================
-        // BUYER SPACE
-        // ====================================================
+        // =====================================================
+        // BUYER
+        // =====================================================
 
         if (isBuyer) {
+
+            console.log(
+                "MACHEYA: kont ACHTÈ."
+            );
+
 
             if (roleBadge) {
 
@@ -606,12 +507,28 @@
 
 
             return;
+
         }
 
 
-        // ====================================================
-        // UNKNOWN ROLE
-        // ====================================================
+        // =====================================================
+        // ROLE PA JWENN
+        // =====================================================
+
+        console.error(
+            "ROLE PA JWENN:",
+            {
+                profile:
+                    profile,
+
+                metadata:
+                    metadata,
+
+                role:
+                    role
+            }
+        );
+
 
         showError(
             "Kont ou konekte, men Macheya pa jwenn si ou se Achtè oswa Vandè."
@@ -620,9 +537,9 @@
     }
 
 
-    // ========================================================
+    // =========================================================
     // SELLER DATA
-    // ========================================================
+    // =========================================================
 
     async function loadSellerData(
         client,
@@ -654,49 +571,64 @@
             "...";
 
 
-        const {
-            count,
-            error
-        } =
-            await client
-                .from("products")
-                .select(
-                    "id",
-                    {
-                        count: "exact",
-                        head: true
-                    }
-                )
-                .eq(
-                    "seller_id",
-                    userId
+        try {
+
+            const {
+                count,
+                error
+            } =
+                await client
+                    .from("products")
+                    .select(
+                        "id",
+                        {
+                            count: "exact",
+                            head: true
+                        }
+                    )
+                    .eq(
+                        "seller_id",
+                        userId
+                    );
+
+
+            if (error) {
+
+                console.error(
+                    "PRODUCT ERROR:",
+                    error
                 );
 
+                productCount.textContent =
+                    "0";
 
-        if (error) {
+                return;
+
+            }
+
+
+            productCount.textContent =
+                count ?? 0;
+
+
+        } catch (error) {
 
             console.error(
-                "MACHEYA PRODUCT ERROR:",
+                "PRODUCT EXCEPTION:",
                 error
             );
-
 
             productCount.textContent =
                 "0";
 
-            return;
         }
-
-
-        productCount.textContent =
-            count ?? 0;
 
     }
 
 
-    // ========================================================
+    // =========================================================
     // LOGOUT
-    // ========================================================
+    // =========================================================
 
     if (logoutButton) {
 
@@ -707,34 +639,21 @@
                 logoutButton.disabled =
                     true;
 
-
                 logoutButton.textContent =
                     "Dekonekte...";
 
 
                 const client =
-                    getClient();
+                    getSupabaseClient();
 
 
                 if (!client) {
-
-                    localStorage.removeItem(
-                        "macheyaUserId"
-                    );
-
-                    localStorage.removeItem(
-                        "macheyaUserName"
-                    );
-
-                    localStorage.removeItem(
-                        "macheyaUserRole"
-                    );
-
 
                     window.location.href =
                         "login.html";
 
                     return;
+
                 }
 
 
@@ -747,34 +666,31 @@
                 if (error) {
 
                     console.error(
-                        "MACHEYA LOGOUT ERROR:",
+                        "LOGOUT ERROR:",
                         error
                     );
 
-
                     logoutButton.disabled =
                         false;
-
 
                     logoutButton.textContent =
                         "Dekonekte";
 
                     return;
+
                 }
-
-
-                localStorage.removeItem(
-                    "macheyaUserId"
-                );
 
 
                 localStorage.removeItem(
                     "macheyaUserName"
                 );
 
-
                 localStorage.removeItem(
                     "macheyaUserRole"
+                );
+
+                localStorage.removeItem(
+                    "macheyaUserId"
                 );
 
 
@@ -787,9 +703,9 @@
     }
 
 
-    // ========================================================
+    // =========================================================
     // RETRY
-    // ========================================================
+    // =========================================================
 
     if (retry) {
 
@@ -805,9 +721,9 @@
     }
 
 
-    // ========================================================
+    // =========================================================
     // RUN
-    // ========================================================
+    // =========================================================
 
     start();
 
