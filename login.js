@@ -34,204 +34,324 @@ script.onload = () => {
        AFFICHER / CACHER MODPAS
     ========================= */
 
-    document.querySelectorAll(".show-password").forEach(button => {
+    document
+        .querySelectorAll(".show-password")
+        .forEach(button => {
 
-        button.addEventListener("click", () => {
+            button.addEventListener("click", () => {
 
-            const input =
-                document.getElementById(
-                    button.dataset.target
-                );
+                const input =
+                    document.getElementById(
+                        button.dataset.target
+                    );
 
-            if (input.type === "password") {
+                if (!input) return;
 
-                input.type = "text";
-                button.textContent = "🙈";
+                if (input.type === "password") {
 
-            } else {
+                    input.type = "text";
+                    button.textContent = "🙈";
 
-                input.type = "password";
-                button.textContent = "👁️";
+                } else {
 
-            }
+                    input.type = "password";
+                    button.textContent = "👁️";
+
+                }
+
+            });
 
         });
-
-    });
 
 
     /* =========================
        CONNEXION
     ========================= */
 
-    form.addEventListener("submit", async (event) => {
+    form.addEventListener(
+        "submit",
+        async (event) => {
 
-        event.preventDefault();
-
-
-        const email =
-            document.getElementById("email").value.trim();
-
-        const password =
-            document.getElementById("password").value;
+            event.preventDefault();
 
 
-        if (!email || !password) {
+            const email =
+                document
+                    .getElementById("email")
+                    .value
+                    .trim();
 
-            alert(
-                "Veuillez remplir votre e-mail et votre mot de passe."
-            );
-
-            return;
-        }
-
-
-        const button =
-            document.getElementById("loginButton");
+            const password =
+                document
+                    .getElementById("password")
+                    .value;
 
 
-        if (button) {
+            if (!email || !password) {
 
-            button.disabled = true;
-            button.textContent = "Connexion...";
-
-        }
-
-
-        try {
-
-            const { data, error } =
-                await supabase.auth.signInWithPassword({
-
-                    email: email,
-
-                    password: password
-
-                });
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            if (!data.user) {
-
-                throw new Error(
-                    "Impossible de récupérer votre compte."
+                alert(
+                    "Veuillez remplir votre e-mail et votre mot de passe."
                 );
 
+                return;
             }
 
 
-            /* =========================
-               VÉRIFIER LE PROFIL
-            ========================= */
-
-            const { data: profile, error: profileError } =
-                await supabase
-                    .from("profiles")
-                    .select("name, role")
-                    .eq("id", data.user.id)
-                    .single();
-
-
-            if (profileError) {
-
-                console.error(
-                    "Erreur profil:",
-                    profileError
+            const button =
+                document.getElementById(
+                    "loginButton"
                 );
 
+
+            if (button) {
+
+                button.disabled = true;
+
+                button.textContent =
+                    "Connexion...";
+
             }
 
 
-            /* =========================
-               STOCKER LES INFOS
-            ========================= */
+            try {
 
-            if (profile) {
+                /* =========================
+                   SUPABASE AUTH
+                ========================= */
+
+                const {
+                    data,
+                    error
+                } =
+                    await supabase.auth
+                        .signInWithPassword({
+
+                            email:
+                                email,
+
+                            password:
+                                password
+
+                        });
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                if (!data.user) {
+
+                    throw new Error(
+                        "Impossible de récupérer votre compte."
+                    );
+
+                }
+
+
+                const userId =
+                    data.user.id;
+
+
+                /* =========================
+                   RÉCUPÉRER LE PROFIL
+                ========================= */
+
+                const {
+                    data: profile,
+                    error: profileError
+                } =
+                    await supabase
+                        .from("profiles")
+                        .select(
+                            "name, role"
+                        )
+                        .eq(
+                            "id",
+                            userId
+                        )
+                        .single();
+
+
+                if (profileError) {
+
+                    console.error(
+                        "Erreur profil:",
+                        profileError
+                    );
+
+                    throw new Error(
+                        "Nou pa kapab jwenn kalite kont ou."
+                    );
+
+                }
+
+
+                if (!profile) {
+
+                    throw new Error(
+                        "Pwofil kont ou pa egziste."
+                    );
+
+                }
+
+
+                /* =========================
+                   RÉCUPÉRER ROLE
+                ========================= */
+
+                const role =
+                    String(
+                        profile.role || ""
+                    )
+                    .trim()
+                    .toLowerCase();
+
+
+                console.log(
+                    "Macheya — Role:",
+                    role
+                );
+
+
+                /* =========================
+                   STOCKER INFOS
+                ========================= */
 
                 localStorage.setItem(
                     "macheyaUserName",
                     profile.name || ""
                 );
 
+
                 localStorage.setItem(
                     "macheyaUserRole",
-                    profile.role || ""
+                    role
                 );
 
-            }
+
+                localStorage.setItem(
+                    "macheyaUserId",
+                    userId
+                );
 
 
-            localStorage.setItem(
-                "macheyaUserId",
-                data.user.id
-            );
+                /* =========================
+                   REDIRECTION SELON ROLE
+                ========================= */
+
+                alert(
+                    "Connexion réussie !"
+                );
 
 
-            /* =========================
-               REDIRECTION
-            ========================= */
+                /* ACHETÈ */
 
-            alert("Connexion réussie !");
+                if (
+                    role === "acheteur" ||
+                    role === "achete" ||
+                    role === "buyer"
+                ) {
 
-            window.location.href =
-                "dashboard.html";
+                    window.location.href =
+                        "buyer.html";
 
-
-        } catch (error) {
-
-            console.error(
-                "Login error:",
-                error
-            );
+                    return;
+                }
 
 
-            let message =
-                "Une erreur est survenue lors de la connexion.";
+                /* VANDÈ */
+
+                if (
+                    role === "vendeur" ||
+                    role === "vendeur" ||
+                    role === "seller"
+                ) {
+
+                    window.location.href =
+                        "dashboard.html";
+
+                    return;
+                }
 
 
-            if (
-                error.message &&
-                error.message.toLowerCase().includes("invalid login")
-            ) {
+                /* ROLE PA REKONÈT */
 
-                message =
-                    "E-mail ou mot de passe incorrect.";
-
-            } else if (
-                error.message &&
-                error.message.toLowerCase().includes("email not confirmed")
-            ) {
-
-                message =
-                    "Veuillez d'abord confirmer votre adresse e-mail.";
-
-            } else if (error.message) {
-
-                message =
-                    error.message;
-
-            }
+                throw new Error(
+                    "Kalite kont sa a pa rekonèt: " +
+                    role
+                );
 
 
-            alert(message);
+            } catch (error) {
+
+                console.error(
+                    "Login error:",
+                    error
+                );
 
 
-        } finally {
+                let message =
+                    "Une erreur est survenue lors de la connexion.";
 
-            if (button) {
 
-                button.disabled = false;
-                button.textContent = "Konekte";
+                if (
+                    error.message &&
+                    error.message
+                        .toLowerCase()
+                        .includes(
+                            "invalid login"
+                        )
+                ) {
+
+                    message =
+                        "E-mail ou mot de passe incorrect.";
+
+                }
+
+                else if (
+                    error.message &&
+                    error.message
+                        .toLowerCase()
+                        .includes(
+                            "email not confirmed"
+                        )
+                ) {
+
+                    message =
+                        "Veuillez d'abord confirmer votre adresse e-mail.";
+
+                }
+
+                else if (
+                    error.message
+                ) {
+
+                    message =
+                        error.message;
+
+                }
+
+
+                alert(message);
+
+
+            } finally {
+
+                if (button) {
+
+                    button.disabled =
+                        false;
+
+                    button.textContent =
+                        "Konekte";
+
+                }
 
             }
 
         }
-
-    });
+    );
 
 
     /* =========================
@@ -239,7 +359,9 @@ script.onload = () => {
     ========================= */
 
     const forgotPassword =
-        document.getElementById("forgotPassword");
+        document.getElementById(
+            "forgotPassword"
+        );
 
 
     if (forgotPassword) {
@@ -270,7 +392,9 @@ script.onload = () => {
 
                 try {
 
-                    const { error } =
+                    const {
+                        error
+                    } =
                         await supabase.auth
                             .resetPasswordForEmail(
                                 email,
@@ -293,7 +417,10 @@ script.onload = () => {
 
                 } catch (error) {
 
-                    console.error(error);
+                    console.error(
+                        error
+                    );
+
 
                     alert(
                         error.message ||
