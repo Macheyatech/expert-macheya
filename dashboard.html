@@ -2,6 +2,7 @@
 <html lang="ht">
 
 <head>
+
     <meta charset="UTF-8">
 
     <meta
@@ -9,17 +10,45 @@
         content="width=device-width, initial-scale=1.0"
     >
 
+    <meta
+        name="description"
+        content="Espas pèsonèl ou sou macheya."
+    >
+
     <title>Dashboard | macheya</title>
 
-    <!-- Macheya Dashboard Style -->
+
+    <!-- GOOGLE FONT -->
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+
+    <!-- DASHBOARD CSS -->
+
     <link
         rel="stylesheet"
         href="dashboard.css"
     >
+
 </head>
 
 
 <body>
+
 
     <!-- ==================================================
          HEADER
@@ -27,12 +56,15 @@
 
     <header class="dashboard-header">
 
+
         <a
             href="index.html"
             class="brand"
         >
 
-            <span class="logo">M</span>
+            <span class="logo">
+                M
+            </span>
 
             <span class="brand-name">
                 macheya
@@ -42,6 +74,7 @@
 
 
         <div class="header-actions">
+
 
             <span
                 id="roleBadge"
@@ -58,6 +91,7 @@
             >
                 Dekonekte
             </button>
+
 
         </div>
 
@@ -78,7 +112,8 @@
 
         <section class="welcome-card">
 
-            <div>
+            <div class="welcome-content">
+
 
                 <span class="welcome-label">
                     Byenveni sou macheya 👋
@@ -91,8 +126,9 @@
 
 
                 <p id="welcomeMessage">
-                    Espas pèsonèl ou ap chaje...
+                    N ap prepare espas pèsonèl ou...
                 </p>
+
 
             </div>
 
@@ -111,6 +147,7 @@
 
             <div class="loading-spinner"></div>
 
+
             <p>
                 N ap prepare espas pèsonèl ou...
             </p>
@@ -120,8 +157,7 @@
 
 
         <!-- ==================================================
-             ACHETÈ
-             Sa a ap parèt sèlman pou yon achtè.
+             ESPAS ACHTÈ
         ================================================== -->
 
         <section
@@ -130,7 +166,9 @@
             hidden
         >
 
+
             <div class="space-heading">
+
 
                 <div>
 
@@ -152,11 +190,12 @@
 
 
                 <a
-                    href="products.html"
+                    href="marketplace.html"
                     class="main-button"
                 >
                     Eksplore pwodwi
                 </a>
+
 
             </div>
 
@@ -184,7 +223,7 @@
                     </p>
 
 
-                    <a href="products.html">
+                    <a href="marketplace.html">
                         Gade pwodwi →
                     </a>
 
@@ -271,15 +310,16 @@
 
                 </article>
 
+
             </div>
+
 
         </section>
 
 
 
         <!-- ==================================================
-             VANDÈ
-             Sa a ap parèt sèlman pou yon vandè.
+             ESPAS VANDÈ
         ================================================== -->
 
         <section
@@ -288,7 +328,9 @@
             hidden
         >
 
+
             <div class="space-heading">
+
 
                 <div>
 
@@ -315,6 +357,7 @@
                 >
                     + Ajoute pwodwi
                 </a>
+
 
             </div>
 
@@ -429,12 +472,13 @@
 
                 </article>
 
+
             </div>
 
 
 
             <!-- ==================================================
-                 STATISTIK
+                 STATISTIK VANDÈ
             ================================================== -->
 
             <section class="seller-stats">
@@ -507,7 +551,9 @@
 
                 </div>
 
+
             </section>
+
 
         </section>
 
@@ -522,6 +568,7 @@
             class="error-section"
             hidden
         >
+
 
             <div class="error-icon">
                 ⚠️
@@ -546,7 +593,9 @@
                 Eseye ankò
             </button>
 
+
         </section>
+
 
     </main>
 
@@ -561,8 +610,12 @@
     ></script>
 
 
+    <!-- ==================================================
+         MACHEYA SUPABASE CONFIG
+    ================================================== -->
+
     <script
-        src="supabase.config.js"
+        src="supabase-config.js"
     ></script>
 
 
@@ -573,6 +626,7 @@
     <script
         src="dashboard.js"
     ></script>
+
 
 </body>
 
