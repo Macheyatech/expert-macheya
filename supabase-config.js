@@ -1,22 +1,57 @@
-const SUPABASE_URL =
-    "https://iscktsymqntjgqaxcitv.supabase.co";
+// ============================================================
+// MACHEYA — SUPABASE CONFIG
+// ============================================================
 
-const SUPABASE_PUBLISHABLE_KEY =
-    "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
+(function () {
 
-if (window.supabase) {
+    "use strict";
 
-    window.supabaseClient =
-        window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_PUBLISHABLE_KEY
+    // ========================================================
+    // SUPABASE CONNECTION
+    // ========================================================
+
+    const SUPABASE_URL =
+        "https://iscktsymqntjgqaxcitv.supabase.co";
+
+    const SUPABASE_KEY =
+        "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
+
+
+    // ========================================================
+    // CHECK SUPABASE LIBRARY
+    // ========================================================
+
+    if (!window.supabase) {
+
+        console.error(
+            "MACHEYA: Bibliyotèk Supabase la pa chaje."
         );
 
-    console.log("MACHEYA: Supabase client OK");
+        return;
+    }
 
-} else {
 
-    console.error(
-        "MACHEYA: Supabase library pa chaje."
+    // ========================================================
+    // CREATE SUPABASE CLIENT
+    // ========================================================
+
+    const client =
+        window.supabase.createClient(
+            SUPABASE_URL,
+            SUPABASE_KEY
+        );
+
+
+    // ========================================================
+    // MAKE CLIENT AVAILABLE TO ALL MACHEYA FILES
+    // ========================================================
+
+    window.supabaseClient =
+        client;
+
+
+    console.log(
+        "MACHEYA: Supabase client pare."
     );
-}
+
+})();
