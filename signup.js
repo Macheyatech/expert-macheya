@@ -13,9 +13,9 @@
         "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
 
 
-    // ========================================================
-    // SUPABASE
-    // ========================================================
+    // ----------------------------------------------------------
+    // CHARGE SUPABASE
+    // ----------------------------------------------------------
 
     const script =
         document.createElement("script");
@@ -33,31 +33,19 @@
             );
 
 
-        window.supabaseClient =
-            supabase;
-
-
-        // ====================================================
-        // FORM
-        // ====================================================
-
         const form =
             document.getElementById("signupForm");
 
 
         if (!form) {
-
-            console.error(
-                "MACHEYA: signupForm introuvable."
-            );
-
+            console.error("signupForm pa jwenn.");
             return;
         }
 
 
-        // ====================================================
+        // ------------------------------------------------------
         // SHOW / HIDE PASSWORD
-        // ====================================================
+        // ------------------------------------------------------
 
         document
             .querySelectorAll(".show-password")
@@ -83,19 +71,13 @@
                             "password"
                         ) {
 
-                            input.type =
-                                "text";
-
-                            button.textContent =
-                                "🙈";
+                            input.type = "text";
+                            button.textContent = "🙈";
 
                         } else {
 
-                            input.type =
-                                "password";
-
-                            button.textContent =
-                                "👁️";
+                            input.type = "password";
+                            button.textContent = "👁️";
                         }
 
                     }
@@ -104,9 +86,9 @@
             });
 
 
-        // ====================================================
+        // ------------------------------------------------------
         // SIGNUP
-        // ====================================================
+        // ------------------------------------------------------
 
         form.addEventListener(
             "submit",
@@ -114,10 +96,6 @@
 
                 event.preventDefault();
 
-
-                // ==================================================
-                // VALUES
-                // ==================================================
 
                 const name =
                     document
@@ -167,9 +145,9 @@
                         .value;
 
 
-                // ==================================================
+                // ------------------------------------------------
                 // VALIDATION
-                // ==================================================
+                // ------------------------------------------------
 
                 if (
                     !name ||
@@ -221,23 +199,6 @@
                 }
 
 
-                if (
-                    role !== "acheteur" &&
-                    role !== "vendeur"
-                ) {
-
-                    alert(
-                        "Tanpri chwazi si kont lan se pou Achtè oswa Vandè."
-                    );
-
-                    return;
-                }
-
-
-                // ==================================================
-                // BUTTON
-                // ==================================================
-
                 const button =
                     form.querySelector(
                         "button[type='submit']"
@@ -246,19 +207,18 @@
 
                 if (button) {
 
-                    button.disabled =
-                        true;
-
+                    button.disabled = true;
                     button.textContent =
                         "Kreyasyon kont...";
+
                 }
 
 
                 try {
 
-                    // ==================================================
-                    // CREATE AUTH USER
-                    // ==================================================
+                    // ------------------------------------------------
+                    // KREYE USER
+                    // ------------------------------------------------
 
                     const {
                         data,
@@ -292,11 +252,7 @@
                     }
 
 
-                    const user =
-                        data?.user;
-
-
-                    if (!user) {
+                    if (!data || !data.user) {
 
                         throw new Error(
                             "Kont lan pa t ka kreye."
@@ -305,83 +261,49 @@
                     }
 
 
-                    console.log(
-                        "MACHEYA SIGNUP USER:",
-                        user.id
-                    );
-
-
-                    // ==================================================
-                    // SAVE LOCALLY
-                    // ==================================================
-
-                    localStorage.setItem(
-                        "macheyaUserId",
-                        user.id
-                    );
-
-
-                    localStorage.setItem(
-                        "macheyaUserName",
-                        name
-                    );
-
-
-                    localStorage.setItem(
-                        "macheyaUserRole",
-                        role
-                    );
-
-
-                    // ==================================================
-                    // TRY CREATE PROFILE
-                    //
-                    // Si RLS pèmèt li, profile la kreye touswit.
-                    // Si email confirmation aktive epi pa gen session,
-                    // dashboard/login ap toujou itilize metadata a.
-                    // ==================================================
-
-                    const {
-                        error: profileError
-                    } =
-                        await supabase
-                            .from("profiles")
-                            .upsert(
-                                {
-                                    id: user.id,
-
-                                    name: name,
-
-                                    role: role
-
-                                },
-                                {
-                                    onConflict: "id"
-                                }
-                            );
-
-
-                    if (profileError) {
-
-                        console.warn(
-                            "MACHEYA: Profile pa t kreye touswit:",
-                            profileError.message
-                        );
-
-                    } else {
-
-                        console.log(
-                            "MACHEYA: Profile kreye."
-                        );
-
-                    }
-
-
-                    // ==================================================
-                    // SESSION EXISTS
-                    // ==================================================
+                    // ------------------------------------------------
+                    // SI SESSION DISPONIB
+                    // ------------------------------------------------
 
                     if (data.session) {
+
+                        // Eseye kreye profile a.
+                        // Si RLS bloke l, sa pap anpeche
+                        // metadata user la sèvi pou dashboard la.
+
+                        const {
+                            error: profileError
+                        } =
+                            await supabase
+                                .from("profiles")
+                                .upsert(
+                                    {
+                                        id:
+                                            data.user.id,
+
+                                        name:
+                                            name,
+
+                                        role:
+                                            role
+
+                                    },
+                                    {
+                                        onConflict:
+                                            "id"
+                                    }
+                                );
+
+
+                        if (profileError) {
+
+                            console.warn(
+                                "Profile pa t kreye:",
+                                profileError
+                            );
+
+                        }
+
 
                         alert(
                             "Kont ou kreye avèk siksè!"
@@ -394,12 +316,12 @@
                     }
 
 
-                    // ==================================================
+                    // ------------------------------------------------
                     // EMAIL CONFIRMATION
-                    // ==================================================
+                    // ------------------------------------------------
 
                     alert(
-                        "Kont ou kreye avèk siksè! Verifye imèl ou pou aktive kont lan."
+                        "Kont ou kreye. Verifye imèl ou pou aktive kont lan."
                     );
 
 
@@ -415,31 +337,21 @@
                     );
 
 
-                    let message =
-                        "Yon erè rive pandan kreyasyon kont lan.";
-
-
-                    if (
-                        error.message
-                    ) {
-
-                        message =
-                            error.message;
-                    }
-
-
-                    alert(message);
+                    alert(
+                        error.message ||
+                        "Yon erè rive pandan kreyasyon kont lan."
+                    );
 
 
                 } finally {
 
                     if (button) {
 
-                        button.disabled =
-                            false;
+                        button.disabled = false;
 
                         button.textContent =
                             "Kreye Kont";
+
                     }
 
                 }
@@ -450,22 +362,19 @@
     };
 
 
-    // ========================================================
-    // SCRIPT ERROR
-    // ========================================================
+    // ----------------------------------------------------------
+    // SUPABASE ERROR
+    // ----------------------------------------------------------
 
-    script.onerror =
-        function () {
+    script.onerror = function () {
 
-            alert(
-                "Macheya pa kapab konekte ak sèvis la kounye a."
-            );
+        alert(
+            "Macheya pa kapab konekte ak sèvis la kounye a."
+        );
 
-        };
+    };
 
 
-    document.head.appendChild(
-        script
-    );
+    document.head.appendChild(script);
 
 })();
