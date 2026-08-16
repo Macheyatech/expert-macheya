@@ -1,23 +1,12 @@
-// ============================================================
-// MACHEYA — SUPABASE CONFIG
-// ============================================================
-
 const SUPABASE_URL =
     "https://iscktsymqntjgqaxcitv.supabase.co";
 
 const SUPABASE_PUBLISHABLE_KEY =
     "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
 
-
-// ============================================================
-// CREATE SUPABASE CLIENT
-// ============================================================
-
 if (!window.supabase) {
 
-    console.error(
-        "Macheya: Supabase JS pa chaje."
-    );
+    console.error("Macheya: Supabase JS pa chaje.");
 
 } else {
 
@@ -28,6 +17,6 @@ if (!window.supabase) {
         );
 
     console.log(
-        "Macheya: Supabase konekte avèk siksè."
+        "Macheya: Supabase client pare."
     );
 }
