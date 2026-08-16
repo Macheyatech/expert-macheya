@@ -32,12 +32,21 @@ body {
     background:
         linear-gradient(
             135deg,
-            #fff7ed 0%,
+            #fffaf5 0%,
             #ffffff 45%,
-            #fff1e6 100%
+            #fff7ed 100%
         );
 
     color: #1f2937;
+}
+
+
+/* ============================================================
+   IMPORTANT — HIDDEN ELEMENTS
+============================================================ */
+
+[hidden] {
+    display: none !important;
 }
 
 
@@ -75,10 +84,11 @@ a {
     background: #ffffff;
 
     border-bottom:
-        1px solid #f3e8df;
+        1px solid #eee7e0;
 
     box-shadow:
-        0 4px 20px rgba(
+        0 4px 20px
+        rgba(
             0,
             0,
             0,
@@ -245,7 +255,7 @@ a {
 
 
 /* ============================================================
-   WELCOME
+   WELCOME CARD
 ============================================================ */
 
 .welcome-card {
@@ -261,9 +271,11 @@ a {
 
     background:
         linear-gradient(
-            135deg,
-            #f97316,
-            #ea580c
+            110deg,
+            #111827 0%,
+            #111827 48%,
+            #30241f 48%,
+            #3a2924 100%
         );
 
     color: #ffffff;
@@ -271,15 +283,19 @@ a {
     box-shadow:
         0 18px 40px
         rgba(
-            249,
-            115,
-            22,
-            0.18
+            17,
+            24,
+            39,
+            0.16
         );
 
     margin-bottom: 35px;
 }
 
+
+/* ============================================================
+   WELCOME CARD DECORATION
+============================================================ */
 
 .welcome-card::before {
 
@@ -287,13 +303,13 @@ a {
 
     position: absolute;
 
-    width: 230px;
+    width: 240px;
 
-    height: 230px;
+    height: 240px;
 
     right: -80px;
 
-    top: -100px;
+    top: -105px;
 
     border-radius: 50%;
 
@@ -302,7 +318,7 @@ a {
             255,
             255,
             255,
-            0.10
+            0.045
         );
 }
 
@@ -313,13 +329,13 @@ a {
 
     position: absolute;
 
-    width: 140px;
+    width: 160px;
 
-    height: 140px;
+    height: 160px;
 
-    right: 120px;
+    right: 125px;
 
-    bottom: -80px;
+    bottom: -95px;
 
     border-radius: 50%;
 
@@ -328,7 +344,7 @@ a {
             255,
             255,
             255,
-            0.08
+            0.035
         );
 }
 
@@ -341,19 +357,29 @@ a {
 }
 
 
+/* ============================================================
+   WELCOME LABEL
+============================================================ */
+
 .welcome-label {
 
     display: block;
 
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 
     font-size: 14px;
 
-    opacity: 0.9;
+    color: #fdba74;
 
-    font-weight: 500;
+    opacity: 1;
+
+    font-weight: 600;
 }
 
+
+/* ============================================================
+   USER NAME
+============================================================ */
 
 .welcome-card h1 {
 
@@ -366,17 +392,25 @@ a {
 
     line-height: 1.15;
 
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 
     font-weight: 800;
+
+    color: #ffffff;
 }
 
+
+/* ============================================================
+   WELCOME MESSAGE
+============================================================ */
 
 .welcome-card p {
 
     font-size: 15px;
 
-    opacity: 0.92;
+    color: #d1d5db;
+
+    opacity: 1;
 
     max-width: 650px;
 }
@@ -403,7 +437,7 @@ a {
     background: #ffffff;
 
     border:
-        1px solid #f3e8df;
+        1px solid #eee7e0;
 
     border-radius: 22px;
 
@@ -443,6 +477,7 @@ a {
 @keyframes macheya-spin {
 
     to {
+
         transform:
             rotate(360deg);
     }
@@ -643,7 +678,7 @@ a {
     background: #ffffff;
 
     border:
-        1px solid #f3e8df;
+        1px solid #eee7e0;
 
     border-radius: 20px;
 
@@ -780,7 +815,7 @@ a {
     background: #ffffff;
 
     border:
-        1px solid #f3e8df;
+        1px solid #eee7e0;
 
     border-radius: 18px;
 
@@ -973,11 +1008,31 @@ a {
 
     .welcome-card {
 
-        padding: 28px 23px;
+        padding:
+            28px 23px;
 
         border-radius: 20px;
 
         margin-bottom: 25px;
+    }
+
+
+    .welcome-card h1 {
+
+        color: #ffffff;
+
+        font-size:
+            clamp(
+                27px,
+                8vw,
+                36px
+            );
+    }
+
+
+    .welcome-card p {
+
+        color: #d1d5db;
     }
 
 
@@ -1051,6 +1106,8 @@ a {
     .welcome-card h1 {
 
         font-size: 27px;
+
+        color: #ffffff;
     }
 
-    }
+       }
