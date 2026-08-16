@@ -1,76 +1,114 @@
-const SUPABASE_URL =
-    "https://iscktsymqntjgqaxcitv.supabase.co";
+// ============================================================
+// MACHEYA — LOGIN.JS
+// ============================================================
 
-const SUPABASE_KEY =
-    "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
+(function () {
 
+    "use strict";
 
-const script = document.createElement("script");
-
-script.src =
-    "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
+    console.log("MACHEYA: login.js ap demare...");
 
 
-script.onload = () => {
+    // ========================================================
+    // SUPABASE
+    // ========================================================
 
     const supabase =
-        window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_KEY
+        window.supabaseClient;
+
+
+    if (!supabase) {
+
+        console.error(
+            "MACHEYA: Supabase client pa disponib."
         );
 
+        alert(
+            "Macheya pa kapab konekte ak sèvis la kounye a."
+        );
+
+        return;
+    }
+
+
+    // ========================================================
+    // FORM
+    // ========================================================
 
     const form =
         document.getElementById("loginForm");
 
 
     if (!form) {
-        console.error("loginForm introuvable.");
+
+        console.error(
+            "MACHEYA: loginForm pa jwenn."
+        );
+
         return;
     }
 
 
-    /* =========================
-       AFFICHER / CACHER MODPAS
-    ========================= */
+    const loginButton =
+        document.getElementById("loginButton");
+
+
+    // ========================================================
+    // SHOW / HIDE PASSWORD
+    // ========================================================
 
     document
         .querySelectorAll(".show-password")
-        .forEach(button => {
+        .forEach(function (button) {
 
-            button.addEventListener("click", () => {
+            button.addEventListener(
+                "click",
+                function () {
 
-                const input =
-                    document.getElementById(
-                        button.dataset.target
-                    );
+                    const target =
+                        document.getElementById(
+                            button.dataset.target
+                        );
 
-                if (!input) return;
 
-                if (input.type === "password") {
+                    if (!target) {
+                        return;
+                    }
 
-                    input.type = "text";
-                    button.textContent = "🙈";
 
-                } else {
+                    if (
+                        target.type ===
+                        "password"
+                    ) {
 
-                    input.type = "password";
-                    button.textContent = "👁️";
+                        target.type =
+                            "text";
+
+                        button.textContent =
+                            "🙈";
+
+                    } else {
+
+                        target.type =
+                            "password";
+
+                        button.textContent =
+                            "👁️";
+                    }
 
                 }
-
-            });
+            );
 
         });
 
 
-    /* =========================
-       CONNEXION
-    ========================= */
+    // ========================================================
+    // LOGIN
+    // ========================================================
 
     form.addEventListener(
         "submit",
-        async (event) => {
+        async function (event) {
 
             event.preventDefault();
 
@@ -79,7 +117,9 @@ script.onload = () => {
                 document
                     .getElementById("email")
                     .value
-                    .trim();
+                    .trim()
+                    .toLowerCase();
+
 
             const password =
                 document
@@ -87,41 +127,49 @@ script.onload = () => {
                     .value;
 
 
+            // ==================================================
+            // VALIDATION
+            // ==================================================
+
             if (!email || !password) {
 
                 alert(
-                    "Veuillez remplir votre e-mail et votre mot de passe."
+                    "Tanpri antre imèl ou ak modpas ou."
                 );
 
                 return;
             }
 
 
-            const button =
-                document.getElementById(
-                    "loginButton"
-                );
+            // ==================================================
+            // BUTTON
+            // ==================================================
 
+            if (loginButton) {
 
-            if (button) {
+                loginButton.disabled =
+                    true;
 
-                button.disabled = true;
-
-                button.textContent =
-                    "Connexion...";
-
+                loginButton.textContent =
+                    "Koneksyon...";
             }
 
 
             try {
 
-                /* =========================
-                   SUPABASE AUTH
-                ========================= */
+
+                // ==================================================
+                // AUTH LOGIN
+                // ==================================================
+
+                console.log(
+                    "MACHEYA: N ap verifye kont lan..."
+                );
+
 
                 const {
-                    data,
-                    error
+                    data: authData,
+                    error: authError
                 } =
                     await supabase.auth
                         .signInWithPassword({
@@ -135,27 +183,33 @@ script.onload = () => {
                         });
 
 
-                if (error) {
-                    throw error;
+                if (authError) {
+                    throw authError;
                 }
 
 
-                if (!data.user) {
+                const user =
+                    authData?.user;
+
+
+                if (!user) {
 
                     throw new Error(
-                        "Impossible de récupérer votre compte."
+                        "Macheya pa kapab jwenn kont ou."
                     );
 
                 }
 
 
-                const userId =
-                    data.user.id;
+                console.log(
+                    "MACHEYA: User konekte:",
+                    user.id
+                );
 
 
-                /* =========================
-                   RÉCUPÉRER LE PROFIL
-                ========================= */
+                // ==================================================
+                // GET PROFILE
+                // ==================================================
 
                 const {
                     data: profile,
@@ -164,188 +218,167 @@ script.onload = () => {
                     await supabase
                         .from("profiles")
                         .select(
-                            "name, role"
+                            "id, nom_complet, telephone, role, est_acheteur, est_vendeur"
                         )
                         .eq(
                             "id",
-                            userId
+                            user.id
                         )
-                        .single();
+                        .maybeSingle();
 
 
                 if (profileError) {
 
                     console.error(
-                        "Erreur profil:",
+                        "MACHEYA PROFILE ERROR:",
                         profileError
                     );
 
                     throw new Error(
-                        "Nou pa kapab jwenn kalite kont ou."
+                        "Kont lan konekte, men nou pa kapab jwenn pwofil li."
                     );
-
                 }
 
+
+                // ==================================================
+                // PROFILE NOT FOUND
+                // ==================================================
 
                 if (!profile) {
 
                     throw new Error(
-                        "Pwofil kont ou pa egziste."
+                        "Kont lan konekte, men pwofil Macheya a pa egziste."
                     );
-
                 }
 
 
-                /* =========================
-                   RÉCUPÉRER ROLE
-                ========================= */
+                console.log(
+                    "MACHEYA PROFILE:",
+                    profile
+                );
+
+
+                // ==================================================
+                // VERIFY ROLE
+                // ==================================================
 
                 const role =
                     String(
                         profile.role || ""
                     )
-                    .trim()
-                    .toLowerCase();
+                        .trim()
+                        .toLowerCase();
 
+
+                const isBuyer =
+                    role === "acheteur" &&
+                    profile.est_acheteur === true;
+
+
+                const isSeller =
+                    role === "vendeur" &&
+                    profile.est_vendeur === true;
+
+
+                if (
+                    !isBuyer &&
+                    !isSeller
+                ) {
+
+                    throw new Error(
+                        "Pwofil ou pa gen yon kalite kont Macheya valab."
+                    );
+                }
+
+
+                // ==================================================
+                // SUCCESS
+                // ==================================================
 
                 console.log(
-                    "Macheya — Role:",
+                    "MACHEYA ROLE:",
                     role
                 );
 
-
-                /* =========================
-                   STOCKER INFOS
-                ========================= */
-
-                localStorage.setItem(
-                    "macheyaUserName",
-                    profile.name || ""
-                );
-
-
-                localStorage.setItem(
-                    "macheyaUserRole",
-                    role
-                );
-
-
-                localStorage.setItem(
-                    "macheyaUserId",
-                    userId
-                );
-
-
-                /* =========================
-                   REDIRECTION SELON ROLE
-                ========================= */
 
                 alert(
-                    "Connexion réussie !"
+                    "Koneksyon reyisi!"
                 );
 
 
-                /* ACHETÈ */
+                // ==================================================
+                // DASHBOARD
+                // ==================================================
 
-                if (
-                    role === "acheteur" ||
-                    role === "achete" ||
-                    role === "buyer"
-                ) {
-
-                    window.location.href =
-                        "buyer.html";
-
-                    return;
-                }
-
-
-                /* VANDÈ */
-
-                if (
-                    role === "vendeur" ||
-                    role === "vendeur" ||
-                    role === "seller"
-                ) {
-
-                    window.location.href =
-                        "dashboard.html";
-
-                    return;
-                }
-
-
-                /* ROLE PA REKONÈT */
-
-                throw new Error(
-                    "Kalite kont sa a pa rekonèt: " +
-                    role
-                );
+                window.location.href =
+                    "dashboard.html";
 
 
             } catch (error) {
 
+
                 console.error(
-                    "Login error:",
+                    "MACHEYA LOGIN ERROR:",
                     error
                 );
 
 
+                const errorText =
+                    String(
+                        error?.message || ""
+                    ).toLowerCase();
+
+
                 let message =
-                    "Une erreur est survenue lors de la connexion.";
+                    "Yon erè rive pandan koneksyon an.";
 
 
                 if (
-                    error.message &&
-                    error.message
-                        .toLowerCase()
-                        .includes(
-                            "invalid login"
-                        )
+                    errorText.includes(
+                        "invalid login credentials"
+                    )
                 ) {
 
                     message =
-                        "E-mail ou mot de passe incorrect.";
+                        "Imèl oswa modpas la pa kòrèk.";
 
-                }
-
-                else if (
-                    error.message &&
-                    error.message
-                        .toLowerCase()
-                        .includes(
-                            "email not confirmed"
-                        )
+                } else if (
+                    errorText.includes(
+                        "email not confirmed"
+                    )
                 ) {
 
                     message =
-                        "Veuillez d'abord confirmer votre adresse e-mail.";
+                        "Tanpri verifye imèl ou anvan ou konekte.";
 
-                }
-
-                else if (
-                    error.message
+                } else if (
+                    error?.message
                 ) {
 
                     message =
                         error.message;
-
                 }
 
 
-                alert(message);
+                alert(
+                    message
+                );
 
 
             } finally {
 
-                if (button) {
 
-                    button.disabled =
+                // ==================================================
+                // RESET BUTTON
+                // ==================================================
+
+                if (loginButton) {
+
+                    loginButton.disabled =
                         false;
 
-                    button.textContent =
+                    loginButton.textContent =
                         "Konekte";
-
                 }
 
             }
@@ -354,9 +387,9 @@ script.onload = () => {
     );
 
 
-    /* =========================
-       MODPAS BLIYE
-    ========================= */
+    // ========================================================
+    // FORGOT PASSWORD
+    // ========================================================
 
     const forgotPassword =
         document.getElementById(
@@ -368,7 +401,7 @@ script.onload = () => {
 
         forgotPassword.addEventListener(
             "click",
-            async (event) => {
+            async function (event) {
 
                 event.preventDefault();
 
@@ -377,7 +410,8 @@ script.onload = () => {
                     document
                         .getElementById("email")
                         .value
-                        .trim();
+                        .trim()
+                        .toLowerCase();
 
 
                 if (!email) {
@@ -392,6 +426,7 @@ script.onload = () => {
 
                 try {
 
+
                     const {
                         error
                     } =
@@ -400,7 +435,8 @@ script.onload = () => {
                                 email,
                                 {
                                     redirectTo:
-                                        "https://macheya-ayti.vercel.app/login.html"
+                                        window.location.origin +
+                                        "/login.html"
                                 }
                             );
 
@@ -418,13 +454,14 @@ script.onload = () => {
                 } catch (error) {
 
                     console.error(
+                        "MACHEYA PASSWORD RESET ERROR:",
                         error
                     );
 
 
                     alert(
-                        error.message ||
-                        "Nou pa t kapab voye lyen an."
+                        error?.message ||
+                        "Nou pa t kapab voye lyen pou chanje modpas la."
                     );
 
                 }
@@ -434,16 +471,5 @@ script.onload = () => {
 
     }
 
-};
 
-
-script.onerror = () => {
-
-    alert(
-        "Macheya pa kapab konekte ak sèvis la kounye a."
-    );
-
-};
-
-
-document.head.appendChild(script);
+})();
