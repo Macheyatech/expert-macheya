@@ -1,33 +1,95 @@
 <!DOCTYPE html>
 <html lang="ht">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Kreye Kont | Macheya</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <link rel="stylesheet" href="signup.css">
+    <meta
+        name="description"
+        content="Kreye kont ou sou macheya."
+    >
+
+    <title>Kreye Kont | macheya</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="signup.css"
+    >
+
 </head>
+
 
 <body>
 
+
+    <!-- ==================================================
+         HEADER
+    ================================================== -->
+
     <header class="topbar">
 
-        <a href="marketplace.html" class="brand">
-            <span class="logo">M</span>
-            <span class="brand-name">macheya</span>
+        <a
+            href="marketplace.html"
+            class="brand"
+        >
+
+            <span class="logo">
+                M
+            </span>
+
+            <span class="brand-name">
+                macheya
+            </span>
+
         </a>
 
-        <a href="marketplace.html" class="back-btn">
+
+        <a
+            href="marketplace.html"
+            class="back-btn"
+        >
             Retounen
         </a>
 
     </header>
 
 
+
+    <!-- ==================================================
+         MAIN
+    ================================================== -->
+
     <main class="signup-page">
 
+
+        <!-- ==================================================
+             SIGNUP CARD
+        ================================================== -->
+
         <section class="signup-card">
+
 
             <div class="intro">
 
@@ -35,9 +97,11 @@
                     🇭🇹 Macheya
                 </div>
 
+
                 <h1>
                     Kreye kont ou.
                 </h1>
+
 
                 <p>
                     Kòmanse vann oswa achte sou Macheya.
@@ -47,9 +111,18 @@
             </div>
 
 
+
+            <!-- ==================================================
+                 FORM
+            ================================================== -->
+
             <form id="signupForm">
 
+
+                <!-- NON -->
+
                 <div class="form-group">
+
                     <label for="name">
                         Non konplè
                     </label>
@@ -61,10 +134,15 @@
                         autocomplete="name"
                         required
                     >
+
                 </div>
 
 
+
+                <!-- EMAIL -->
+
                 <div class="form-group">
+
                     <label for="email">
                         Imèl
                     </label>
@@ -76,10 +154,15 @@
                         autocomplete="email"
                         required
                     >
+
                 </div>
 
 
+
+                <!-- CONFIRM EMAIL -->
+
                 <div class="form-group">
+
                     <label for="confirmEmail">
                         Konfime imèl
                     </label>
@@ -91,10 +174,15 @@
                         autocomplete="email"
                         required
                     >
+
                 </div>
 
 
+
+                <!-- TELEPHONE -->
+
                 <div class="form-group">
+
                     <label for="phone">
                         Telefòn
                     </label>
@@ -105,14 +193,19 @@
                         placeholder="Antre nimewo telefòn ou"
                         autocomplete="tel"
                     >
+
                 </div>
 
+
+
+                <!-- MODPAS -->
 
                 <div class="form-group">
 
                     <label for="password">
                         Modpas
                     </label>
+
 
                     <div class="password-box">
 
@@ -121,18 +214,22 @@
                             id="password"
                             placeholder="Kreye yon modpas"
                             autocomplete="new-password"
+                            minlength="6"
                             required
                         >
+
 
                         <button
                             type="button"
                             class="show-password"
                             data-target="password"
+                            aria-label="Montre modpas"
                         >
                             👁️
                         </button>
 
                     </div>
+
 
                     <small>
                         Modpas la dwe gen omwen 6 karaktè.
@@ -141,11 +238,15 @@
                 </div>
 
 
+
+                <!-- CONFIRM MODPAS -->
+
                 <div class="form-group">
 
                     <label for="confirmPassword">
                         Konfime modpas
                     </label>
+
 
                     <div class="password-box">
 
@@ -154,13 +255,16 @@
                             id="confirmPassword"
                             placeholder="Konfime modpas ou"
                             autocomplete="new-password"
+                            minlength="6"
                             required
                         >
+
 
                         <button
                             type="button"
                             class="show-password"
                             data-target="confirmPassword"
+                            aria-label="Montre modpas"
                         >
                             👁️
                         </button>
@@ -170,21 +274,34 @@
                 </div>
 
 
+
+                <!-- ROLE -->
+
                 <div class="form-group">
 
                     <label for="role">
                         Mwen vle
                     </label>
 
-                    <select id="role" required>
 
-                        <option value="" selected disabled>
+                    <select
+                        id="role"
+                        required
+                    >
+
+                        <option
+                            value=""
+                            selected
+                            disabled
+                        >
                             Chwazi kalite kont
                         </option>
+
 
                         <option value="acheteur">
                             Achte sou Macheya
                         </option>
+
 
                         <option value="vendeur">
                             Vann sou Macheya
@@ -195,13 +312,20 @@
                 </div>
 
 
+
+                <!-- SUBMIT -->
+
                 <button
                     type="submit"
                     class="signup-btn"
+                    id="signupButton"
                 >
                     Kreye Kont
                 </button>
 
+
+
+                <!-- LOGIN -->
 
                 <div class="login-link">
 
@@ -209,29 +333,39 @@
                         Ou deja gen yon kont?
                     </span>
 
+
                     <a href="login.html">
                         Konekte
                     </a>
 
                 </div>
 
+
             </form>
 
         </section>
 
 
+
+        <!-- ==================================================
+             SIDE
+        ================================================== -->
+
         <section class="signup-side">
 
             <div class="side-content">
+
 
                 <div class="side-icon">
                     🛍️
                 </div>
 
+
                 <h2>
                     Tout sa w bezwen,
                     yon sèl kote.
                 </h2>
+
 
                 <p>
                     Sou Macheya, ou ka dekouvri pwodwi,
@@ -240,33 +374,84 @@
                 </p>
 
 
+
                 <div class="benefits">
 
-                    <div class="benefit">
-                        <span>✓</span>
-                        <p>Senp pou itilize</p>
-                    </div>
 
                     <div class="benefit">
-                        <span>✓</span>
-                        <p>An sekirite</p>
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <p>
+                            Senp pou itilize
+                        </p>
+
                     </div>
 
+
                     <div class="benefit">
-                        <span>✓</span>
-                        <p>Fèt pou Ayiti</p>
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <p>
+                            An sekirite
+                        </p>
+
                     </div>
+
+
+                    <div class="benefit">
+
+                        <span>
+                            ✓
+                        </span>
+
+                        <p>
+                            Fèt pou Ayiti
+                        </p>
+
+                    </div>
+
 
                 </div>
+
 
             </div>
 
         </section>
 
+
     </main>
 
 
-    <script src="signup.js"></script>
+
+    <!-- ==================================================
+         SUPABASE
+    ================================================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <script
+        src="supabase-config.js"
+    ></script>
+
+
+    <!-- ==================================================
+         SIGNUP
+    ================================================== -->
+
+    <script
+        src="signup.js"
+    ></script>
+
 
 </body>
-  </html>
+
+                        </html>
