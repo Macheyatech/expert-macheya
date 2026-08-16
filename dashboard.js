@@ -517,5 +517,26 @@ if (retryButton) {
 // ============================================================
 // START
 // ============================================================
+console.log("🔥 DASHBOARD.JS AP MACHE");
 
+if (loadingSection) {
+    loadingSection.hidden = true;
+}
+
+if (buyerSpace) {
+    buyerSpace.hidden = false;
+}
+
+if (sellerSpace) {
+    sellerSpace.hidden = false;
+}
+
+if (errorSection) {
+    errorSection.hidden = false;
+}
+
+if (errorMessage) {
+    errorMessage.textContent =
+        "TEST: dashboard.js ap egzekite.";
+                    }
 loadDashboard();
