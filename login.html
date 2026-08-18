@@ -1,401 +1,325 @@
-// ============================================================
-// MACHEYA — LOGIN.JS
-// ============================================================
+<!DOCTYPE html>
+<html lang="ht">
 
-(function () {
+<head>
 
-    "use strict";
+    <meta charset="UTF-8">
 
-    console.log("MACHEYA: login.js ap demare...");
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    const supabase = window.supabaseClient;
+    <title>Konekte | Macheya</title>
 
-    if (!supabase) {
-        alert("Macheya pa kapab konekte ak sèvis la kounye a.");
-        console.error("MACHEYA: supabaseClient pa disponib.");
-        return;
-    }
+    <link
+        rel="stylesheet"
+        href="login.css"
+    >
 
-    const form = document.getElementById("loginForm");
+</head>
 
-    if (!form) {
-        console.error("MACHEYA: loginForm pa jwenn.");
-        return;
-    }
 
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const loginButton = document.getElementById("loginButton");
+<body>
 
 
-    // ========================================================
-    // JE — MONTRE / KACHE MODPAS
-    // ========================================================
+    <!-- ==================================================
+         TOPBAR
+    ================================================== -->
 
-    document.querySelectorAll(".show-password").forEach(function (button) {
+    <header class="topbar">
 
-        button.addEventListener("click", function () {
+        <a
+            href="index.html"
+            class="brand"
+        >
 
-            const target = document.getElementById(
-                button.dataset.target
-            );
+            <span class="logo">
+                M
+            </span>
 
-            if (!target) return;
+            <span class="brand-name">
+                macheya
+            </span>
 
-            if (target.type === "password") {
+        </a>
 
-                target.type = "text";
-                button.textContent = "🙈";
 
-            } else {
+        <a
+            href="index.html"
+            class="back-btn"
+        >
+            Retounen
+        </a>
 
-                target.type = "password";
-                button.textContent = "👁️";
+    </header>
 
-            }
 
-        });
 
-    });
+    <!-- ==================================================
+         LOGIN PAGE
+    ================================================== -->
 
+    <main class="login-page">
 
-    // ========================================================
-    // LOGIN
-    // ========================================================
 
-    form.addEventListener("submit", async function (event) {
+        <!-- ==================================================
+             LOGIN CARD
+        ================================================== -->
 
-        event.preventDefault();
+        <section class="login-card">
 
-        const email = emailInput.value.trim().toLowerCase();
-        const password = passwordInput.value;
 
-        if (!email || !password) {
-            alert("Tanpri antre imèl ou ak modpas ou.");
-            return;
-        }
+            <div class="login-intro">
 
-        if (loginButton) {
-            loginButton.disabled = true;
-            loginButton.textContent = "Koneksyon...";
-        }
 
-        try {
+                <div class="small-badge">
+                    🇭🇹 Macheya
+                </div>
 
-            // ==================================================
-            // 1. KONEKTE AK SUPABASE AUTH
-            // ==================================================
 
-            const { data, error } =
-                await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
+                <h1>
+                    Bon retou.
+                </h1>
 
-            if (error) {
-                throw error;
-            }
 
-            const user = data?.user;
+                <p>
+                    Konekte sou kont ou pou kontinye
+                    itilize Macheya.
+                </p>
 
-            if (!user) {
-                throw new Error("Macheya pa jwenn itilizatè a.");
-            }
 
-            console.log(
-                "MACHEYA: Auth reyisi:",
-                user.id
-            );
+            </div>
 
 
-            // ==================================================
-            // 2. CHÈCHE PROFILE
-            // ==================================================
 
-            let { data: profile, error: profileError } =
-                await supabase
-                    .from("profiles")
-                    .select("*")
-                    .eq("id", user.id)
-                    .maybeSingle();
+            <!-- ==================================================
+                 LOGIN FORM
+            ================================================== -->
 
+            <form id="loginForm">
 
-            // ==================================================
-            // 3. SI PROFILE PA EGZISTE
-            // ==================================================
 
-            if (!profile && !profileError) {
+                <!-- IMÈL -->
 
-                console.log(
-                    "MACHEYA: Profile pa egziste. N ap kreye li..."
-                );
+                <div class="form-group">
 
-                const metadata = user.user_metadata || {};
+                    <label for="email">
+                        Imèl
+                    </label>
 
-                const name =
-                    metadata.name ||
-                    metadata.nom_complet ||
-                    "";
 
-                const phone =
-                    metadata.phone ||
-                    metadata.telephone ||
-                    "";
+                    <input
+                        type="email"
+                        id="email"
+                        placeholder="Antre imèl ou"
+                        autocomplete="email"
+                        required
+                    >
 
-                const role =
-                    String(
-                        metadata.role || "acheteur"
-                    )
-                    .trim()
-                    .toLowerCase();
+                </div>
 
 
-                const { data: newProfile, error: createError } =
-                    await supabase
-                        .from("profiles")
-                        .insert({
 
-                            id: user.id,
+                <!-- MODPAS -->
 
-                            nom_complet: name,
+                <div class="form-group">
 
-                            telephone: phone,
+                    <label for="password">
+                        Modpas
+                    </label>
 
-                            role: role,
 
-                            est_acheteur:
-                                role === "acheteur",
+                    <div class="password-box">
 
-                            est_vendeur:
-                                role === "vendeur"
 
-                        })
-                        .select()
-                        .single();
+                        <input
+                            type="password"
+                            id="password"
+                            placeholder="Antre modpas ou"
+                            autocomplete="current-password"
+                            required
+                        >
 
 
-                if (createError) {
+                        <button
+                            type="button"
+                            class="show-password"
+                            data-target="password"
+                        >
+                            👁️
+                        </button>
 
-                    console.error(
-                        "MACHEYA: Erè kreyasyon profile:",
-                        createError
-                    );
 
-                    throw new Error(
-                        "Kont lan konekte, men pwofil Macheya a pa kapab kreye."
-                    );
-                }
+                    </div>
 
-                profile = newProfile;
+                </div>
 
-                console.log(
-                    "MACHEYA: Profile kreye.",
-                    profile
-                );
-            }
 
 
-            // ==================================================
-            // 4. SI GEN YON ERÈ LÈ N AP LI PROFILE
-            // ==================================================
+                <!-- OPSYON LOGIN -->
 
-            if (profileError) {
+                <div class="login-options">
 
-                console.error(
-                    "MACHEYA PROFILE ERROR:",
-                    profileError
-                );
 
-                throw new Error(
-                    "Macheya pa kapab li pwofil kont lan."
-                );
-            }
+                    <label class="remember">
 
+                        <input
+                            type="checkbox"
+                            id="remember"
+                        >
 
-            if (!profile) {
+                        <span>
+                            Sonje mwen
+                        </span>
 
-                throw new Error(
-                    "Macheya pa jwenn pwofil kont lan."
-                );
-            }
+                    </label>
 
 
-            // ==================================================
-            // 5. DETÈMINE ROLE
-            // ==================================================
+                    <a
+                        href="#"
+                        id="forgotPassword"
+                    >
+                        Modpas bliye?
+                    </a>
 
-            const role =
-                String(profile.role || "")
-                    .trim()
-                    .toLowerCase();
 
+                </div>
 
-            const isBuyer =
-                role === "acheteur" ||
-                role === "achte" ||
-                role === "buyer";
 
 
-            const isSeller =
-                role === "vendeur" ||
-                role === "vande" ||
-                role === "seller";
+                <!-- BUTTON -->
 
+                <button
+                    type="submit"
+                    class="login-btn"
+                    id="loginButton"
+                >
+                    Konekte
+                </button>
 
-            // Si pa gen role, nou konsidere l kòm achtè
-            if (!isBuyer && !isSeller) {
 
-                console.warn(
-                    "MACHEYA: Role pa defini. Achtè ap itilize kòm default."
-                );
 
-                window.location.href = "dashboard.html";
-                return;
-            }
+                <!-- SIGNUP -->
 
+                <div class="signup-link">
 
-            // ==================================================
-            // 6. KONEKSYON REYISI
-            // ==================================================
+                    <span>
+                        Ou poko gen kont?
+                    </span>
 
-            console.log(
-                "MACHEYA: Koneksyon reyisi.",
-                role
-            );
 
+                    <a href="signup.html">
+                        Kreye Kont
+                    </a>
 
-            window.location.href =
-                "dashboard.html";
+                </div>
 
 
-        } catch (error) {
+            </form>
 
-            console.error(
-                "MACHEYA LOGIN ERROR:",
-                error
-            );
 
+        </section>
 
-            const errorText =
-                String(error?.message || "")
-                    .toLowerCase();
 
 
-            let message =
-                "Yon erè rive pandan koneksyon an.";
+        <!-- ==================================================
+             SIDE
+        ================================================== -->
 
+        <section class="login-side">
 
-            if (
-                errorText.includes("invalid login credentials")
-            ) {
 
-                message =
-                    "Imèl oswa modpas la pa kòrèk.";
+            <div class="side-content">
 
-            } else if (
-                errorText.includes("email not confirmed")
-            ) {
 
-                message =
-                    "Tanpri verifye imèl ou anvan ou konekte.";
+                <div class="side-icon">
+                    🛒
+                </div>
 
-            } else {
 
-                message =
-                    error?.message ||
-                    message;
-            }
+                <h2>
+                    Macheya,
+                    mache pa w la.
+                </h2>
 
 
-            alert(message);
+                <p>
+                    Achte sa w bezwen, dekouvri nouvo
+                    pwodwi oswa devlope pwòp biznis ou
+                    sou yon marketplace ki fèt pou Ayiti.
+                </p>
 
 
-        } finally {
 
-            if (loginButton) {
+                <div class="benefits">
 
-                loginButton.disabled = false;
-                loginButton.textContent = "Konekte";
 
-            }
+                    <div class="benefit">
 
-        }
+                        <span>
+                            ✓
+                        </span>
 
-    });
+                        <p>
+                            Yon sèl kont pou tout Macheya
+                        </p>
 
+                    </div>
 
-    // ========================================================
-    // MODPAS BLIYE
-    // ========================================================
 
-    const forgotPassword =
-        document.getElementById("forgotPassword");
 
+                    <div class="benefit">
 
-    if (forgotPassword) {
+                        <span>
+                            ✓
+                        </span>
 
-        forgotPassword.addEventListener(
-            "click",
-            async function (event) {
+                        <p>
+                            Achte oswa vann fasil
+                        </p>
 
-                event.preventDefault();
+                    </div>
 
-                const email =
-                    emailInput.value
-                        .trim()
-                        .toLowerCase();
 
 
-                if (!email) {
+                    <div class="benefit">
 
-                    alert(
-                        "Antre imèl ou an premye."
-                    );
+                        <span>
+                            ✓
+                        </span>
 
-                    return;
-                }
+                        <p>
+                            Eksperyans senp ak rapid
+                        </p>
 
+                    </div>
 
-                try {
 
-                    const { error } =
-                        await supabase.auth.resetPasswordForEmail(
-                            email,
-                            {
-                                redirectTo:
-                                    window.location.origin +
-                                    "/login.html"
-                            }
-                        );
+                </div>
 
 
-                    if (error) {
-                        throw error;
-                    }
+            </div>
 
 
-                    alert(
-                        "Nou voye yon lyen pou chanje modpas la nan imèl ou."
-                    );
+        </section>
 
 
-                } catch (error) {
+    </main>
 
-                    console.error(
-                        "MACHEYA PASSWORD RESET ERROR:",
-                        error
-                    );
 
-                    alert(
-                        error?.message ||
-                        "Nou pa t kapab voye lyen an."
-                    );
 
-                }
+    <!-- ==================================================
+         SUPABASE
+    ================================================== -->
 
-            }
-        );
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    }
+    <script src="supabase-config.js"></script>
 
-})();
+    <script src="login.js"></script>
+
+
+</body>
+
+    </html>
