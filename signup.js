@@ -13,14 +13,13 @@
     // SUPABASE
     // ========================================================
 
-    const supabase =
-        window.supabaseClient;
+    const supabase = window.supabaseClient;
 
 
     if (!supabase) {
 
         console.error(
-            "MACHEYA: supabaseClient pa jwenn."
+            "MACHEYA: supabaseClient pa disponib."
         );
 
         alert(
@@ -42,7 +41,7 @@
     if (!form) {
 
         console.error(
-            "MACHEYA: signupForm introuvable."
+            "MACHEYA: signupForm pa jwenn."
         );
 
         return;
@@ -59,15 +58,15 @@
 
             button.addEventListener(
                 "click",
-                function () {
+                function (event) {
+
+                    event.preventDefault();
 
                     const targetId =
                         button.dataset.target;
 
                     const input =
-                        document.getElementById(
-                            targetId
-                        );
+                        document.getElementById(targetId);
 
 
                     if (!input) {
@@ -75,30 +74,104 @@
                     }
 
 
-                    if (
-                        input.type ===
-                        "password"
-                    ) {
+                    if (input.type === "password") {
 
-                        input.type =
-                            "text";
+                        input.type = "text";
 
-                        button.textContent =
-                            "🙈";
+                        button.textContent = "🙈";
+
+                        button.setAttribute(
+                            "aria-label",
+                            "Kache modpas la"
+                        );
 
                     } else {
 
-                        input.type =
-                            "password";
+                        input.type = "password";
 
-                        button.textContent =
-                            "👁️";
+                        button.textContent = "👁️";
+
+                        button.setAttribute(
+                            "aria-label",
+                            "Montre modpas la"
+                        );
+
                     }
 
                 }
             );
 
         });
+
+
+    // ========================================================
+    // SUBMIT BUTTON
+    // ========================================================
+
+    const button =
+        form.querySelector(
+            "button[type='submit']"
+        );
+
+
+    // ========================================================
+    // PREVENT DOUBLE SUBMIT
+    // ========================================================
+
+    let isSubmitting = false;
+
+
+    // ========================================================
+    // COOLDOWN
+    // ========================================================
+
+    let cooldownTimer = null;
+
+
+    function startCooldown(seconds) {
+
+        if (!button) {
+            return;
+        }
+
+
+        clearInterval(cooldownTimer);
+
+
+        let remaining = seconds;
+
+
+        button.disabled = true;
+
+        button.textContent =
+            "Tann " + remaining + "s...";
+
+
+        cooldownTimer =
+            setInterval(function () {
+
+                remaining--;
+
+
+                if (remaining <= 0) {
+
+                    clearInterval(cooldownTimer);
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "Kreye Kont";
+
+                    return;
+                }
+
+
+                button.textContent =
+                    "Tann " + remaining + "s...";
+
+            }, 1000);
+
+    }
 
 
     // ========================================================
@@ -112,6 +185,20 @@
             event.preventDefault();
 
 
+            // ------------------------------------------------
+            // Pa kite itilizatè a voye menm demann lan 2 fwa
+            // ------------------------------------------------
+
+            if (isSubmitting) {
+
+                console.log(
+                    "MACHEYA: Demann lan deja ap trete."
+                );
+
+                return;
+            }
+
+
             // ==================================================
             // ELEMENTS
             // ==================================================
@@ -123,22 +210,16 @@
                 document.getElementById("email");
 
             const confirmEmailInput =
-                document.getElementById(
-                    "confirmEmail"
-                );
+                document.getElementById("confirmEmail");
 
             const phoneInput =
                 document.getElementById("phone");
 
             const passwordInput =
-                document.getElementById(
-                    "password"
-                );
+                document.getElementById("password");
 
             const confirmPasswordInput =
-                document.getElementById(
-                    "confirmPassword"
-                );
+                document.getElementById("confirmPassword");
 
             const roleInput =
                 document.getElementById("role");
@@ -159,7 +240,7 @@
                 );
 
                 console.error(
-                    "MACHEYA: Youn oswa plizyè input signup manke."
+                    "MACHEYA: Input signup manke."
                 );
 
                 return;
@@ -240,10 +321,7 @@
             // EMAIL
             // ==================================================
 
-            if (
-                email !==
-                confirmEmail
-            ) {
+            if (email !== confirmEmail) {
 
                 alert(
                     "De imèl yo pa menm."
@@ -257,9 +335,7 @@
             // PASSWORD
             // ==================================================
 
-            if (
-                password.length < 6
-            ) {
+            if (password.length < 6) {
 
                 alert(
                     "Modpas la dwe gen omwen 6 karaktè."
@@ -269,10 +345,7 @@
             }
 
 
-            if (
-                password !==
-                confirmPassword
-            ) {
+            if (password !== confirmPassword) {
 
                 alert(
                     "De modpas yo pa menm."
@@ -283,19 +356,15 @@
 
 
             // ==================================================
-            // BUTTON
+            // START SUBMIT
             // ==================================================
 
-            const button =
-                form.querySelector(
-                    "button[type='submit']"
-                );
+            isSubmitting = true;
 
 
             if (button) {
 
-                button.disabled =
-                    true;
+                button.disabled = true;
 
                 button.textContent =
                     "Kreyasyon kont...";
@@ -305,15 +374,14 @@
 
             try {
 
+                console.log(
+                    "MACHEYA: N ap kreye kont lan..."
+                );
+
 
                 // ==================================================
                 // CREATE AUTH USER
                 // ==================================================
-
-                console.log(
-                    "MACHEYA: Kreyasyon kont..."
-                );
-
 
                 const {
                     data,
@@ -342,12 +410,20 @@
                     });
 
 
+                // ==================================================
+                // SUPABASE ERROR
+                // ==================================================
+
                 if (error) {
 
                     throw error;
 
                 }
 
+
+                // ==================================================
+                // CHECK USER
+                // ==================================================
 
                 if (!data || !data.user) {
 
@@ -359,23 +435,14 @@
 
 
                 console.log(
-                    "MACHEYA: Kont Auth kreye.",
+                    "MACHEYA: Kont Auth kreye:",
                     data.user.id
                 );
 
 
                 // ==================================================
-                // IMPORTANT
+                // SUCCESS
                 // ==================================================
-                //
-                // Nou PA fè:
-                //
-                // supabase.from("profiles").insert(...)
-                //
-                // Trigger Supabase la ap kreye profiles otomatikman.
-                //
-                // ==================================================
-
 
                 if (data.session) {
 
@@ -386,14 +453,15 @@
                 } else {
 
                     alert(
-                        "Kont ou kreye avèk siksè. Verifye imèl ou pou aktive kont lan."
+                        "Kont ou kreye avèk siksè.\n\n" +
+                        "Verifye imèl ou pou aktive kont lan."
                     );
 
                 }
 
 
                 // ==================================================
-                // LOGIN
+                // GO LOGIN
                 // ==================================================
 
                 window.location.href =
@@ -402,35 +470,66 @@
 
             } catch (error) {
 
-
                 console.error(
                     "MACHEYA SIGNUP ERROR:",
                     error
                 );
 
 
+                const errorText =
+                    String(
+                        error?.message || ""
+                    ).toLowerCase();
+
+
                 let message =
-                    "Yon erè rive pandan kreyasyon kont lan.";
+                    "Nou pa t kapab kreye kont ou kounye a.";
 
 
-                if (error?.message) {
+                // ==================================================
+                // RATE LIMIT — 30 SECONDS
+                // ==================================================
+
+                if (
+                    errorText.includes(
+                        "after 30 seconds"
+                    ) ||
+                    errorText.includes(
+                        "security purposes"
+                    ) ||
+                    errorText.includes(
+                        "rate limit"
+                    ) ||
+                    errorText.includes(
+                        "too many requests"
+                    )
+                ) {
 
                     message =
-                        error.message;
+                        "Pou sekirite Macheya, tanpri tann kèk segonn " +
+                        "anvan ou eseye kreye kont lan ankò.";
 
+                    alert(message);
+
+                    isSubmitting = false;
+
+                    startCooldown(30);
+
+                    return;
                 }
 
 
                 // ==================================================
-                // MESSAGES PI KLÈ
+                // EMAIL ALREADY REGISTERED
                 // ==================================================
 
                 if (
-                    message
-                        .toLowerCase()
-                        .includes(
-                            "already registered"
-                        )
+                    errorText.includes(
+                        "already registered"
+                    ) ||
+                    errorText.includes(
+                        "user already exists"
+                    )
                 ) {
 
                     message =
@@ -439,12 +538,14 @@
                 }
 
 
-                if (
-                    message
-                        .toLowerCase()
-                        .includes(
-                            "invalid email"
-                        )
+                // ==================================================
+                // INVALID EMAIL
+                // ==================================================
+
+                else if (
+                    errorText.includes(
+                        "invalid email"
+                    )
                 ) {
 
                     message =
@@ -453,23 +554,84 @@
                 }
 
 
-                alert(
-                    message
-                );
+                // ==================================================
+                // WEAK PASSWORD
+                // ==================================================
+
+                else if (
+                    errorText.includes(
+                        "password"
+                    ) &&
+                    errorText.includes(
+                        "weak"
+                    )
+                ) {
+
+                    message =
+                        "Modpas la pa ase fò.";
+
+                }
 
 
-            } finally {
+                // ==================================================
+                // EMAIL PROVIDER
+                // ==================================================
+
+                else if (
+                    errorText.includes(
+                        "email provider"
+                    )
+                ) {
+
+                    message =
+                        "Nou pa kapab voye imèl verifikasyon an kounye a. " +
+                        "Tanpri eseye ankò pita.";
+
+                }
+
+
+                // ==================================================
+                // OTHER SUPABASE AUTH ERRORS
+                // ==================================================
+
+                else if (
+                    errorText.includes(
+                        "invalid"
+                    ) &&
+                    errorText.includes(
+                        "credentials"
+                    )
+                ) {
+
+                    message =
+                        "Enfòmasyon kont lan pa valid.";
+
+                }
+
+
+                // ==================================================
+                // SHOW ERROR
+                // ==================================================
+
+                alert(message);
+
+
+                // ==================================================
+                // RESET
+                // ==================================================
+
+                isSubmitting = false;
 
 
                 if (button) {
 
-                    button.disabled =
-                        false;
+                    button.disabled = false;
 
                     button.textContent =
                         "Kreye Kont";
 
                 }
+
 
             }
 
