@@ -1,925 +1,982 @@
-/* ============================================================
-   MACHEYA — MARKETPLACE
-   PRODUCTS + SEARCH + CATEGORY + SORT
-============================================================ */
+// ============================================================
+// MACHEYA — MARKETPLACE.JS
+// ============================================================
 
-const marketplaceState = {
-    products: [],
-    filteredProducts: [],
-    activeCategory: "all",
-    searchQuery: "",
-    sort: "default"
-};
+(function () {
+
+    "use strict";
 
 
-/* ============================================================
-   ELEMENTS
-============================================================ */
-
-const marketplaceProductsGrid =
-    document.getElementById("marketplace-products-grid");
-
-const marketplaceEmptyState =
-    document.getElementById("marketplace-empty-state");
-
-const marketplaceResultsCount =
-    document.getElementById("marketplace-results-count");
-
-const marketplaceResultsTitle =
-    document.getElementById("marketplace-results-title");
-
-const marketplaceSearchForm =
-    document.getElementById("marketplace-search-form");
-
-const marketplaceSearchInput =
-    document.getElementById("marketplace-search-input");
-
-const marketplaceSortSelect =
-    document.getElementById("marketplace-sort-select");
-
-const marketplaceMenuButton =
-    document.getElementById("marketplace-menu-button");
-
-const marketplaceSideMenu =
-    document.getElementById("marketplace-side-menu");
-
-const marketplaceCloseMenuButton =
-    document.getElementById(
-        "marketplace-close-menu-button"
-    );
-
-const marketplaceMenuOverlay =
-    document.getElementById(
-        "marketplace-menu-overlay"
-    );
-
-const marketplaceCategoryButtons =
-    document.querySelectorAll(
-        "#marketplace-category-list button"
-    );
+    const state = {
+        products: [],
+        filteredProducts: [],
+        category: "all",
+        search: "",
+        sort: "default"
+    };
 
 
-/* ============================================================
-   SUPABASE
-============================================================ */
+    // ========================================================
+    // ELEMENTS
+    // ========================================================
 
-const SUPABASE_URL =
-    "https://iscktsymqntjgqaxcitv.supabase.co";
+    const grid =
+        document.getElementById(
+            "marketplace-products-grid"
+        );
 
-const SUPABASE_ANON_KEY =
-    "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
+    const empty =
+        document.getElementById(
+            "marketplace-empty-state"
+        );
 
-let supabaseClient = null;
+    const count =
+        document.getElementById(
+            "marketplace-results-count"
+        );
+
+    const title =
+        document.getElementById(
+            "marketplace-results-title"
+        );
+
+    const searchForm =
+        document.getElementById(
+            "marketplace-search-form"
+        );
+
+    const searchInput =
+        document.getElementById(
+            "marketplace-search-input"
+        );
+
+    const sortSelect =
+        document.getElementById(
+            "marketplace-sort-select"
+        );
+
+    const categoryButtons =
+        document.querySelectorAll(
+            "#marketplace-category-list button"
+        );
 
 
-/* ============================================================
-   INITIALIZE SUPABASE
-============================================================ */
+    // ========================================================
+    // SUPABASE
+    // ========================================================
 
-function initializeSupabase() {
+    const supabase =
+        window.supabaseClient;
 
-    if (
-        typeof window.supabase === "undefined"
-    ) {
+
+    if (!supabase) {
 
         console.error(
-            "Supabase JS pa chaje."
+            "MACHEYA: Supabase client pa disponib."
         );
 
-        return false;
-    }
-
-
-    supabaseClient =
-        window.supabase.createClient(
-            SUPABASE_URL,
-            SUPABASE_ANON_KEY
+        showEmpty(
+            "Macheya pa kapab chaje pwodwi yo kounye a."
         );
-
-
-    return true;
-}
-
-
-/* ============================================================
-   LOAD PRODUCTS
-============================================================ */
-
-async function loadProducts() {
-
-    if (!supabaseClient) {
-
-        showEmptyState();
 
         return;
     }
 
 
-    try {
+    // ========================================================
+    // BUYER BACK BUTTON
+    // ========================================================
 
-        const {
-            data,
-            error
-        } = await supabaseClient
-            .from("products")
-            .select(`
-                id,
-                name,
-                description,
-                price,
-                stock,
-                category,
-                product_type,
-                image_url,
-                seller_id,
-                is_active,
-                created_at
-            `)
-            .eq("is_active", true)
-            .order(
-                "created_at",
-                {
-                    ascending: false
-                }
-            );
+    const backBox =
+        document.getElementById(
+            "marketplace-buyer-back"
+        );
 
 
-        if (error) {
-            throw error;
+    async function setupBuyerBack() {
+
+        if (!backBox) {
+            return;
         }
 
 
-        marketplaceState.products =
-            Array.isArray(data)
-                ? data
-                : [];
+        try {
+
+            const {
+                data
+            } =
+                await supabase.auth.getUser();
 
 
-        console.log(
-            "Macheya products:",
-            marketplaceState.products
-        );
+            if (data?.user) {
 
+                backBox.style.display =
+                    "block";
 
-        filterProducts();
+            }
 
+        } catch (error) {
 
-    } catch (error) {
+            console.error(
+                "MACHEYA: Erè pandan verifikasyon achtè:",
+                error
+            );
 
-        console.error(
-            "Erè pandan chajman pwodwi yo:",
-            error
-        );
-
-
-        marketplaceState.products = [];
-
-
-        showEmptyState();
+        }
 
     }
-}
 
 
-/* ============================================================
-   PRICE
-============================================================ */
+    // ========================================================
+    // LOAD PRODUCTS
+    // ========================================================
 
-function formatPrice(price) {
+    async function loadProducts() {
 
-    const numericPrice =
-        Number(price);
-
-
-    if (
-        Number.isNaN(numericPrice)
-    ) {
-
-        return "Pri pa disponib";
-    }
+        grid.innerHTML = "";
 
 
-    return (
-        new Intl.NumberFormat(
-            "fr-FR"
-        ).format(numericPrice) +
-        " HTG"
-    );
-}
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from("products")
+                    .select(`
+                        id,
+                        name,
+                        description,
+                        price,
+                        stock,
+                        category,
+                        product_type,
+                        image_url,
+                        seller_id,
+                        is_active,
+                        created_at
+                    `)
+                    .eq(
+                        "is_active",
+                        true
+                    )
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    );
 
 
-/* ============================================================
-   CATEGORY NAME
-============================================================ */
+            if (error) {
 
-function getCategoryName(category) {
-
-    const categories = {
-
-        mode:
-            "Mode",
-
-        electronique:
-            "Elektwonik",
-
-        maison:
-            "Kay",
-
-        beaute:
-            "Bote",
-
-        digital:
-            "Dijital",
-
-        lot:
-            "Lòt"
-    };
-
-
-    return (
-        categories[category] ||
-        category ||
-        "Lòt"
-    );
-}
-
-
-/* ============================================================
-   PRODUCT TYPE
-============================================================ */
-
-function getProductTypeName(type) {
-
-    const types = {
-
-        physical:
-            "Pwodwi fizik",
-
-        digital:
-            "Pwodwi dijital",
-
-        service:
-            "Sèvis"
-    };
-
-
-    return (
-        types[type] ||
-        "Pwodwi"
-    );
-}
-
-
-/* ============================================================
-   RENDER PRODUCTS
-============================================================ */
-
-function renderProducts() {
-
-    marketplaceProductsGrid.innerHTML = "";
-
-
-    const products =
-        marketplaceState.filteredProducts;
-
-
-    marketplaceResultsCount.textContent =
-        products.length +
-        (
-            products.length === 1
-                ? " pwodwi"
-                : " pwodwi"
-        );
-
-
-    if (
-        products.length === 0
-    ) {
-
-        showEmptyState();
-
-        return;
-    }
-
-
-    marketplaceEmptyState.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-
-    products.forEach(
-        function(product) {
-
-            const productCard =
-                document.createElement(
-                    "article"
+                console.error(
+                    "MACHEYA PRODUCTS ERROR:",
+                    error
                 );
 
-
-            productCard.className =
-                "marketplace-product-card";
-
-
-            productCard.id =
-                "product-card-" +
-                product.id;
-
-
-            /* IMAGE */
-
-            const productImage =
-                document.createElement(
-                    "div"
-                );
-
-
-            productImage.className =
-                "marketplace-product-image";
-
-
-            if (product.image_url) {
-
-                productImage.style.backgroundImage =
-                    "url('" +
-                    product.image_url +
-                    "')";
-
-                productImage.style.backgroundSize =
-                    "cover";
-
-                productImage.style.backgroundPosition =
-                    "center";
-
-            } else {
-
-                productImage.textContent =
-                    "🛍️";
-
-                productImage.style.display =
-                    "grid";
-
-                productImage.style.placeItems =
-                    "center";
-
-                productImage.style.fontSize =
-                    "45px";
+                throw error;
             }
 
 
-            /* CONTENT */
-
-            const productContent =
-                document.createElement(
-                    "div"
-                );
+            state.products =
+                Array.isArray(data)
+                    ? data
+                    : [];
 
 
-            productContent.className =
-                "marketplace-product-content";
+            console.log(
+                "MACHEYA: Pwodwi jwenn:",
+                state.products.length
+            );
 
 
-            /* CATEGORY */
-
-            const category =
-                document.createElement(
-                    "span"
-                );
+            filterProducts();
 
 
-            category.className =
-                "marketplace-product-category";
+        } catch (error) {
+
+            console.error(
+                "MACHEYA: Load products error:",
+                error
+            );
 
 
-            category.textContent =
-                getCategoryName(
-                    product.category
-                );
+            state.products = [];
+
+            showEmpty(
+                "Nou pa kapab chaje pwodwi yo kounye a."
+            );
+
+        }
+
+    }
 
 
-            /* NAME */
+    // ========================================================
+    // EMPTY
+    // ========================================================
 
-            const name =
-                document.createElement(
-                    "h3"
-                );
+    function showEmpty(message) {
 
+        grid.innerHTML = "";
 
-            name.className =
-                "marketplace-product-name";
-
-
-            name.textContent =
-                product.name;
+        empty.setAttribute(
+            "aria-hidden",
+            "false"
+        );
 
 
-            /* DESCRIPTION */
+        if (message) {
 
             const description =
-                document.createElement(
-                    "p"
+                document.getElementById(
+                    "marketplace-empty-description"
+                );
+
+            if (description) {
+                description.textContent =
+                    message;
+            }
+
+        }
+
+
+        count.textContent =
+            "0 pwodwi";
+
+    }
+
+
+    // ========================================================
+    // PRICE
+    // ========================================================
+
+    function formatPrice(price) {
+
+        const number =
+            Number(price);
+
+
+        if (Number.isNaN(number)) {
+            return "Pri pa disponib";
+        }
+
+
+        return (
+            new Intl.NumberFormat(
+                "fr-FR"
+            ).format(number) +
+            " HTG"
+        );
+
+    }
+
+
+    // ========================================================
+    // CATEGORY
+    // ========================================================
+
+    function categoryName(category) {
+
+        const names = {
+
+            mode: "Mode",
+
+            electronique:
+                "Elektwonik",
+
+            maison:
+                "Kay",
+
+            beaute:
+                "Bote",
+
+            digital:
+                "Dijital",
+
+            lot:
+                "Lòt"
+
+        };
+
+
+        return (
+            names[
+                String(
+                    category || ""
+                ).toLowerCase()
+            ] ||
+            category ||
+            "Lòt"
+        );
+
+    }
+
+
+    // ========================================================
+    // FILTER
+    // ========================================================
+
+    function filterProducts() {
+
+        let products =
+            [...state.products];
+
+
+        if (
+            state.category !== "all"
+        ) {
+
+            products =
+                products.filter(
+                    function (product) {
+
+                        return (
+                            String(
+                                product.category || ""
+                            )
+                            .trim()
+                            .toLowerCase() ===
+                            state.category
+                        );
+
+                    }
+                );
+
+        }
+
+
+        const query =
+            state.search
+                .trim()
+                .toLowerCase();
+
+
+        if (query) {
+
+            products =
+                products.filter(
+                    function (product) {
+
+                        return (
+
+                            String(
+                                product.name || ""
+                            )
+                            .toLowerCase()
+                            .includes(query)
+
+                            ||
+
+                            String(
+                                product.description || ""
+                            )
+                            .toLowerCase()
+                            .includes(query)
+
+                            ||
+
+                            String(
+                                product.category || ""
+                            )
+                            .toLowerCase()
+                            .includes(query)
+
+                        );
+
+                    }
+                );
+
+        }
+
+
+        // SORT
+
+        if (
+            state.sort === "price-low"
+        ) {
+
+            products.sort(
+                function (a, b) {
+
+                    return (
+                        Number(a.price || 0) -
+                        Number(b.price || 0)
+                    );
+
+                }
+            );
+
+        }
+
+
+        if (
+            state.sort === "price-high"
+        ) {
+
+            products.sort(
+                function (a, b) {
+
+                    return (
+                        Number(b.price || 0) -
+                        Number(a.price || 0)
+                    );
+
+                }
+            );
+
+        }
+
+
+        if (
+            state.sort === "name"
+        ) {
+
+            products.sort(
+                function (a, b) {
+
+                    return String(
+                        a.name || ""
+                    ).localeCompare(
+                        String(
+                            b.name || ""
+                        )
+                    );
+
+                }
+            );
+
+        }
+
+
+        state.filteredProducts =
+            products;
+
+
+        title.textContent =
+            state.category === "all"
+                ? (
+                    query
+                        ? "Rezilta rechèch"
+                        : "Tout pwodwi"
+                )
+                : categoryName(
+                    state.category
                 );
 
 
-            description.className =
-                "marketplace-product-description";
+        renderProducts();
+
+    }
 
 
-            description.textContent =
-                product.description ||
-                "";
+    // ========================================================
+    // RENDER
+    // ========================================================
+
+    function renderProducts() {
+
+        grid.innerHTML = "";
 
 
-            /* BOTTOM */
+        const products =
+            state.filteredProducts;
 
-            const bottom =
-                document.createElement(
-                    "div"
+
+        count.textContent =
+            products.length +
+            " pwodwi";
+
+
+        if (!products.length) {
+
+            showEmpty();
+
+            return;
+        }
+
+
+        empty.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+
+        products.forEach(
+            function (product) {
+
+                const card =
+                    document.createElement(
+                        "article"
+                    );
+
+
+                card.className =
+                    "marketplace-product-card";
+
+
+                card.id =
+                    "product-card-" +
+                    product.id;
+
+
+                // IMAGE
+
+                const image =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                image.className =
+                    "marketplace-product-image";
+
+
+                if (product.image_url) {
+
+                    image.style.backgroundImage =
+                        "url('" +
+                        product.image_url +
+                        "')";
+
+                    image.style.backgroundSize =
+                        "cover";
+
+                    image.style.backgroundPosition =
+                        "center";
+
+                } else {
+
+                    image.textContent =
+                        "🛍️";
+
+                    image.style.display =
+                        "grid";
+
+                    image.style.placeItems =
+                        "center";
+
+                    image.style.fontSize =
+                        "45px";
+
+                }
+
+
+                // CONTENT
+
+                const content =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                content.className =
+                    "marketplace-product-content";
+
+
+                // CATEGORY
+
+                const category =
+                    document.createElement(
+                        "span"
+                    );
+
+
+                category.className =
+                    "marketplace-product-category";
+
+
+                category.textContent =
+                    categoryName(
+                        product.category
+                    );
+
+
+                // NAME
+
+                const name =
+                    document.createElement(
+                        "h3"
+                    );
+
+
+                name.className =
+                    "marketplace-product-name";
+
+
+                name.textContent =
+                    product.name ||
+                    "Pwodwi san non";
+
+
+                // DESCRIPTION
+
+                const description =
+                    document.createElement(
+                        "p"
+                    );
+
+
+                description.className =
+                    "marketplace-product-description";
+
+
+                description.textContent =
+                    product.description ||
+                    "";
+
+
+                // BOTTOM
+
+                const bottom =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                bottom.className =
+                    "marketplace-product-bottom";
+
+
+                // PRICE
+
+                const price =
+                    document.createElement(
+                        "strong"
+                    );
+
+
+                price.className =
+                    "marketplace-product-price";
+
+
+                price.textContent =
+                    formatPrice(
+                        product.price
+                    );
+
+
+                // BUTTON
+
+                const button =
+                    document.createElement(
+                        "button"
+                    );
+
+
+                button.type =
+                    "button";
+
+
+                button.className =
+                    "marketplace-product-button";
+
+
+                button.textContent =
+                    "Gade";
+
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        window.location.href =
+                            "product-detail.html?id=" +
+                            encodeURIComponent(
+                                product.id
+                            );
+
+                    }
                 );
 
 
-            bottom.className =
-                "marketplace-product-bottom";
+                bottom.appendChild(
+                    price
+                );
 
-
-            /* PRICE */
-
-            const price =
-                document.createElement(
-                    "strong"
+                bottom.appendChild(
+                    button
                 );
 
 
-            price.className =
-                "marketplace-product-price";
+                content.appendChild(
+                    category
+                );
 
+                content.appendChild(
+                    name
+                );
 
-            price.textContent =
-                formatPrice(
-                    product.price
+                content.appendChild(
+                    description
+                );
+
+                content.appendChild(
+                    bottom
                 );
 
 
-            /* BUTTON */
+                card.appendChild(
+                    image
+                );
 
-            const button =
-                document.createElement(
-                    "button"
+                card.appendChild(
+                    content
                 );
 
 
-            button.className =
-                "marketplace-product-button";
+                grid.appendChild(
+                    card
+                );
+
+            }
+        );
+
+    }
 
 
-            button.type =
-                "button";
+    // ========================================================
+    // SEARCH
+    // ========================================================
+
+    if (searchForm) {
+
+        searchForm.addEventListener(
+            "submit",
+            function (event) {
+
+                event.preventDefault();
 
 
-            button.textContent =
-                "Gade";
+                state.search =
+                    searchInput
+                        ? searchInput.value
+                        : "";
 
+
+                filterProducts();
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // SORT
+    // ========================================================
+
+    if (sortSelect) {
+
+        sortSelect.addEventListener(
+            "change",
+            function () {
+
+                state.sort =
+                    sortSelect.value;
+
+
+                filterProducts();
+
+            }
+        );
+
+    }
+
+
+    // ========================================================
+    // CATEGORY
+    // ========================================================
+
+    categoryButtons.forEach(
+        function (button) {
 
             button.addEventListener(
                 "click",
-                function() {
+                function () {
 
-                    window.location.href =
-                        "product-detail.html?id=" +
-                        encodeURIComponent(
-                            product.id
-                        );
-                }
-            );
+                    state.category =
+                        button.dataset.categoryId ||
+                        "all";
 
 
-            bottom.appendChild(price);
+                    categoryButtons.forEach(
+                        function (item) {
 
-            bottom.appendChild(button);
+                            item.classList.toggle(
+                                "is-active",
+                                item === button
+                            );
 
-
-            productContent.appendChild(
-                category
-            );
-
-            productContent.appendChild(
-                name
-            );
-
-            productContent.appendChild(
-                description
-            );
-
-            productContent.appendChild(
-                bottom
-            );
-
-
-            productCard.appendChild(
-                productImage
-            );
-
-            productCard.appendChild(
-                productContent
-            );
-
-
-            marketplaceProductsGrid.appendChild(
-                productCard
-            );
-
-        }
-    );
-}
-
-
-/* ============================================================
-   EMPTY STATE
-============================================================ */
-
-function showEmptyState() {
-
-    marketplaceProductsGrid.innerHTML =
-        "";
-
-
-    marketplaceEmptyState.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-
-    marketplaceResultsCount.textContent =
-        "0 pwodwi";
-}
-
-
-/* ============================================================
-   FILTER
-============================================================ */
-
-function filterProducts() {
-
-    let products = [
-        ...marketplaceState.products
-    ];
-
-
-    const query =
-        marketplaceState.searchQuery
-            .trim()
-            .toLowerCase();
-
-
-    /* CATEGORY */
-
-    if (
-        marketplaceState.activeCategory !==
-        "all"
-    ) {
-
-        products =
-            products.filter(
-                function(product) {
-
-                    return (
-                        String(
-                            product.category ||
-                            ""
-                        ).toLowerCase() ===
-                        marketplaceState.activeCategory
-                            .toLowerCase()
+                        }
                     );
+
+
+                    filterProducts();
+
                 }
             );
-    }
 
-
-    /* SEARCH */
-
-    if (query) {
-
-        products =
-            products.filter(
-                function(product) {
-
-                    const name =
-                        String(
-                            product.name ||
-                            ""
-                        ).toLowerCase();
-
-
-                    const description =
-                        String(
-                            product.description ||
-                            ""
-                        ).toLowerCase();
-
-
-                    const category =
-                        String(
-                            product.category ||
-                            ""
-                        ).toLowerCase();
-
-
-                    return (
-                        name.includes(query) ||
-                        description.includes(query) ||
-                        category.includes(query)
-                    );
-                }
-            );
-    }
-
-
-    /* SORT */
-
-    if (
-        marketplaceState.sort ===
-        "price-low"
-    ) {
-
-        products.sort(
-            function(a, b) {
-
-                return (
-                    Number(a.price || 0) -
-                    Number(b.price || 0)
-                );
-            }
-        );
-    }
-
-
-    if (
-        marketplaceState.sort ===
-        "price-high"
-    ) {
-
-        products.sort(
-            function(a, b) {
-
-                return (
-                    Number(b.price || 0) -
-                    Number(a.price || 0)
-                );
-            }
-        );
-    }
-
-
-    if (
-        marketplaceState.sort ===
-        "name"
-    ) {
-
-        products.sort(
-            function(a, b) {
-
-                return String(
-                    a.name || ""
-                ).localeCompare(
-                    String(
-                        b.name || ""
-                    )
-                );
-            }
-        );
-    }
-
-
-    marketplaceState.filteredProducts =
-        products;
-
-
-    marketplaceResultsTitle.textContent =
-        marketplaceState.activeCategory ===
-        "all"
-
-            ? (
-                query
-                    ? "Rezilta rechèch"
-                    : "Tout pwodwi"
-            )
-
-            : getCategoryName(
-                marketplaceState.activeCategory
-            );
-
-
-    renderProducts();
-}
-
-
-/* ============================================================
-   CATEGORY
-============================================================ */
-
-function setCategory(category) {
-
-    marketplaceState.activeCategory =
-        category;
-
-
-    marketplaceCategoryButtons.forEach(
-        function(button) {
-
-            button.classList.toggle(
-                "is-active",
-                button.dataset.categoryId ===
-                category
-            );
         }
     );
 
 
-    filterProducts();
-}
+    // ========================================================
+    // MENU
+    // ========================================================
+
+    const menuButton =
+        document.getElementById(
+            "marketplace-menu-button"
+        );
+
+    const sideMenu =
+        document.getElementById(
+            "marketplace-side-menu"
+        );
+
+    const closeButton =
+        document.getElementById(
+            "marketplace-close-menu-button"
+        );
+
+    const overlay =
+        document.getElementById(
+            "marketplace-menu-overlay"
+        );
 
 
-/* ============================================================
-   SEARCH
-============================================================ */
+    function openMenu() {
 
-if (marketplaceSearchForm) {
-
-    marketplaceSearchForm.addEventListener(
-        "submit",
-        function(event) {
-
-            event.preventDefault();
+        if (!sideMenu) return;
 
 
-            marketplaceState.searchQuery =
-                marketplaceSearchInput
-                    ? marketplaceSearchInput.value
-                    : "";
+        sideMenu.classList.add(
+            "is-open"
+        );
 
 
-            filterProducts();
+        if (overlay) {
+
+            overlay.classList.add(
+                "is-visible"
+            );
+
         }
-    );
-}
 
 
-/* ============================================================
-   SORT
-============================================================ */
-
-if (marketplaceSortSelect) {
-
-    marketplaceSortSelect.addEventListener(
-        "change",
-        function() {
-
-            marketplaceState.sort =
-                marketplaceSortSelect.value;
-
-
-            filterProducts();
-        }
-    );
-}
-
-
-/* ============================================================
-   CATEGORY BUTTONS
-============================================================ */
-
-marketplaceCategoryButtons.forEach(
-    function(button) {
-
-        button.addEventListener(
-            "click",
-            function() {
-
-                setCategory(
-                    button.dataset.categoryId
-                );
-            }
-        );
-    }
-);
-
-
-/* ============================================================
-   MENU
-============================================================ */
-
-function openMarketplaceMenu() {
-
-    if (!marketplaceSideMenu) {
-        return;
-    }
-
-
-    marketplaceSideMenu.classList.add(
-        "is-open"
-    );
-
-
-    if (marketplaceMenuOverlay) {
-
-        marketplaceMenuOverlay.classList.add(
-            "is-visible"
-        );
-    }
-
-
-    marketplaceSideMenu.setAttribute(
-        "aria-hidden",
-        "false"
-    );
-
-
-    if (marketplaceMenuButton) {
-
-        marketplaceMenuButton.setAttribute(
-            "aria-expanded",
-            "true"
-        );
-    }
-}
-
-
-function closeMarketplaceMenu() {
-
-    if (!marketplaceSideMenu) {
-        return;
-    }
-
-
-    marketplaceSideMenu.classList.remove(
-        "is-open"
-    );
-
-
-    if (marketplaceMenuOverlay) {
-
-        marketplaceMenuOverlay.classList.remove(
-            "is-visible"
-        );
-    }
-
-
-    marketplaceSideMenu.setAttribute(
-        "aria-hidden",
-        "true"
-    );
-
-
-    if (marketplaceMenuButton) {
-
-        marketplaceMenuButton.setAttribute(
-            "aria-expanded",
+        sideMenu.setAttribute(
+            "aria-hidden",
             "false"
         );
+
+
+        if (menuButton) {
+
+            menuButton.setAttribute(
+                "aria-expanded",
+                "true"
+            );
+
+        }
+
     }
-}
 
 
-if (marketplaceMenuButton) {
+    function closeMenu() {
 
-    marketplaceMenuButton.addEventListener(
-        "click",
-        openMarketplaceMenu
+        if (!sideMenu) return;
+
+
+        sideMenu.classList.remove(
+            "is-open"
+        );
+
+
+        if (overlay) {
+
+            overlay.classList.remove(
+                "is-visible"
+            );
+
+        }
+
+
+        sideMenu.setAttribute(
+            "aria-hidden",
+            "true"
+        );
+
+
+        if (menuButton) {
+
+            menuButton.setAttribute(
+                "aria-expanded",
+                "false"
+            );
+
+        }
+
+    }
+
+
+    if (menuButton) {
+
+        menuButton.addEventListener(
+            "click",
+            openMenu
+        );
+
+    }
+
+
+    if (closeButton) {
+
+        closeButton.addEventListener(
+            "click",
+            closeMenu
+        );
+
+    }
+
+
+    if (overlay) {
+
+        overlay.addEventListener(
+            "click",
+            closeMenu
+        );
+
+    }
+
+
+    // ========================================================
+    // START
+    // ========================================================
+
+    setupBuyerBack();
+
+    categoryButtons.forEach(
+        function (button) {
+
+            if (
+                button.dataset.categoryId ===
+                "all"
+            ) {
+
+                button.classList.add(
+                    "is-active"
+                );
+
+            }
+
+        }
     );
-}
 
-
-if (marketplaceCloseMenuButton) {
-
-    marketplaceCloseMenuButton.addEventListener(
-        "click",
-        closeMarketplaceMenu
-    );
-}
-
-
-if (marketplaceMenuOverlay) {
-
-    marketplaceMenuOverlay.addEventListener(
-        "click",
-        closeMarketplaceMenu
-    );
-}
-
-
-/* ============================================================
-   START
-============================================================ */
-
-if (
-    initializeSupabase()
-) {
-
-    setCategory("all");
 
     loadProducts();
 
-} else {
 
-    showEmptyState();
-        }
+})();
