@@ -76,13 +76,17 @@
 
         card.innerHTML = `
             <div class="order-top">
+
                 <div class="order-product">
-                    ${escapeHTML(order.product_name || "Pwodwi")}
+                    ${escapeHTML(
+                        order.product_name || "Pwodwi"
+                    )}
                 </div>
 
                 <span class="order-status">
                     ${statusText[status] || status}
                 </span>
+
             </div>
 
             <div class="order-info">
@@ -90,21 +94,27 @@
                 <div>
                     👤 Kliyan:
                     <strong>
-                        ${escapeHTML(order.buyer_name || "")}
+                        ${escapeHTML(
+                            order.buyer_name || ""
+                        )}
                     </strong>
                 </div>
 
                 <div>
                     📞 Telefòn:
                     <strong>
-                        ${escapeHTML(order.buyer_phone || "")}
+                        ${escapeHTML(
+                            order.buyer_phone || ""
+                        )}
                     </strong>
                 </div>
 
                 <div>
                     📍 Adrès:
                     <strong>
-                        ${escapeHTML(order.delivery_address || "")}
+                        ${escapeHTML(
+                            order.delivery_address || ""
+                        )}
                     </strong>
                 </div>
 
@@ -131,7 +141,9 @@
                     <div>
                         📝 Remak:
                         <strong>
-                            ${escapeHTML(order.delivery_note)}
+                            ${escapeHTML(
+                                order.delivery_note
+                            )}
                         </strong>
                     </div>
                     `
@@ -146,11 +158,7 @@
                     class="confirm"
                     data-action="confirm"
                     data-id="${order.id}"
-                    ${
-                        status !== "pending"
-                        ? "disabled"
-                        : ""
-                    }
+                    ${status !== "pending" ? "disabled" : ""}
                 >
                     ✓ Konfime disponiblite
                 </button>
@@ -159,11 +167,7 @@
                     class="deliver"
                     data-action="deliver"
                     data-id="${order.id}"
-                    ${
-                        status !== "confirmed"
-                        ? "disabled"
-                        : ""
-                    }
+                    ${status !== "confirmed" ? "disabled" : ""}
                 >
                     🚚 Mete kòm livre
                 </button>
@@ -190,31 +194,45 @@
 
     async function updateStatus(id, action) {
 
-        let status;
+        let update = null;
 
         if (action === "confirm") {
-            status = "confirmed";
+
+            update = {
+                status: "confirmed"
+            };
+
         }
 
         if (action === "deliver") {
-            status = "shipped";
+
+            update = {
+                status: "shipped",
+                delivered_at:
+                    new Date().toISOString()
+            };
+
         }
 
-        if (!status) return;
+        if (!update) return;
 
         const { error } =
             await supabase
                 .from("orders")
-                .update({
-                    status: status
-                })
+                .update(update)
                 .eq("id", id);
 
         if (error) {
-            console.error(error);
+
+            console.error(
+                "MACHEYA ORDER UPDATE:",
+                error
+            );
+
             alert(
                 "Nou pa t kapab mete ajou kòmand lan."
             );
+
             return;
         }
 
