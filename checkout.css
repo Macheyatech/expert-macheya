@@ -1,0 +1,249 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background: #f7f7f7;
+    color: #171717;
+}
+
+#checkout-header {
+    min-height: 70px;
+    background: #fff;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 6%;
+}
+
+#checkout-back {
+    color: #555;
+    text-decoration: none;
+}
+
+#checkout-logo {
+    text-decoration: none;
+    color: #111;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+#checkout-logo-mark {
+    display: inline-grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    margin-right: 7px;
+    border-radius: 50%;
+    background: #f97316;
+    color: white;
+}
+
+#checkout-main {
+    width: min(850px, 92%);
+    margin: 35px auto 60px;
+}
+
+#checkout-section {
+    background: white;
+    padding: 28px;
+    border-radius: 18px;
+    box-shadow: 0 8px 30px rgba(0,0,0,.06);
+}
+
+#checkout-heading {
+    margin-bottom: 25px;
+}
+
+#checkout-label {
+    color: #f97316;
+    font-weight: 700;
+}
+
+#checkout-title {
+    margin: 8px 0;
+    font-size: 30px;
+}
+
+#checkout-description {
+    color: #666;
+    line-height: 1.5;
+}
+
+#checkout-product {
+    display: flex;
+    gap: 18px;
+    padding: 18px;
+    margin-bottom: 28px;
+    border: 1px solid #eee;
+    border-radius: 14px;
+}
+
+#checkout-product-image {
+    width: 115px;
+    min-width: 115px;
+    height: 115px;
+    border-radius: 12px;
+    background: #f1f1f1;
+    background-size: cover;
+    background-position: center;
+    display: grid;
+    place-items: center;
+    font-size: 40px;
+}
+
+#checkout-product-info {
+    flex: 1;
+}
+
+#checkout-product-category {
+    color: #777;
+    font-size: 13px;
+}
+
+#checkout-product-name {
+    margin: 6px 0;
+}
+
+#checkout-product-description {
+    color: #666;
+    margin-bottom: 8px;
+}
+
+#checkout-product-price {
+    color: #f97316;
+    font-size: 18px;
+}
+
+#checkout-form h2 {
+    margin-bottom: 15px;
+}
+
+#checkout-buyer-section,
+#checkout-quantity-section,
+#checkout-summary {
+    margin-top: 25px;
+}
+
+.checkout-field {
+    margin-bottom: 17px;
+}
+
+.checkout-field label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: 600;
+}
+
+.checkout-field span {
+    color: #888;
+    font-weight: normal;
+    font-size: 13px;
+}
+
+.checkout-field input,
+.checkout-field textarea {
+    width: 100%;
+    padding: 13px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+    font: inherit;
+}
+
+.checkout-field input:focus,
+.checkout-field textarea:focus {
+    border-color: #f97316;
+}
+
+#checkout-quantity-control {
+    display: flex;
+    width: 150px;
+    height: 45px;
+}
+
+#checkout-quantity-control button,
+#checkout-quantity {
+    border: 1px solid #ddd;
+    background: white;
+    text-align: center;
+}
+
+#checkout-quantity-control button {
+    width: 45px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+#checkout-quantity {
+    width: 60px;
+}
+
+#checkout-summary {
+    padding: 20px;
+    border-radius: 14px;
+    background: #fafafa;
+}
+
+.checkout-summary-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.checkout-summary-row:last-child {
+    border-bottom: 0;
+}
+
+.checkout-total {
+    font-size: 20px;
+    color: #f97316;
+}
+
+#checkout-message {
+    min-height: 22px;
+    margin: 15px 0;
+    color: #c0392b;
+}
+
+#checkout-submit {
+    width: 100%;
+    padding: 15px;
+    border: 0;
+    border-radius: 11px;
+    background: #f97316;
+    color: white;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+#checkout-submit:disabled {
+    opacity: .6;
+    cursor: not-allowed;
+}
+
+@media (max-width: 600px) {
+    #checkout-section {
+        padding: 20px;
+    }
+
+    #checkout-product {
+        align-items: flex-start;
+    }
+
+    #checkout-product-image {
+        width: 85px;
+        min-width: 85px;
+        height: 85px;
+    }
+
+    #checkout-title {
+        font-size: 25px;
+    }
+  }
