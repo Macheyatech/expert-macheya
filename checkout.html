@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ht">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Macheya — Konfime kòmand ou."
+    >
+
+    <title>Macheya | Checkout</title>
+
+    <link
+        rel="stylesheet"
+        href="checkout.css"
+    >
+</head>
+
+
+<body id="checkout-app">
+
+<header id="checkout-header">
+
+    <a
+        id="checkout-back"
+        href="marketplace.html"
+    >
+        ← Retounen
+    </a>
+
+    <a
+        id="checkout-logo"
+        href="index.html"
+    >
+        <span id="checkout-logo-mark">M</span>
+        <span id="checkout-logo-name">macheya</span>
+    </a>
+
+</header>
+
+
+<main id="checkout-main">
+
+    <section id="checkout-section">
+
+        <div id="checkout-heading">
+
+            <span id="checkout-label">
+                🛒 Kòmand
+            </span>
+
+            <h1 id="checkout-title">
+                Konfime kòmand ou
+            </h1>
+
+            <p id="checkout-description">
+                Ranpli enfòmasyon yo pou vandè a ka prepare
+                epi livre pwodwi ou a.
+            </p>
+
+        </div>
+
+
+        <!-- PWODWI -->
+
+        <div id="checkout-product">
+
+            <div id="checkout-product-image">
+                🛍️
+            </div>
+
+            <div id="checkout-product-info">
+
+                <span id="checkout-product-category">
+                    Pwodwi
+                </span>
+
+                <h2 id="checkout-product-name">
+                    Ap chaje pwodwi...
+                </h2>
+
+                <p id="checkout-product-description"></p>
+
+                <strong id="checkout-product-price">
+                    —
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <!-- FÒM -->
+
+        <form
+            id="checkout-form"
+            novalidate
+        >
+
+            <div id="checkout-buyer-section">
+
+                <h2>
+                    Enfòmasyon achtè
+                </h2>
+
+
+                <div class="checkout-field">
+
+                    <label for="checkout-name">
+                        Non konplè
+                    </label>
+
+                    <input
+                        id="checkout-name"
+                        name="buyer_name"
+                        type="text"
+                        placeholder="Egzanp: Jean Pierre"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="checkout-field">
+
+                    <label for="checkout-phone">
+                        Telefòn
+                    </label>
+
+                    <input
+                        id="checkout-phone"
+                        name="buyer_phone"
+                        type="tel"
+                        placeholder="Egzanp: 38 00 00 00"
+                        required
+                    >
+
+                </div>
+
+
+                <div class="checkout-field">
+
+                    <label for="checkout-address">
+                        Adrès / Lokalizasyon
+                    </label>
+
+                    <textarea
+                        id="checkout-address"
+                        name="delivery_address"
+                        rows="3"
+                        placeholder="Ki kote vandè a dwe livre pwodwi a?"
+                        required
+                    ></textarea>
+
+                </div>
+
+
+                <div class="checkout-field">
+
+                    <label for="checkout-note">
+                        Remak pou vandè a
+                        <span>(opsyonèl)</span>
+                    </label>
+
+                    <textarea
+                        id="checkout-note"
+                        name="delivery_note"
+                        rows="3"
+                        placeholder="Nenpòt enfòmasyon ki ka ede vandè a..."
+                    ></textarea>
+
+                </div>
+
+            </div>
+
+
+            <!-- KANTITE -->
+
+            <div id="checkout-quantity-section">
+
+                <h2>
+                    Kantite
+                </h2>
+
+                <div id="checkout-quantity-control">
+
+                    <button
+                        id="checkout-quantity-minus"
+                        type="button"
+                    >
+                        −
+                    </button>
+
+                    <input
+                        id="checkout-quantity"
+                        name="quantity"
+                        type="number"
+                        value="1"
+                        min="1"
+                        readonly
+                    >
+
+                    <button
+                        id="checkout-quantity-plus"
+                        type="button"
+                    >
+                        +
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            <!-- REZIME -->
+
+            <div id="checkout-summary">
+
+                <h2>
+                    Rezime kòmand
+                </h2>
+
+
+                <div class="checkout-summary-row">
+
+                    <span>
+                        Pwodwi
+                    </span>
+
+                    <strong id="checkout-summary-product">
+                        —
+                    </strong>
+
+                </div>
+
+
+                <div class="checkout-summary-row">
+
+                    <span>
+                        Kantite
+                    </span>
+
+                    <strong id="checkout-summary-quantity">
+                        1
+                    </strong>
+
+                </div>
+
+
+                <div class="checkout-summary-row checkout-total">
+
+                    <span>
+                        Total
+                    </span>
+
+                    <strong id="checkout-total">
+                        —
+                    </strong>
+
+                </div>
+
+            </div>
+
+
+            <div
+                id="checkout-message"
+                role="alert"
+                aria-live="polite"
+            ></div>
+
+
+            <button
+                id="checkout-submit"
+                type="submit"
+            >
+                Konfime kòmand
+            </button>
+
+        </form>
+
+    </section>
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase-config.js"></script>
+
+<script src="checkout.js"></script>
+
+</body>
+
+      </html>
