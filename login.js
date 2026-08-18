@@ -8,13 +8,22 @@
 
     console.log("MACHEYA: login.js ap demare...");
 
+    // ========================================================
+    // SUPABASE
+    // ========================================================
+
     const supabase = window.supabaseClient;
 
     if (!supabase) {
-        alert("Macheya pa kapab konekte ak sèvis la kounye a.");
         console.error("MACHEYA: supabaseClient pa disponib.");
+        alert("Macheya pa kapab konekte ak sèvis la kounye a.");
         return;
     }
+
+
+    // ========================================================
+    // FORM
+    // ========================================================
 
     const form = document.getElementById("loginForm");
 
@@ -23,40 +32,49 @@
         return;
     }
 
-    const emailInput = document.getElementById("email");
-    const passwordInput = document.getElementById("password");
-    const loginButton = document.getElementById("loginButton");
+
+    const emailInput =
+        document.getElementById("email");
+
+    const passwordInput =
+        document.getElementById("password");
+
+    const loginButton =
+        document.getElementById("loginButton");
 
 
     // ========================================================
-    // JE — MONTRE / KACHE MODPAS
+    // MONTRE / KACHE MODPAS
     // ========================================================
 
-    document.querySelectorAll(".show-password").forEach(function (button) {
+    document
+        .querySelectorAll(".show-password")
+        .forEach(function (button) {
 
-        button.addEventListener("click", function () {
+            button.addEventListener("click", function () {
 
-            const target = document.getElementById(
-                button.dataset.target
-            );
+                const target =
+                    document.getElementById(
+                        button.dataset.target
+                    );
 
-            if (!target) return;
+                if (!target) return;
 
-            if (target.type === "password") {
+                if (target.type === "password") {
 
-                target.type = "text";
-                button.textContent = "🙈";
+                    target.type = "text";
+                    button.textContent = "🙈";
 
-            } else {
+                } else {
 
-                target.type = "password";
-                button.textContent = "👁️";
+                    target.type = "password";
+                    button.textContent = "👁️";
 
-            }
+                }
+
+            });
 
         });
-
-    });
 
 
     // ========================================================
@@ -67,202 +85,139 @@
 
         event.preventDefault();
 
-        const email = emailInput.value.trim().toLowerCase();
-        const password = passwordInput.value;
+        const email =
+            emailInput.value.trim().toLowerCase();
+
+        const password =
+            passwordInput.value;
+
 
         if (!email || !password) {
-            alert("Tanpri antre imèl ou ak modpas ou.");
+
+            alert(
+                "Tanpri antre imèl ou ak modpas ou."
+            );
+
             return;
         }
 
+
         if (loginButton) {
+
             loginButton.disabled = true;
             loginButton.textContent = "Koneksyon...";
+
         }
+
 
         try {
 
+            console.log("MACHEYA: N ap konekte...");
+
+
             // ==================================================
-            // 1. KONEKTE AK SUPABASE AUTH
+            // KONEKTE
             // ==================================================
 
             const { data, error } =
                 await supabase.auth.signInWithPassword({
+
                     email: email,
                     password: password
+
                 });
+
 
             if (error) {
                 throw error;
             }
 
+
             const user = data?.user;
 
+
             if (!user) {
-                throw new Error("Macheya pa jwenn itilizatè a.");
+
+                throw new Error(
+                    "Macheya pa jwenn itilizatè a."
+                );
+
             }
 
+
             console.log(
-                "MACHEYA: Auth reyisi:",
+                "MACHEYA: Koneksyon reyisi.",
                 user.id
             );
 
 
             // ==================================================
-            // 2. CHÈCHE PROFILE
+            // ROLE KI SOTI NAN AUTH METADATA
             // ==================================================
 
-            let { data: profile, error: profileError } =
-                await supabase
-                    .from("profiles")
-                    .select("*")
-                    .eq("id", user.id)
-                    .maybeSingle();
+            const metadata =
+                user.user_metadata || {};
 
-
-            // ==================================================
-            // 3. SI PROFILE PA EGZISTE
-            // ==================================================
-
-            if (!profile && !profileError) {
-
-                console.log(
-                    "MACHEYA: Profile pa egziste. N ap kreye li..."
-                );
-
-                const metadata = user.user_metadata || {};
-
-                const name =
-                    metadata.name ||
-                    metadata.nom_complet ||
-                    "";
-
-                const phone =
-                    metadata.phone ||
-                    metadata.telephone ||
-                    "";
-
-                const role =
-                    String(
-                        metadata.role || "acheteur"
-                    )
-                    .trim()
-                    .toLowerCase();
-
-
-                const { data: newProfile, error: createError } =
-                    await supabase
-                        .from("profiles")
-                        .insert({
-
-                            id: user.id,
-
-                            nom_complet: name,
-
-                            telephone: phone,
-
-                            role: role,
-
-                            est_acheteur:
-                                role === "acheteur",
-
-                            est_vendeur:
-                                role === "vendeur"
-
-                        })
-                        .select()
-                        .single();
-
-
-                if (createError) {
-
-                    console.error(
-                        "MACHEYA: Erè kreyasyon profile:",
-                        createError
-                    );
-
-                    throw new Error(
-                        "Kont lan konekte, men pwofil Macheya a pa kapab kreye."
-                    );
-                }
-
-                profile = newProfile;
-
-                console.log(
-                    "MACHEYA: Profile kreye.",
-                    profile
-                );
-            }
-
-
-            // ==================================================
-            // 4. SI GEN YON ERÈ LÈ N AP LI PROFILE
-            // ==================================================
-
-            if (profileError) {
-
-                console.error(
-                    "MACHEYA PROFILE ERROR:",
-                    profileError
-                );
-
-                throw new Error(
-                    "Macheya pa kapab li pwofil kont lan."
-                );
-            }
-
-
-            if (!profile) {
-
-                throw new Error(
-                    "Macheya pa jwenn pwofil kont lan."
-                );
-            }
-
-
-            // ==================================================
-            // 5. DETÈMINE ROLE
-            // ==================================================
 
             const role =
-                String(profile.role || "")
-                    .trim()
-                    .toLowerCase();
+                String(
+                    metadata.role || "acheteur"
+                )
+                .trim()
+                .toLowerCase();
 
-
-            const isBuyer =
-                role === "acheteur" ||
-                role === "achte" ||
-                role === "buyer";
-
-
-            const isSeller =
-                role === "vendeur" ||
-                role === "vande" ||
-                role === "seller";
-
-
-            // Si pa gen role, nou konsidere l kòm achtè
-            if (!isBuyer && !isSeller) {
-
-                console.warn(
-                    "MACHEYA: Role pa defini. Achtè ap itilize kòm default."
-                );
-
-                window.location.href = "dashboard.html";
-                return;
-            }
-
-
-            // ==================================================
-            // 6. KONEKSYON REYISI
-            // ==================================================
 
             console.log(
-                "MACHEYA: Koneksyon reyisi.",
+                "MACHEYA: Role:",
                 role
             );
 
+
+            // ==================================================
+            // SONJE MWEN
+            // ==================================================
+
+            const remember =
+                document.getElementById("remember");
+
+
+            if (
+                remember &&
+                remember.checked
+            ) {
+
+                localStorage.setItem(
+                    "macheya_remember",
+                    "true"
+                );
+
+            } else {
+
+                localStorage.removeItem(
+                    "macheya_remember"
+                );
+
+            }
+
+
+            // ==================================================
+            // KONTEKS ITILIZATÈ
+            // ==================================================
+
+            localStorage.setItem(
+                "macheya_user_id",
+                user.id
+            );
+
+            localStorage.setItem(
+                "macheya_role",
+                role
+            );
+
+
+            // ==================================================
+            // ALE DASHBOARD
+            // ==================================================
 
             window.location.href =
                 "dashboard.html";
@@ -276,38 +231,40 @@
             );
 
 
-            const errorText =
-                String(error?.message || "")
-                    .toLowerCase();
-
-
-            let message =
-                "Yon erè rive pandan koneksyon an.";
+            const text =
+                String(
+                    error?.message || ""
+                ).toLowerCase();
 
 
             if (
-                errorText.includes("invalid login credentials")
+                text.includes(
+                    "invalid login credentials"
+                )
             ) {
 
-                message =
-                    "Imèl oswa modpas la pa kòrèk.";
+                alert(
+                    "Imèl oswa modpas la pa kòrèk."
+                );
 
             } else if (
-                errorText.includes("email not confirmed")
+                text.includes(
+                    "email not confirmed"
+                )
             ) {
 
-                message =
-                    "Tanpri verifye imèl ou anvan ou konekte.";
+                alert(
+                    "Tanpri verifye imèl ou anvan ou konekte."
+                );
 
             } else {
 
-                message =
+                alert(
                     error?.message ||
-                    message;
+                    "Yon erè rive pandan koneksyon an."
+                );
+
             }
-
-
-            alert(message);
 
 
         } finally {
@@ -340,6 +297,7 @@
 
                 event.preventDefault();
 
+
                 const email =
                     emailInput.value
                         .trim()
@@ -359,14 +317,15 @@
                 try {
 
                     const { error } =
-                        await supabase.auth.resetPasswordForEmail(
-                            email,
-                            {
-                                redirectTo:
-                                    window.location.origin +
-                                    "/login.html"
-                            }
-                        );
+                        await supabase.auth
+                            .resetPasswordForEmail(
+                                email,
+                                {
+                                    redirectTo:
+                                        window.location.origin +
+                                        "/login.html"
+                                }
+                            );
 
 
                     if (error) {
@@ -397,5 +356,6 @@
         );
 
     }
+
 
 })();
