@@ -6,34 +6,53 @@
 
     "use strict";
 
-    console.log("MACHEYA: login.js ap demare...");
-
 
     // ========================================================
-    // SUPABASE CLIENT
+    // SHOW / HIDE PASSWORD
     // ========================================================
 
-    const supabase =
-        window.supabaseClient;
+    const passwordButtons =
+        document.querySelectorAll(".show-password");
 
 
-    if (!supabase) {
+    passwordButtons.forEach(function (button) {
 
-        console.error(
-            "MACHEYA: supabaseClient pa disponib."
+        button.addEventListener(
+            "click",
+            function (event) {
+
+                event.preventDefault();
+
+                const targetId =
+                    button.dataset.target;
+
+                const input =
+                    document.getElementById(targetId);
+
+
+                if (!input) {
+                    return;
+                }
+
+
+                if (input.type === "password") {
+
+                    input.type = "text";
+
+                    button.textContent = "🙈";
+
+                } else {
+
+                    input.type = "password";
+
+                    button.textContent = "👁️";
+
+                }
+
+            }
         );
 
-        alert(
-            "Macheya pa kapab konekte ak sèvis la kounye a."
-        );
-
-        return;
-    }
-
-
-    console.log(
-        "MACHEYA: Supabase client jwenn."
-    );
+    });
 
 
     // ========================================================
@@ -67,55 +86,65 @@
 
 
     // ========================================================
-    // SHOW / HIDE PASSWORD
+    // SUPABASE
     // ========================================================
 
-    document
-        .querySelectorAll(".show-password")
-        .forEach(function (button) {
+    function getSupabaseClient() {
 
-            button.addEventListener(
-                "click",
-                function () {
+        // Client config la deja kreye
+        if (window.supabaseClient) {
 
-                    const targetId =
-                        button.dataset.target;
+            return window.supabaseClient;
 
-                    const target =
-                        document.getElementById(
-                            targetId
-                        );
+        }
 
 
-                    if (!target) {
-                        return;
-                    }
+        // Si config la pa t kreye client la,
+        // itilize bibliyotèk Supabase ki deja chaje a.
+
+        if (window.supabase) {
+
+            const SUPABASE_URL =
+                "https://iscktsymqntjgqaxcitv.supabase.co";
+
+            const SUPABASE_KEY =
+                "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
 
 
-                    if (
-                        target.type ===
-                        "password"
-                    ) {
+            try {
 
-                        target.type =
-                            "text";
+                window.supabaseClient =
+                    window.supabase.createClient(
+                        SUPABASE_URL,
+                        SUPABASE_KEY
+                    );
 
-                        button.textContent =
-                            "🙈";
 
-                    } else {
+                console.log(
+                    "MACHEYA: Supabase client kreye."
+                );
 
-                        target.type =
-                            "password";
 
-                        button.textContent =
-                            "👁️";
-                    }
+                return window.supabaseClient;
 
-                }
-            );
 
-        });
+            } catch (error) {
+
+                console.error(
+                    "MACHEYA: Erè pandan kreyasyon Supabase client:",
+                    error
+                );
+
+                return null;
+
+            }
+
+        }
+
+
+        return null;
+
+    }
 
 
     // ========================================================
@@ -159,15 +188,32 @@
 
             if (loginButton) {
 
-                loginButton.disabled =
-                    true;
+                loginButton.disabled = true;
 
                 loginButton.textContent =
                     "Koneksyon...";
+
             }
 
 
             try {
+
+                // ==================================================
+                // GET CLIENT
+                // ==================================================
+
+                const supabase =
+                    getSupabaseClient();
+
+
+                if (!supabase) {
+
+                    throw new Error(
+                        "Supabase pa disponib."
+                    );
+
+                }
+
 
                 console.log(
                     "MACHEYA: N ap konekte..."
@@ -175,21 +221,20 @@
 
 
                 // ==================================================
-                // AUTH
+                // AUTHENTICATION
                 // ==================================================
 
                 const {
                     data,
                     error
                 } =
-                    await supabase.auth
-                        .signInWithPassword({
+                    await supabase.auth.signInWithPassword({
 
-                            email: email,
+                        email: email,
 
-                            password: password
+                        password: password
 
-                        });
+                    });
 
 
                 if (error) {
@@ -200,6 +245,7 @@
                     );
 
                     throw error;
+
                 }
 
 
@@ -212,17 +258,18 @@
                     throw new Error(
                         "Macheya pa jwenn itilizatè a."
                     );
+
                 }
 
 
                 console.log(
-                    "MACHEYA: Koneksyon reyisi.",
+                    "MACHEYA: Koneksyon reyisi:",
                     user.id
                 );
 
 
                 // ==================================================
-                // VERIFY PROFILE
+                // PROFILE
                 // ==================================================
 
                 const {
@@ -249,6 +296,7 @@
                     throw new Error(
                         "Kont lan konekte, men Macheya pa kapab li pwofil ou."
                     );
+
                 }
 
 
@@ -257,6 +305,7 @@
                     throw new Error(
                         "Kont lan konekte, men pwofil Macheya a pa jwenn."
                     );
+
                 }
 
 
@@ -278,16 +327,6 @@
                         .toLowerCase();
 
 
-                console.log(
-                    "MACHEYA ROLE:",
-                    role
-                );
-
-
-                // ==================================================
-                // VERIFY ACCOUNT TYPE
-                // ==================================================
-
                 const isBuyer =
                     role === "acheteur" ||
                     role === "achte" ||
@@ -305,6 +344,7 @@
                     throw new Error(
                         "Macheya pa rekonèt kalite kont sa a."
                     );
+
                 }
 
 
@@ -312,10 +352,8 @@
                 // SUCCESS
                 // ==================================================
 
-                alert(
-                    isSeller
-                        ? "Koneksyon reyisi! Byenveni Vandè."
-                        : "Koneksyon reyisi! Byenveni Achtè."
+                console.log(
+                    "MACHEYA: Login fini avèk siksè."
                 );
 
 
@@ -338,10 +376,30 @@
 
 
                 let message =
-                    "Yon erè rive pandan koneksyon an.";
+                    "Nou pa kapab konekte ou kounye a.";
 
+
+                // ==================================================
+                // SUPABASE CLIENT
+                // ==================================================
 
                 if (
+                    errorText.includes(
+                        "supabase pa disponib"
+                    )
+                ) {
+
+                    message =
+                        "Macheya pa rive konekte ak sèvis la. Tanpri rechaje paj la epi eseye ankò.";
+
+                }
+
+
+                // ==================================================
+                // INVALID LOGIN
+                // ==================================================
+
+                else if (
                     errorText.includes(
                         "invalid login credentials"
                     )
@@ -350,7 +408,14 @@
                     message =
                         "Imèl oswa modpas la pa kòrèk.";
 
-                } else if (
+                }
+
+
+                // ==================================================
+                // EMAIL NOT CONFIRMED
+                // ==================================================
+
+                else if (
                     errorText.includes(
                         "email not confirmed"
                     )
@@ -359,12 +424,34 @@
                     message =
                         "Tanpri verifye imèl ou anvan ou konekte.";
 
-                } else if (
-                    error?.message
+                }
+
+
+                // ==================================================
+                // PROFILE
+                // ==================================================
+
+                else if (
+                    errorText.includes(
+                        "pwofil"
+                    )
                 ) {
 
                     message =
                         error.message;
+
+                }
+
+
+                // ==================================================
+                // OTHER ERROR
+                // ==================================================
+
+                else if (error?.message) {
+
+                    message =
+                        error.message;
+
                 }
 
 
@@ -375,11 +462,11 @@
 
                 if (loginButton) {
 
-                    loginButton.disabled =
-                        false;
+                    loginButton.disabled = false;
 
                     loginButton.textContent =
                         "Konekte";
+
                 }
 
             }
@@ -425,6 +512,19 @@
 
                 try {
 
+                    const supabase =
+                        getSupabaseClient();
+
+
+                    if (!supabase) {
+
+                        throw new Error(
+                            "Supabase pa disponib."
+                        );
+
+                    }
+
+
                     const {
                         error
                     } =
@@ -440,7 +540,9 @@
 
 
                     if (error) {
+
                         throw error;
+
                     }
 
 
@@ -468,6 +570,11 @@
         );
 
     }
+
+
+    console.log(
+        "MACHEYA: login.js pare."
+    );
 
 
 })();
