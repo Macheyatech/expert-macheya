@@ -15,156 +15,332 @@
     const submit = document.getElementById("checkout-submit");
     const message = document.getElementById("checkout-message");
 
-    const productName = document.getElementById("checkout-product-name");
-    const productDescription = document.getElementById("checkout-product-description");
-    const productPrice = document.getElementById("checkout-product-price");
-    const productImage = document.getElementById("checkout-product-image");
-    const summaryProduct = document.getElementById("checkout-summary-product");
-    const summaryQuantity = document.getElementById("checkout-summary-quantity");
-    const total = document.getElementById("checkout-total");
+    const productName =
+        document.getElementById("checkout-product-name");
+
+    const productDescription =
+        document.getElementById("checkout-product-description");
+
+    const productPrice =
+        document.getElementById("checkout-product-price");
+
+    const productImage =
+        document.getElementById("checkout-product-image");
+
+    const summaryProduct =
+        document.getElementById("checkout-summary-product");
+
+    const summaryQuantity =
+        document.getElementById("checkout-summary-quantity");
+
+    const total =
+        document.getElementById("checkout-total");
 
     let product = null;
+
 
     function msg(text) {
         message.textContent = text;
     }
 
+
     function money(value) {
-        return new Intl.NumberFormat("fr-FR").format(Number(value || 0)) + " HTG";
+        return new Intl.NumberFormat("fr-FR")
+            .format(Number(value || 0)) + " HTG";
     }
+
 
     function updateTotal() {
+
         const q = Number(quantity.value || 1);
+        const price = Number(product?.price || 0);
+
         summaryQuantity.textContent = q;
-        total.textContent = money(Number(product?.price || 0) * q);
+        total.textContent = money(price * q);
     }
 
+
     async function start() {
+
         if (!supabase || !id) {
             msg("Macheya pa kapab prepare kòmand lan.");
             return;
         }
 
-        const { data: auth } = await supabase.auth.getUser();
+
+        const { data: auth } =
+            await supabase.auth.getUser();
+
 
         if (!auth?.user) {
-            alert("Tanpri konekte ak kont achtè ou anvan ou fè yon kòmand.");
+
+            alert(
+                "Tanpri konekte ak kont achtè ou anvan ou fè yon kòmand."
+            );
+
             location.href = "login.html";
             return;
         }
 
-        const { data, error } = await supabase
-            .from("products")
-            .select("id,name,description,price,stock,category,seller_id,image_url,is_active")
-            .eq("id", id)
-            .eq("is_active", true)
-            .single();
+
+        const { data, error } =
+            await supabase
+                .from("products")
+                .select(
+                    "id,name,description,price,stock,category,seller_id,image_url,is_active"
+                )
+                .eq("id", id)
+                .eq("is_active", true)
+                .single();
+
 
         if (error || !data) {
+
+            console.error(error);
+
             msg("Pwodwi sa a pa disponib ankò.");
             return;
         }
 
+
         product = data;
 
-        productName.textContent = data.name;
-        productDescription.textContent = data.description || "";
-        productPrice.textContent = money(data.price);
-        summaryProduct.textContent = data.name;
+
+        productName.textContent =
+            data.name;
+
+        productDescription.textContent =
+            data.description || "";
+
+        productPrice.textContent =
+            money(data.price);
+
+        summaryProduct.textContent =
+            data.name;
+
 
         if (data.image_url) {
-            productImage.style.backgroundImage = `url("${data.image_url}")`;
+
+            productImage.style.backgroundImage =
+                `url("${data.image_url}")`;
+
+            productImage.style.backgroundSize =
+                "cover";
+
+            productImage.style.backgroundPosition =
+                "center";
+
             productImage.textContent = "";
         }
 
-        const { data: profile } = await supabase
-            .from("profiles")
-            .select("name,phone,role")
-            .eq("id", auth.user.id)
-            .maybeSingle();
+
+        const { data: profile } =
+            await supabase
+                .from("profiles")
+                .select("name,phone")
+                .eq("id", auth.user.id)
+                .maybeSingle();
+
 
         if (profile) {
-            name.value = profile.name || "";
-            phone.value = profile.phone || "";
+
+            name.value =
+                profile.name || "";
+
+            phone.value =
+                profile.phone || "";
         }
+
 
         updateTotal();
     }
 
-    minus.addEventListener("click", function () {
-        const value = Number(quantity.value);
-        if (value > 1) {
-            quantity.value = value - 1;
-            updateTotal();
+
+    minus.addEventListener(
+        "click",
+        function () {
+
+            const value =
+                Number(quantity.value);
+
+            if (value > 1) {
+
+                quantity.value =
+                    value - 1;
+
+                updateTotal();
+            }
         }
-    });
+    );
 
-    plus.addEventListener("click", function () {
-        const value = Number(quantity.value);
-        const stock = Number(product?.stock || 0);
 
-        if (stock > 0 && value < stock) {
-            quantity.value = value + 1;
-            updateTotal();
+    plus.addEventListener(
+        "click",
+        function () {
+
+            const value =
+                Number(quantity.value);
+
+            const stock =
+                Number(product?.stock || 0);
+
+
+            if (stock > 0 && value < stock) {
+
+                quantity.value =
+                    value + 1;
+
+                updateTotal();
+            }
         }
-    });
+    );
 
-    form.addEventListener("submit", async function (e) {
-        e.preventDefault();
 
-        if (!product) return;
+    form.addEventListener(
+        "submit",
+        async function (e) {
 
-        if (!name.value.trim() || !phone.value.trim() || !address.value.trim()) {
-            msg("Tanpri ranpli non, telefòn ak adrès livrezon an.");
-            return;
-        }
+            e.preventDefault();
 
-        const { data: auth } = await supabase.auth.getUser();
 
-        if (!auth?.user) {
-            location.href = "login.html";
-            return;
-        }
-
-        submit.disabled = true;
-        submit.textContent = "Kreyasyon kòmand...";
-        msg("");
-
-        try {
-            const q = Number(quantity.value);
-            const stock = Number(product.stock || 0);
-
-            if (stock > 0 && q > stock) {
-                throw new Error("Kantite ou chwazi a depase stock vandè a.");
+            if (!product) {
+                return;
             }
 
-            const { error } = await supabase
-                .from("orders")
-                .insert({
-                    buyer_id: auth.user.id,
-                    seller_id: product.seller_id,
-                    product_id: product.id,
-                    product_name: product.name,
-                    quantity: q,
-                    price: Number(product.price),
-                    buyer_name: name.value.trim(),
-                    buyer_phone: phone.value.trim(),
-                    delivery_address: address.value.trim(),
-                    delivery_note: note.value.trim() || null
-                });
 
-            if (error) throw error;
+            if (
+                !name.value.trim() ||
+                !phone.value.trim() ||
+                !address.value.trim()
+            ) {
 
-            alert("Kòmand ou kreye avèk siksè!");
-            location.href = "buyer.html";
+                msg(
+                    "Tanpri ranpli non, telefòn ak adrès livrezon an."
+                );
 
-        } catch (error) {
-            console.error("MACHEYA CHECKOUT:", error);
-            msg(error.message || "Nou pa t kapab kreye kòmand lan.");
-            submit.disabled = false;
-            submit.textContent = "Konfime kòmand";
+                return;
+            }
+
+
+            const { data: auth } =
+                await supabase.auth.getUser();
+
+
+            if (!auth?.user) {
+
+                location.href =
+                    "login.html";
+
+                return;
+            }
+
+
+            submit.disabled = true;
+            submit.textContent =
+                "Kreyasyon kòmand...";
+            msg("");
+
+
+            try {
+
+                const q =
+                    Number(quantity.value || 1);
+
+                const unitPrice =
+                    Number(product.price || 0);
+
+                const stock =
+                    Number(product.stock || 0);
+
+                const orderTotal =
+                    unitPrice * q;
+
+
+                if (stock > 0 && q > stock) {
+
+                    throw new Error(
+                        "Kantite ou chwazi a depase stock vandè a."
+                    );
+                }
+
+
+                const { error } =
+                    await supabase
+                        .from("orders")
+                        .insert({
+
+                            buyer_id:
+                                auth.user.id,
+
+                            seller_id:
+                                product.seller_id,
+
+                            product_id:
+                                product.id,
+
+                            product_name:
+                                product.name,
+
+                            quantity:
+                                q,
+
+                            total:
+                                orderTotal,
+
+                            buyer_name:
+                                name.value.trim(),
+
+                            buyer_phone:
+                                phone.value.trim(),
+
+                            delivery_address:
+                                address.value.trim(),
+
+                            delivery_note:
+                                note.value.trim() || null
+
+                        });
+
+
+                if (error) {
+                    throw error;
+                }
+
+
+                alert(
+                    "Kòmand ou kreye avèk siksè!"
+                );
+
+
+                location.href =
+                    "buyer.html";
+
+
+            } catch (error) {
+
+                console.error(
+                    "MACHEYA CHECKOUT:",
+                    error
+                );
+
+
+                msg(
+                    error.message ||
+                    "Nou pa t kapab kreye kòmand lan."
+                );
+
+
+                submit.disabled =
+                    false;
+
+                submit.textContent =
+                    "Konfime kòmand";
+            }
+
         }
-    });
+    );
+
 
     start();
+
 })();
