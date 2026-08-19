@@ -9,9 +9,9 @@
     const statusText = {
         pending: "Nouvo",
         confirmed: "Konfime",
-        shipped: "Livre",
+        rejected: "Refize",
         delivered: "Resevwa",
-        cancelled: "Anile"
+        completed: "Fini"
     };
 
     function money(value) {
@@ -46,15 +46,23 @@
                 });
 
         if (error) {
-            console.error(error);
+            console.error(
+                "MACHEYA LOAD ORDERS:",
+                error
+            );
+
             message.textContent =
                 "Nou pa kapab chaje kòmand yo.";
+
             return;
         }
 
-        if (!data?.length) {
+        if (!data || !data.length) {
+            list.innerHTML = "";
+
             message.textContent =
                 "Pa gen kòmand kliyan pou kounye a.";
+
             return;
         }
 
@@ -74,6 +82,22 @@
         const status =
             order.status || "pending";
 
+        /*
+         * Nou sipòte tou de price ak total
+         * paske orders genyen toude kolòn.
+         */
+        let unitPrice =
+            Number(order.price || 0);
+
+        let orderTotal =
+            Number(order.total || 0);
+
+        if (orderTotal <= 0 && unitPrice > 0) {
+            orderTotal =
+                unitPrice *
+                Number(order.quantity || 1);
+        }
+
         card.innerHTML = `
             <div class="order-top">
 
@@ -84,10 +108,14 @@
                 </div>
 
                 <span class="order-status">
-                    ${statusText[status] || status}
+                    ${
+                        statusText[status] ||
+                        status
+                    }
                 </span>
 
             </div>
+
 
             <div class="order-info">
 
@@ -100,6 +128,7 @@
                     </strong>
                 </div>
 
+
                 <div>
                     📞 Telefòn:
                     <strong>
@@ -108,6 +137,7 @@
                         )}
                     </strong>
                 </div>
+
 
                 <div>
                     📍 Adrès:
@@ -118,109 +148,186 @@
                     </strong>
                 </div>
 
+
                 <div>
                     📦 Kantite:
                     <strong>
-                        ${order.quantity || 1}
-                    </strong>
-                </div>
-
-                <div>
-                    💰 Pri:
-                    <strong>
-                        ${money(
-                            Number(order.price || 0) *
-                            Number(order.quantity || 1)
+                        ${Number(
+                            order.quantity || 1
                         )}
                     </strong>
                 </div>
 
+
+                <div>
+                    💰 Pri:
+                    <strong>
+                        ${money(orderTotal)}
+                    </strong>
+                </div>
+
+
                 ${
                     order.delivery_note
                     ? `
-                    <div>
-                        📝 Remak:
-                        <strong>
-                            ${escapeHTML(
-                                order.delivery_note
-                            )}
-                        </strong>
-                    </div>
+                        <div>
+                            📝 Remak:
+                            <strong>
+                                ${escapeHTML(
+                                    order.delivery_note
+                                )}
+                            </strong>
+                        </div>
                     `
                     : ""
                 }
 
             </div>
 
+
             <div class="order-actions">
 
-                <button
-                    class="confirm"
-                    data-action="confirm"
-                    data-id="${order.id}"
-                    ${status !== "pending" ? "disabled" : ""}
-                >
-                    ✓ Konfime disponiblite
-                </button>
+                ${
+                    status === "pending"
+                    ? `
+                        <button
+                            class="confirm"
+                            data-action="confirm"
+                            data-id="${order.id}"
+                        >
+                            ✓ Konfime disponiblite
+                        </button>
 
-                <button
-                    class="deliver"
-                    data-action="deliver"
-                    data-id="${order.id}"
-                    ${status !== "confirmed" ? "disabled" : ""}
-                >
-                    🚚 Mete kòm livre
-                </button>
+                        <button
+                            class="reject"
+                            data-action="reject"
+                            data-id="${order.id}"
+                        >
+                            ✕ Refize
+                        </button>
+                    `
+                    : ""
+                }
+
+
+                ${
+                    status === "confirmed"
+                    ? `
+                        <button
+                            class="deliver"
+                            data-action="deliver"
+                            data-id="${order.id}"
+                        >
+                            🚚 Mete kòm livre
+                        </button>
+                    `
+                    : ""
+                }
 
             </div>
         `;
 
+
         list.appendChild(card);
 
-        card.querySelectorAll("button").forEach(
-            button => {
+
+        card
+            .querySelectorAll("button")
+            .forEach(button => {
 
                 button.addEventListener(
                     "click",
-                    () => updateStatus(
-                        button.dataset.id,
-                        button.dataset.action
-                    )
+                    function () {
+
+                        updateStatus(
+                            button.dataset.id,
+                            button.dataset.action
+                        );
+
+                    }
                 );
 
-            }
-        );
+            });
     }
+
 
     async function updateStatus(id, action) {
 
         let update = null;
 
+
+        /*
+         * Vandè konfime li gen pwodwi a
+         */
         if (action === "confirm") {
 
             update = {
-                status: "confirmed"
-            };
-
-        }
-
-        if (action === "deliver") {
-
-            update = {
-                status: "shipped",
-                delivered_at:
+                status: "confirmed",
+                confirmed_at:
                     new Date().toISOString()
             };
 
         }
 
-        if (!update) return;
+
+        /*
+         * Vandè refize kòmand lan
+         */
+        if (action === "reject") {
+
+            update = {
+                status: "rejected"
+            };
+
+        }
+
+
+        /*
+         * Vandè mete kòmand lan kòm livre.
+         *
+         * ATANSYON:
+         * Nou itilize "delivered" paske se youn
+         * nan status SQL ou a.
+         */
+        if (action === "deliver") {
+
+            update = {
+                status: "delivered"
+            };
+
+        }
+
+
+        if (!update) {
+            return;
+        }
+
+
+        const button =
+            document.querySelector(
+                `[data-id="${id}"][data-action="${action}"]`
+            );
+
+
+        if (button) {
+            button.disabled = true;
+            button.textContent =
+                "M ap mete ajou...";
+        }
+
 
         const { error } =
             await supabase
                 .from("orders")
                 .update(update)
-                .eq("id", id);
+                .eq("id", id)
+                .eq(
+                    "seller_id",
+                    (
+                        await supabase.auth.getUser()
+                    ).data.user.id
+                );
+
 
         if (error) {
 
@@ -230,24 +337,47 @@
             );
 
             alert(
-                "Nou pa t kapab mete ajou kòmand lan."
+                "Nou pa t kapab mete ajou kòmand lan.\n\n" +
+                error.message
             );
+
+            if (button) {
+                button.disabled = false;
+            }
 
             return;
         }
 
+
         await loadOrders();
     }
+
 
     function escapeHTML(value) {
 
         return String(value)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
     }
+
 
     loadOrders();
 
