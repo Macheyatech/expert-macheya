@@ -2,252 +2,296 @@
    MACHEYA — PRODUCT DETAIL
 ============================================================ */
 
-document.addEventListener(
-    "DOMContentLoaded",
-    async function() {
+document.addEventListener("DOMContentLoaded", async function () {
+
+    "use strict";
+
+    /* ========================================================
+       ELEMENTS
+    ======================================================== */
+
+    const loadingSection =
+        document.getElementById("loadingSection");
+
+    const productSection =
+        document.getElementById("productSection");
+
+    const errorSection =
+        document.getElementById("errorSection");
+
+    const errorMessage =
+        document.getElementById("errorMessage");
+
+    const productImage =
+        document.getElementById("productImage");
+
+    const productCategory =
+        document.getElementById("productCategory");
+
+    const productName =
+        document.getElementById("productName");
+
+    const productPrice =
+        document.getElementById("productPrice");
+
+    const productDescription =
+        document.getElementById("productDescription");
+
+    const sellerName =
+        document.getElementById("sellerName");
+
+    const productInfo =
+        document.getElementById("productInfo");
+
+    const buyButton =
+        document.getElementById("buyButton");
 
 
-        /* ====================================================
-           ELEMENTS
-        ==================================================== */
+    /* ========================================================
+       ERROR DISPLAY
+    ======================================================== */
 
-        const loadingSection =
-            document.getElementById(
-                "loadingSection"
-            );
+    function showError(message) {
 
-        const productSection =
-            document.getElementById(
-                "productSection"
-            );
-
-        const errorSection =
-            document.getElementById(
-                "errorSection"
-            );
-
-        const errorMessage =
-            document.getElementById(
-                "errorMessage"
-            );
-
-        const productImage =
-            document.getElementById(
-                "productImage"
-            );
-
-        const productCategory =
-            document.getElementById(
-                "productCategory"
-            );
-
-        const productName =
-            document.getElementById(
-                "productName"
-            );
-
-        const productPrice =
-            document.getElementById(
-                "productPrice"
-            );
-
-        const productDescription =
-            document.getElementById(
-                "productDescription"
-            );
-
-        const sellerName =
-            document.getElementById(
-                "sellerName"
-            );
-
-        const productInfo =
-            document.getElementById(
-                "productInfo"
-            );
-
-        const buyButton =
-            document.getElementById(
-                "buyButton"
-            );
-
-
-        /* ====================================================
-           HELPERS
-        ==================================================== */
-
-        function showError(message) {
-
-            loadingSection.hidden =
-                true;
-
-            productSection.hidden =
-                true;
-
-            errorSection.hidden =
-                false;
-
-            errorMessage.textContent =
-                message;
+        if (loadingSection) {
+            loadingSection.hidden = true;
         }
 
-
-        function formatPrice(price) {
-
-            const number =
-                Number(price);
-
-
-            if (
-                Number.isNaN(number)
-            ) {
-
-                return "Pri pa disponib";
-            }
-
-
-            return (
-                new Intl.NumberFormat(
-                    "fr-FR"
-                ).format(number) +
-                " HTG"
-            );
+        if (productSection) {
+            productSection.hidden = true;
         }
 
+        if (errorSection) {
+            errorSection.hidden = false;
+        }
 
-        function categoryName(category) {
-
-            const categories = {
-
-                mode:
-                    "Mode",
-
-                electronique:
-                    "Elektwonik",
-
-                maison:
-                    "Kay",
-
-                beaute:
-                    "Bote",
-
-                digital:
-                    "Dijital",
-
-                lot:
-                    "Lòt"
-            };
+        if (errorMessage) {
+            errorMessage.textContent = message;
+        }
+    }
 
 
-            return (
-                categories[category] ||
-                category ||
+    /* ========================================================
+       PRICE
+    ======================================================== */
+
+    function formatPrice(value) {
+
+        const number = Number(value);
+
+        if (!Number.isFinite(number)) {
+            return "Pri pa disponib";
+        }
+
+        return (
+            new Intl.NumberFormat("fr-FR").format(number)
+            + " HTG"
+        );
+    }
+
+
+    /* ========================================================
+       CATEGORY
+    ======================================================== */
+
+    function normalizeCategory(value) {
+
+        return String(value || "")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[\s_-]/g, "");
+    }
+
+
+    function categoryName(value) {
+
+        const category =
+            normalizeCategory(value);
+
+        const categories = {
+
+            mode:
+                "Mode",
+
+            electronique:
+                "Elektwonik",
+
+            elektronik:
+                "Elektwonik",
+
+            elektwonik:
+                "Elektwonik",
+
+            maison:
+                "Kay",
+
+            kay:
+                "Kay",
+
+            beaute:
+                "Bote",
+
+            bote:
+                "Bote",
+
+            digital:
+                "Dijital",
+
+            dijital:
+                "Dijital",
+
+            lot:
                 "Lòt"
-            );
+        };
+
+        return (
+            categories[category] ||
+            value ||
+            "Lòt"
+        );
+    }
+
+
+    /* ========================================================
+       PRODUCT TYPE
+    ======================================================== */
+
+    function normalizeType(value) {
+
+        return String(value || "")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[\s_-]/g, "");
+    }
+
+
+    function typeName(value) {
+
+        const type =
+            normalizeType(value);
+
+        if (
+            type === "physical" ||
+            type === "physique" ||
+            type === "physicalproduct"
+        ) {
+            return "📦 Pwodwi fizik";
         }
 
-
-        function typeName(type) {
-
-            const types = {
-
-                physical:
-                    "📦 Pwodwi fizik",
-
-                digital:
-                    "💻 Pwodwi dijital",
-
-                service:
-                    "🛠️ Sèvis"
-            };
-
-
-            return (
-                types[type] ||
-                "Pwodwi"
-            );
+        if (
+            type === "digital" ||
+            type === "dijital"
+        ) {
+            return "💻 Pwodwi dijital";
         }
 
+        if (
+            type === "service" ||
+            type === "sèvis" ||
+            type === "servis"
+        ) {
+            return "🛠️ Sèvis";
+        }
 
-        /* ====================================================
-           PRODUCT ID
-        ==================================================== */
-
-        const params =
-            new URLSearchParams(
-                window.location.search
-            );
-
-
-        const productId =
-            params.get("id");
+        return "📦 Pwodwi";
+    }
 
 
-        if (!productId) {
+    /* ========================================================
+       PRODUCT ID
+    ======================================================== */
+
+    const params =
+        new URLSearchParams(
+            window.location.search
+        );
+
+    const productId =
+        params.get("id");
+
+
+    if (!productId) {
+
+        showError(
+            "Pa gen ID pwodwi nan lyen an."
+        );
+
+        return;
+    }
+
+
+    console.log(
+        "Macheya Product ID:",
+        productId
+    );
+
+
+    /* ========================================================
+       SUPABASE
+    ======================================================== */
+
+    let db =
+        window.supabaseClient;
+
+
+    /*
+       marketplace.html itilize:
+
+       supabase-config.js
+
+       Se menm non sa a nou dwe itilize
+       sou product-detail.html.
+    */
+
+    if (!db) {
+
+        if (
+            typeof window.supabase ===
+            "undefined"
+        ) {
 
             showError(
-                "Pa gen ID pwodwi nan lyen an."
+                "Supabase pa chaje sou paj la."
             );
 
             return;
         }
 
 
-        /* ====================================================
-           SUPABASE
-        ==================================================== */
-
-        let db =
-            window.supabaseClient;
+        const SUPABASE_URL =
+            "https://iscktsymqntjgqaxcitv.supabase.co";
 
 
-        /*
-         * Si supabase.config.js pa kreye
-         * window.supabaseClient, nou kreye
-         * kliyan an dirèkteman.
-         */
-
-        if (!db) {
-
-            if (
-                typeof window.supabase ===
-                "undefined"
-            ) {
-
-                showError(
-                    "Supabase pa chaje sou paj la."
-                );
-
-                return;
-            }
+        const SUPABASE_ANON_KEY =
+            "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
 
 
-            const SUPABASE_URL =
-                "https://iscktsymqntjgqaxcitv.supabase.co";
+        db =
+            window.supabase.createClient(
+                SUPABASE_URL,
+                SUPABASE_ANON_KEY
+            );
+    }
 
 
-            const SUPABASE_ANON_KEY =
-                "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
+    /* ========================================================
+       LOAD PRODUCT
+    ======================================================== */
+
+    try {
+
+        console.log(
+            "Macheya ap chèche pwodwi:",
+            productId
+        );
 
 
-            db =
-                window.supabase.createClient(
-                    SUPABASE_URL,
-                    SUPABASE_ANON_KEY
-                );
-        }
-
-
-        /* ====================================================
-           LOAD PRODUCT
-        ==================================================== */
-
-        try {
-
-            const {
-                data: product,
-                error: productError
-            } = await db
+        const result =
+            await db
                 .from("products")
                 .select(`
                     id,
@@ -262,258 +306,278 @@ document.addEventListener(
                     is_active,
                     created_at
                 `)
-                .eq(
-                    "id",
-                    productId
-                )
-                .eq(
-                    "is_active",
-                    true
-                )
-                .single();
+                .eq("id", productId)
+                .maybeSingle();
 
 
-            if (productError) {
+        const product =
+            result.data;
 
-                console.error(
-                    "Product error:",
-                    productError
-                );
-
-
-                throw new Error(
-                    "Pwodwi sa a pa egziste oswa li pa disponib ankò."
-                );
-            }
+        const productError =
+            result.error;
 
 
-            if (!product) {
-
-                throw new Error(
-                    "Nou pa jwenn pwodwi sa a."
-                );
-            }
+        console.log(
+            "Macheya product result:",
+            result
+        );
 
 
-            /* =================================================
-               IMAGE
-            ================================================= */
+        /* ====================================================
+           DATABASE ERROR
+        ==================================================== */
 
-            if (product.image_url) {
+        if (productError) {
 
-                productImage.src =
-                    product.image_url;
-
-                productImage.alt =
-                    product.name ||
-                    "Foto pwodwi";
+            console.error(
+                "Macheya Supabase product error:",
+                productError
+            );
 
 
-                productImage.style.display =
-                    "block";
+            showError(
+                "Nou pa kapab chaje pwodwi sa a. "
+                + productError.message
+            );
 
-            } else {
-
-                productImage.style.display =
-                    "none";
-            }
-
-
-            /* =================================================
-               BASIC INFO
-            ================================================= */
-
-            productCategory.textContent =
-                categoryName(
-                    product.category
-                );
+            return;
+        }
 
 
-            productName.textContent =
+        /* ====================================================
+           PRODUCT NOT FOUND
+        ==================================================== */
+
+        if (!product) {
+
+            console.error(
+                "Pwodwi pa jwenn pou ID:",
+                productId
+            );
+
+
+            showError(
+                "Pwodwi sa a pa egziste nan bazdone a."
+            );
+
+            return;
+        }
+
+
+        /* ====================================================
+           CHECK ACTIVE STATUS
+        ==================================================== */
+
+        /*
+           Nou pa itilize .eq("is_active", true)
+           nan rechèch la.
+
+           Sa pèmèt nou konnen si pwodwi a egziste
+           menm lè is_active NULL oswa false.
+        */
+
+        if (
+            product.is_active === false
+        ) {
+
+            console.warn(
+                "Pwodwi sa a gen is_active = false:",
+                product.id
+            );
+
+            /*
+               Pou kounye a nou toujou montre pwodwi a,
+               paske Marketplace la deja montre li.
+            */
+        }
+
+
+        /* ====================================================
+           IMAGE
+        ==================================================== */
+
+        if (
+            product.image_url &&
+            String(product.image_url).trim()
+        ) {
+
+            productImage.src =
+                product.image_url;
+
+            productImage.alt =
                 product.name ||
-                "Pwodwi san non";
+                "Foto pwodwi";
+
+            productImage.style.display =
+                "block";
+
+        } else {
+
+            productImage.removeAttribute(
+                "src"
+            );
+
+            productImage.alt =
+                "Pa gen foto";
+
+            productImage.style.display =
+                "none";
+        }
 
 
-            productPrice.textContent =
-                formatPrice(
-                    product.price
-                );
+        /* ====================================================
+           BASIC INFORMATION
+        ==================================================== */
+
+        productCategory.textContent =
+            categoryName(
+                product.category
+            );
 
 
-            productDescription.textContent =
-                product.description ||
-                "Pa gen deskripsyon pou pwodwi sa a.";
+        productName.textContent =
+            product.name ||
+            "Pwodwi san non";
 
 
-            /* =================================================
-               SELLER
-            ================================================= */
-
-            sellerName.textContent =
-                "Vandè Macheya";
+        productPrice.textContent =
+            formatPrice(
+                product.price
+            );
 
 
-            if (product.seller_id) {
-
-                try {
-
-                    const {
-                        data: seller
-                    } = await db
-                        .from("profiles")
-                        .select("name")
-                        .eq(
-                            "id",
-                            product.seller_id
-                        )
-                        .maybeSingle();
+        productDescription.textContent =
+            product.description ||
+            "Pa gen deskripsyon pou pwodwi sa a.";
 
 
-                    if (
-                        seller &&
-                        seller.name
-                    ) {
+        /* ====================================================
+           SELLER
+        ==================================================== */
 
-                        sellerName.textContent =
-                            seller.name;
-                    }
+        sellerName.textContent =
+            "Vandè Macheya";
 
-                } catch (sellerError) {
+
+        if (
+            product.seller_id
+        ) {
+
+            try {
+
+                const {
+                    data: seller,
+                    error: sellerError
+                } = await db
+                    .from("profiles")
+                    .select("name")
+                    .eq(
+                        "id",
+                        product.seller_id
+                    )
+                    .maybeSingle();
+
+
+                if (sellerError) {
 
                     console.warn(
-                        "Seller profile pa disponib:",
+                        "Profile vandè pa jwenn:",
                         sellerError
                     );
+
+                } else if (
+                    seller &&
+                    seller.name
+                ) {
+
+                    sellerName.textContent =
+                        seller.name;
                 }
+
+            } catch (error) {
+
+                console.warn(
+                    "Erè profile vandè:",
+                    error
+                );
             }
+        }
 
 
-            /* =================================================
-               TYPE / STOCK
-            ================================================= */
+        /* ====================================================
+           PRODUCT INFO
+        ==================================================== */
 
-            productInfo.innerHTML =
-                "";
+        productInfo.innerHTML =
+            "";
 
 
-            const typeBadge =
+        const type =
+            normalizeType(
+                product.product_type
+            );
+
+
+        const typeBadge =
+            document.createElement(
+                "span"
+            );
+
+
+        typeBadge.className =
+            "info-badge";
+
+
+        typeBadge.textContent =
+            typeName(
+                product.product_type
+            );
+
+
+        productInfo.appendChild(
+            typeBadge
+        );
+
+
+        /* ====================================================
+           PHYSICAL PRODUCT
+        ==================================================== */
+
+        if (
+            type === "physical" ||
+            type === "physique"
+        ) {
+
+            const stockBadge =
                 document.createElement(
                     "span"
                 );
 
 
-            typeBadge.className =
+            stockBadge.className =
                 "info-badge";
 
 
-            typeBadge.textContent =
-                typeName(
-                    product.product_type
+            const stock =
+                Number(
+                    product.stock
                 );
 
-
-            productInfo.appendChild(
-                typeBadge
-            );
-
-
-            /*
-             * FIZIK
-             */
 
             if (
-                product.product_type ===
-                "physical"
+                Number.isFinite(stock) &&
+                stock > 0
             ) {
 
-                const stockBadge =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                stockBadge.className =
-                    "info-badge";
-
-
-                const stock =
-                    Number(
-                        product.stock || 0
-                    );
-
-
-                if (stock > 0) {
-
-                    stockBadge.classList.add(
-                        "stock-badge"
-                    );
-
-
-                    stockBadge.textContent =
-                        "✓ " +
-                        stock +
-                        " disponib";
-
-
-                    buyButton.disabled =
-                        false;
-
-
-                    buyButton.textContent =
-                        "🛒 Achte pwodwi sa";
-
-                } else {
-
-                    stockBadge.classList.add(
-                        "out-stock"
-                    );
-
-
-                    stockBadge.textContent =
-                        "✕ Pa gen stock";
-
-
-                    buyButton.disabled =
-                        true;
-
-
-                    buyButton.textContent =
-                        "Pwodwi a fini";
-                }
-
-
-                productInfo.appendChild(
-                    stockBadge
+                stockBadge.classList.add(
+                    "stock-badge"
                 );
-            }
 
 
-            /*
-             * DIJITAL
-             */
-
-            if (
-                product.product_type ===
-                "digital"
-            ) {
-
-                const digitalBadge =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                digitalBadge.className =
-                    "info-badge stock-badge";
-
-
-                digitalBadge.textContent =
-                    "✓ Disponib imedyatman";
-
-
-                productInfo.appendChild(
-                    digitalBadge
-                );
+                stockBadge.textContent =
+                    "✓ " +
+                    stock +
+                    " disponib";
 
 
                 buyButton.disabled =
@@ -522,100 +586,183 @@ document.addEventListener(
 
                 buyButton.textContent =
                     "🛒 Achte pwodwi sa";
-            }
 
 
-            /*
-             * SERVICE
-             */
+            } else {
 
-            if (
-                product.product_type ===
-                "service"
-            ) {
-
-                const serviceBadge =
-                    document.createElement(
-                        "span"
-                    );
-
-
-                serviceBadge.className =
-                    "info-badge";
-
-
-                serviceBadge.textContent =
-                    "🛠️ Sèvis";
-
-
-                productInfo.appendChild(
-                    serviceBadge
+                stockBadge.classList.add(
+                    "out-stock"
                 );
 
 
+                stockBadge.textContent =
+                    "✕ Pa gen stock";
+
+
                 buyButton.disabled =
-                    false;
+                    true;
 
 
                 buyButton.textContent =
-                    "📩 Kontinye";
+                    "Pwodwi a fini";
             }
 
 
-            /* =================================================
-               SHOW PRODUCT
-            ================================================= */
-
-            loadingSection.hidden =
-                true;
-
-            errorSection.hidden =
-                true;
-
-            productSection.hidden =
-                false;
-
-
-            /* =================================================
-               BUY BUTTON
-            ================================================= */
-
-            buyButton.addEventListener(
-                "click",
-                function() {
-
-                    /*
-                     * Pou kounye a nou voye
-                     * enfòmasyon pwodwi a nan
-                     * checkout.
-                     */
-
-                    const checkoutUrl =
-                        "checkout.html?id=" +
-                        encodeURIComponent(
-                            product.id
-                        );
-
-
-                    window.location.href =
-                        checkoutUrl;
-                }
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "MACHEYA PRODUCT DETAIL ERROR:",
-                error
-            );
-
-
-            showError(
-                error.message ||
-                "Nou pa kapab chaje pwodwi sa a."
+            productInfo.appendChild(
+                stockBadge
             );
         }
 
+
+        /* ====================================================
+           DIGITAL PRODUCT
+        ==================================================== */
+
+        else if (
+            type === "digital" ||
+            type === "dijital"
+        ) {
+
+            const digitalBadge =
+                document.createElement(
+                    "span"
+                );
+
+
+            digitalBadge.className =
+                "info-badge stock-badge";
+
+
+            digitalBadge.textContent =
+                "✓ Disponib imedyatman";
+
+
+            productInfo.appendChild(
+                digitalBadge
+            );
+
+
+            buyButton.disabled =
+                false;
+
+
+            buyButton.textContent =
+                "🛒 Achte pwodwi sa";
+        }
+
+
+        /* ====================================================
+           SERVICE
+        ==================================================== */
+
+        else if (
+            type === "service" ||
+            type === "servis"
+        ) {
+
+            const serviceBadge =
+                document.createElement(
+                    "span"
+                );
+
+
+            serviceBadge.className =
+                "info-badge";
+
+
+            serviceBadge.textContent =
+                "🛠️ Sèvis";
+
+
+            productInfo.appendChild(
+                serviceBadge
+            );
+
+
+            buyButton.disabled =
+                false;
+
+
+            buyButton.textContent =
+                "📩 Kontinye";
+        }
+
+
+        /* ====================================================
+           UNKNOWN TYPE
+        ==================================================== */
+
+        else {
+
+            buyButton.disabled =
+                false;
+
+
+            buyButton.textContent =
+                "🛒 Achte pwodwi sa";
+        }
+
+
+        /* ====================================================
+           SHOW PRODUCT
+        ==================================================== */
+
+        loadingSection.hidden =
+            true;
+
+
+        errorSection.hidden =
+            true;
+
+
+        productSection.hidden =
+            false;
+
+
+        /* ====================================================
+           BUY BUTTON
+        ==================================================== */
+
+        buyButton.onclick =
+            function () {
+
+                if (
+                    buyButton.disabled
+                ) {
+                    return;
+                }
+
+
+                const checkoutUrl =
+                    "checkout.html?id=" +
+                    encodeURIComponent(
+                        product.id
+                    );
+
+
+                window.location.href =
+                    checkoutUrl;
+            };
+
+
+        console.log(
+            "Macheya: pwodwi chaje avèk siksè.",
+            product
+        );
+
+
+    } catch (error) {
+
+        console.error(
+            "MACHEYA PRODUCT DETAIL ERROR:",
+            error
+        );
+
+
+        showError(
+            error.message ||
+            "Nou pa kapab chaje pwodwi sa a."
+        );
     }
-);
+
+});
