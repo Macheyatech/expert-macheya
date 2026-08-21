@@ -20,18 +20,9 @@
         const name = document.getElementById("product-view-name");
         const price = document.getElementById("product-view-price");
         const type = document.getElementById("product-view-type");
-
-        const description = document.getElementById(
-            "product-view-description"
-        );
-
-        const sellerName = document.getElementById(
-            "product-view-seller-name"
-        );
-
-        const stock = document.getElementById(
-            "product-view-stock"
-        );
+        const description = document.getElementById("product-view-description");
+        const sellerName = document.getElementById("product-view-seller-name");
+        const stock = document.getElementById("product-view-stock");
 
         const cartButton = document.getElementById(
             "product-view-cart-button"
@@ -70,7 +61,10 @@
             sideMenu.setAttribute("aria-hidden", "false");
 
             if (menuButton) {
-                menuButton.setAttribute("aria-expanded", "true");
+                menuButton.setAttribute(
+                    "aria-expanded",
+                    "true"
+                );
             }
         }
 
@@ -83,7 +77,10 @@
             sideMenu.setAttribute("aria-hidden", "true");
 
             if (menuButton) {
-                menuButton.setAttribute("aria-expanded", "false");
+                menuButton.setAttribute(
+                    "aria-expanded",
+                    "false"
+                );
             }
         }
 
@@ -115,7 +112,9 @@
         console.log("ID pwodwi a:", productId);
 
         if (!productId) {
-            showNotFound("Pa gen ID pwodwi nan lyen an.");
+            showNotFound(
+                "Pa gen ID pwodwi nan lyen an."
+            );
             return;
         }
 
@@ -137,7 +136,6 @@
             console.log("Pwodwi jwenn:", product);
 
             if (productError) {
-
                 console.error(
                     "Erè pwodwi:",
                     productError
@@ -151,13 +149,17 @@
             }
 
             if (!product) {
-
                 showNotFound(
                     "Pwodwi sa pa egziste."
                 );
 
                 return;
             }
+
+            console.log(
+                "Tout done pwodwi a:",
+                product
+            );
 
             /* =========================
                DISPLAY PRODUCT
@@ -251,34 +253,49 @@
             sellerName.textContent =
                 "Ap chèche vandè a...";
 
-            const sellerId =
-                product.seller_id;
+            if (!product.seller_id) {
 
-            console.log(
-                "Seller ID pwodwi a:",
-                sellerId
-            );
+                console.warn(
+                    "Pwodwi a pa gen seller_id."
+                );
 
-            if (sellerId) {
+                sellerName.textContent =
+                    "Vandè pa idantifye";
+
+            } else {
+
+                console.log(
+                    "Seller ID:",
+                    product.seller_id
+                );
+
+                /*
+                 * IMPORTANT:
+                 * Nou itilize sèlman kolòn ki egziste
+                 * nan profiles.
+                 */
 
                 const {
                     data: seller,
                     error: sellerError
                 } = await supabaseClient
                     .from("profiles")
-                    .select("id, nom_complet, name, est_vendeur")
-                    .eq("id", sellerId)
+                    .select("id, nom_complet")
+                    .eq(
+                        "id",
+                        product.seller_id
+                    )
                     .maybeSingle();
 
                 console.log(
-                    "Profile vandè:",
+                    "Vandè jwenn:",
                     seller
                 );
 
                 if (sellerError) {
 
                     console.error(
-                        "Erè rechèch vandè:",
+                        "Erè vandè:",
                         sellerError
                     );
 
@@ -287,35 +304,20 @@
 
                 } else if (seller) {
 
-                    const displayedSellerName =
+                    sellerName.textContent =
                         seller.nom_complet ||
-                        seller.name;
-
-                    if (displayedSellerName) {
-
-                        sellerName.textContent =
-                            displayedSellerName;
-
-                    } else {
-
-                        sellerName.textContent =
-                            "Vandè Macheya";
-                    }
+                        "Vandè pa idantifye";
 
                 } else {
+
+                    console.warn(
+                        "Pa gen profile pou seller_id:",
+                        product.seller_id
+                    );
 
                     sellerName.textContent =
                         "Vandè pa idantifye";
                 }
-
-            } else {
-
-                console.warn(
-                    "Pwodwi sa a pa gen seller_id."
-                );
-
-                sellerName.textContent =
-                    "Vandè pa idantifye";
             }
 
             /* =========================
@@ -334,7 +336,7 @@
             notFound.style.display = "none";
 
             /* =========================
-               CART
+               CART BUTTON
             ========================= */
 
             if (cartButton) {
@@ -355,7 +357,7 @@
             }
 
             /* =========================
-               BUY
+               CHECKOUT BUTTON
             ========================= */
 
             if (buyButton) {
@@ -414,6 +416,14 @@
 
         function getAvailability(product) {
 
+            /*
+             * Si gen yon stock reyèl nan database la,
+             * nou respekte li.
+             *
+             * Men null / undefined / vid pa vle di
+             * pwodwi a pa disponib.
+             */
+
             const possibleStockFields = [
                 "stock",
                 "quantity",
@@ -422,11 +432,9 @@
                 "stock_quantity"
             ];
 
-            let stockFieldFound = null;
+            let stockField = null;
 
-            for (
-                const field of possibleStockFields
-            ) {
+            for (const field of possibleStockFields) {
 
                 if (
                     Object.prototype.hasOwnProperty.call(
@@ -435,17 +443,17 @@
                     )
                 ) {
 
-                    stockFieldFound = field;
+                    stockField = field;
                     break;
                 }
             }
 
             /*
-             * Si products pa gen okenn kolòn stock,
+             * Pa gen stock column:
              * pwodwi a disponib.
              */
 
-            if (!stockFieldFound) {
+            if (!stockField) {
 
                 return {
                     available: true,
@@ -454,10 +462,11 @@
             }
 
             const rawValue =
-                product[stockFieldFound];
+                product[stockField];
 
             /*
-             * NULL oswa vid pa vle di pwodwi a fini.
+             * Stock vid/null:
+             * konsidere pwodwi a disponib.
              */
 
             if (
@@ -472,17 +481,17 @@
                 };
             }
 
-            const value =
+            const numericValue =
                 Number(rawValue);
 
             /*
-             * Se sèlman yon kantite 0 oswa mwens
-             * ki fè pwodwi a pa disponib.
+             * Sèlman stock 0 oswa mwens
+             * fè pwodwi a pa disponib.
              */
 
             if (
-                Number.isFinite(value) &&
-                value <= 0
+                Number.isFinite(numericValue) &&
+                numericValue <= 0
             ) {
 
                 return {
@@ -605,33 +614,47 @@
 
 
         /* =========================
-           BUY
+           CHECKOUT
         ========================= */
 
         function buyProduct(product) {
 
+            const checkoutProduct = {
+
+                id: product.id,
+
+                name: product.name,
+
+                price: product.price,
+
+                image_url:
+                    product.image_url || "",
+
+                seller_id:
+                    product.seller_id || null,
+
+                quantity: 1
+            };
+
             localStorage.setItem(
                 "macheya_checkout_product",
-                JSON.stringify({
-
-                    id: product.id,
-
-                    name: product.name,
-
-                    price: product.price,
-
-                    image_url:
-                        product.image_url || "",
-
-                    seller_id:
-                        product.seller_id || null,
-
-                    quantity: 1
-                })
+                JSON.stringify(
+                    checkoutProduct
+                )
             );
 
+            console.log(
+                "Pwodwi pou checkout:",
+                checkoutProduct
+            );
+
+            /*
+             * Kounye a nou ale dirèkteman
+             * sou checkout.html.
+             */
+
             window.location.href =
-                "buyer.html?product_id=" +
+                "checkout.html?product_id=" +
                 encodeURIComponent(
                     product.id
                 );
