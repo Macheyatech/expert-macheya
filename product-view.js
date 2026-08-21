@@ -2,38 +2,36 @@
     "use strict";
 
     const db = window.supabaseClient;
-
     const $ = id => document.getElementById(id);
 
-    const details = $("product-details-section");
-    const notFound = $("product-not-found");
-    const image = $("product-image");
-    const category = $("product-category");
-    const name = $("product-name");
-    const price = $("product-price");
-    const description = $("product-description");
-    const seller = $("product-seller-name");
+    const loading = $("product-view-loading");
+    const details = $("product-view-details");
+    const notFound = $("product-view-not-found");
 
-    const menu = $("product-side-menu");
-    const menuButton = $("product-menu-button");
-    const closeButton = $("product-close-menu-button");
-    const overlay = $("product-menu-overlay");
+    const image = $("product-view-image");
+    const category = $("product-view-category");
+    const name = $("product-view-name");
+    const price = $("product-view-price");
+    const type = $("product-view-type");
+    const description = $("product-view-description");
+    const stock = $("product-view-stock");
+    const seller = $("product-view-seller-name");
 
-    const cartButton = $("product-add-cart-button");
-    const buyButton = $("product-buy-button");
+    const menu = $("product-view-side-menu");
+    const menuBtn = $("product-view-menu-button");
+    const closeBtn = $("product-view-close-menu-button");
+    const overlay = $("product-view-menu-overlay");
 
-    function getId() {
-        return new URLSearchParams(location.search).get("id");
-    }
+    const cartBtn = $("product-view-cart-button");
+    const buyBtn = $("product-view-buy-button");
+
+    const id = new URLSearchParams(location.search).get("id");
 
     function money(value) {
         const n = Number(value);
-
-        if (!Number.isFinite(n)) {
-            return "Pri pa disponib";
-        }
-
-        return new Intl.NumberFormat("fr-FR").format(n) + " HTG";
+        return Number.isFinite(n)
+            ? new Intl.NumberFormat("fr-FR").format(n) + " HTG"
+            : "Pri pa disponib";
     }
 
     function categoryName(value) {
@@ -60,7 +58,8 @@
         return map[v] || "Lòt";
     }
 
-    function showNotFound() {
+    function notFoundPage() {
+        if (loading) loading.style.display = "none";
         if (details) details.style.display = "none";
 
         if (notFound) {
@@ -71,39 +70,44 @@
         document.title = "Pwodwi pa disponib | Macheya";
     }
 
-    function showProduct(product) {
-        if (!details) return;
-
-        details.style.display = "grid";
-
+    function showProduct(p) {
+        if (loading) loading.style.display = "none";
         if (notFound) {
             notFound.style.display = "none";
             notFound.setAttribute("aria-hidden", "true");
         }
 
-        category.textContent =
-            categoryName(product.category);
+        if (details) {
+            details.style.display = "grid";
+            details.setAttribute("aria-hidden", "false");
+        }
 
-        name.textContent =
-            product.name || "Pwodwi san non";
+        category.textContent = categoryName(p.category);
+        name.textContent = p.name || "Pwodwi san non";
+        price.textContent = money(p.price);
 
-        price.textContent =
-            money(product.price);
+        type.textContent =
+            p.product_type ||
+            p.type ||
+            (categoryName(p.category) === "Dijital"
+                ? "Pwodwi dijital"
+                : "Pwodwi fizik");
 
         description.textContent =
-            product.description ||
+            p.description ||
             "Pa gen deskripsyon disponib pou pwodwi sa a.";
 
+        stock.textContent =
+            p.is_active ? "Disponib" : "Pa disponib";
+
         seller.textContent =
-            product.seller_name ||
-            "Vandè Macheya";
+            p.seller_name || "Vandè Macheya";
 
         image.textContent = "";
 
-        if (product.image_url) {
+        if (p.image_url) {
             image.style.backgroundImage =
-                `url("${product.image_url}")`;
-
+                `url("${p.image_url}")`;
             image.style.backgroundSize = "cover";
             image.style.backgroundPosition = "center";
             image.style.backgroundRepeat = "no-repeat";
@@ -113,33 +117,19 @@
         }
 
         document.title =
-            `${product.name || "Pwodwi"} | Macheya`;
-
-        document.body.dataset.productId =
-            product.id;
+            `${p.name || "Pwodwi"} | Macheya`;
     }
 
     async function loadProduct() {
-        const id = getId();
-
         if (!id || !db) {
-            showNotFound();
+            notFoundPage();
             return;
         }
 
         try {
             const { data, error } = await db
                 .from("products")
-                .select(`
-                    id,
-                    name,
-                    price,
-                    category,
-                    description,
-                    image_url,
-                    seller_id,
-                    is_active
-                `)
+                .select("*")
                 .eq("id", id)
                 .eq("is_active", true)
                 .maybeSingle();
@@ -147,7 +137,7 @@
             if (error) throw error;
 
             if (!data) {
-                showNotFound();
+                notFoundPage();
                 return;
             }
 
@@ -172,102 +162,44 @@
             showProduct(data);
 
         } catch (error) {
-            console.error(
-                "MACHEYA PRODUCT VIEW:",
-                error
-            );
-
-            showNotFound();
+            console.error("MACHEYA PRODUCT:", error);
+            notFoundPage();
         }
     }
 
     function openMenu() {
         menu?.classList.add("is-open");
         overlay?.classList.add("is-visible");
-
-        menu?.setAttribute(
-            "aria-hidden",
-            "false"
-        );
-
-        menuButton?.setAttribute(
-            "aria-expanded",
-            "true"
-        );
+        menu?.setAttribute("aria-hidden", "false");
+        menuBtn?.setAttribute("aria-expanded", "true");
     }
 
     function closeMenu() {
         menu?.classList.remove("is-open");
         overlay?.classList.remove("is-visible");
-
-        menu?.setAttribute(
-            "aria-hidden",
-            "true"
-        );
-
-        menuButton?.setAttribute(
-            "aria-expanded",
-            "false"
-        );
+        menu?.setAttribute("aria-hidden", "true");
+        menuBtn?.setAttribute("aria-expanded", "false");
     }
 
-    menuButton?.addEventListener(
-        "click",
-        openMenu
-    );
+    menuBtn?.addEventListener("click", openMenu);
+    closeBtn?.addEventListener("click", closeMenu);
+    overlay?.addEventListener("click", closeMenu);
 
-    closeButton?.addEventListener(
-        "click",
-        closeMenu
-    );
+    document.addEventListener("keydown", e => {
+        if (e.key === "Escape") closeMenu();
+    });
 
-    overlay?.addEventListener(
-        "click",
-        closeMenu
-    );
+    cartBtn?.addEventListener("click", () => {
+        if (!id) return;
+        location.href =
+            "cart.html?add=" + encodeURIComponent(id);
+    });
 
-    document.addEventListener(
-        "keydown",
-        event => {
-            if (event.key === "Escape") {
-                closeMenu();
-            }
-        }
-    );
-
-    cartButton?.addEventListener(
-        "click",
-        () => {
-            const id = getId();
-
-            if (!id) return;
-
-            location.href =
-                "cart.html?add=" +
-                encodeURIComponent(id);
-        }
-    );
-
-    buyButton?.addEventListener(
-        "click",
-        () => {
-            const id = getId();
-
-            if (!id) return;
-
-            location.href =
-                "checkout.html?product=" +
-                encodeURIComponent(id);
-        }
-    );
-
-    if (!db) {
-        console.error(
-            "Macheya: supabaseClient pa jwenn."
-        );
-        showNotFound();
-        return;
-    }
+    buyBtn?.addEventListener("click", () => {
+        if (!id) return;
+        location.href =
+            "checkout.html?id=" + encodeURIComponent(id);
+    });
 
     loadProduct();
 
