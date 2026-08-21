@@ -5,6 +5,12 @@
 
         const supabaseClient = window.supabaseClient;
 
+        if (!supabaseClient) {
+            console.error("Supabase client pa jwenn.");
+            showNotFound("Sistèm nan pa konekte ak bazdone a.");
+            return;
+        }
+
         /* =========================
            ELEMENTS
         ========================= */
@@ -34,37 +40,29 @@
             document.getElementById("product-view-type");
 
         const description =
-            document.getElementById("product-view-description");
+            document.getElementById(
+                "product-view-description"
+            );
 
         const sellerName =
-            document.getElementById("product-view-seller-name");
+            document.getElementById(
+                "product-view-seller-name"
+            );
 
         const stock =
-            document.getElementById("product-view-stock");
+            document.getElementById(
+                "product-view-stock"
+            );
 
         const cartButton =
-            document.getElementById("product-view-cart-button");
+            document.getElementById(
+                "product-view-cart-button"
+            );
 
         const buyButton =
-            document.getElementById("product-view-buy-button");
-
-
-        /* =========================
-           SUPABASE CHECK
-        ========================= */
-
-        if (!supabaseClient) {
-
-            console.error(
-                "Macheya: Supabase client pa jwenn."
+            document.getElementById(
+                "product-view-buy-button"
             );
-
-            showNotFound(
-                "Sistèm nan pa konekte ak bazdone a."
-            );
-
-            return;
-        }
 
 
         /* =========================
@@ -94,10 +92,11 @@
 
         function openMenu() {
 
-            if (!sideMenu || !overlay) return;
+            if (!sideMenu || !overlay) {
+                return;
+            }
 
             sideMenu.classList.add("is-open");
-
             overlay.classList.add("is-visible");
 
             sideMenu.setAttribute(
@@ -106,7 +105,6 @@
             );
 
             if (menuButton) {
-
                 menuButton.setAttribute(
                     "aria-expanded",
                     "true"
@@ -117,10 +115,11 @@
 
         function closeMenu() {
 
-            if (!sideMenu || !overlay) return;
+            if (!sideMenu || !overlay) {
+                return;
+            }
 
             sideMenu.classList.remove("is-open");
-
             overlay.classList.remove("is-visible");
 
             sideMenu.setAttribute(
@@ -129,7 +128,6 @@
             );
 
             if (menuButton) {
-
                 menuButton.setAttribute(
                     "aria-expanded",
                     "false"
@@ -138,30 +136,26 @@
         }
 
 
-        menuButton?.addEventListener(
-            "click",
-            openMenu
-        );
+        if (menuButton) {
+            menuButton.addEventListener(
+                "click",
+                openMenu
+            );
+        }
 
-        closeMenuButton?.addEventListener(
-            "click",
-            closeMenu
-        );
+        if (closeMenuButton) {
+            closeMenuButton.addEventListener(
+                "click",
+                closeMenu
+            );
+        }
 
-        overlay?.addEventListener(
-            "click",
-            closeMenu
-        );
-
-        document.addEventListener(
-            "keydown",
-            function (event) {
-
-                if (event.key === "Escape") {
-                    closeMenu();
-                }
-            }
-        );
+        if (overlay) {
+            overlay.addEventListener(
+                "click",
+                closeMenu
+            );
+        }
 
 
         /* =========================
@@ -205,16 +199,9 @@
                 data: product,
                 error: productError
             } = await supabaseClient
-
                 .from("products")
-
                 .select("*")
-
-                .eq(
-                    "id",
-                    productId
-                )
-
+                .eq("id", productId)
                 .maybeSingle();
 
 
@@ -259,9 +246,7 @@
 
 
             price.textContent =
-                formatPrice(
-                    product.price
-                );
+                formatPrice(product.price);
 
 
             category.textContent =
@@ -316,14 +301,25 @@
                 getAvailability(product);
 
 
-            stock.textContent =
-                availability.text;
+            console.log(
+                "MACHEYA AVAILABILITY:",
+                availability
+            );
+
+
+            if (stock) {
+
+                stock.textContent =
+                    availability.text;
+            }
 
 
             if (availability.available) {
 
-                stock.style.color =
-                    "#15803d";
+                if (stock) {
+                    stock.style.color =
+                        "#15803d";
+                }
 
 
                 if (cartButton) {
@@ -353,8 +349,10 @@
 
             } else {
 
-                stock.style.color =
-                    "#dc2626";
+                if (stock) {
+                    stock.style.color =
+                        "#dc2626";
+                }
 
 
                 if (cartButton) {
@@ -388,11 +386,27 @@
                SELLER
             ========================= */
 
-            sellerName.textContent =
-                "Ap chèche vandè a...";
+            if (sellerName) {
+
+                sellerName.textContent =
+                    "Ap chèche vandè a...";
+            }
 
 
-            if (product.seller_id) {
+            if (!product.seller_id) {
+
+                console.error(
+                    "MACHEYA: Pwodwi sa a pa gen seller_id.",
+                    product
+                );
+
+                if (sellerName) {
+
+                    sellerName.textContent =
+                        "Vandè pa idantifye";
+                }
+
+            } else {
 
                 console.log(
                     "MACHEYA SELLER ID:",
@@ -404,23 +418,19 @@
                     data: seller,
                     error: sellerError
                 } = await supabaseClient
-
                     .from("profiles")
-
                     .select(
-                        "id, nom_complet, name, username"
+                        "id, nom_complet, name"
                     )
-
                     .eq(
                         "id",
                         product.seller_id
                     )
-
                     .maybeSingle();
 
 
                 console.log(
-                    "MACHEYA SELLER:",
+                    "MACHEYA SELLER RESULT:",
                     seller
                 );
 
@@ -432,27 +442,39 @@
                         sellerError
                     );
 
-                    sellerName.textContent =
-                        "Vandè pa idantifye";
+                    if (sellerName) {
+
+                        sellerName.textContent =
+                            "Vandè pa idantifye";
+                    }
 
                 } else if (seller) {
 
-                    sellerName.textContent =
+                    const sellerDisplayName =
                         seller.nom_complet ||
-                        seller.name ||
-                        seller.username ||
-                        "Vandè pa idantifye";
+                        seller.name;
+
+
+                    if (sellerName) {
+
+                        sellerName.textContent =
+                            sellerDisplayName ||
+                            "Vandè pa idantifye";
+                    }
 
                 } else {
 
-                    sellerName.textContent =
-                        "Vandè pa idantifye";
+                    console.error(
+                        "MACHEYA: Aucun profil trouvé pour seller_id:",
+                        product.seller_id
+                    );
+
+                    if (sellerName) {
+
+                        sellerName.textContent =
+                            "Vandè pa idantifye";
+                    }
                 }
-
-            } else {
-
-                sellerName.textContent =
-                    "Vandè pa idantifye";
             }
 
 
@@ -492,7 +514,7 @@
 
 
             /* =========================
-               ADD TO CART
+               CART
             ========================= */
 
             if (cartButton) {
@@ -543,10 +565,6 @@
             }
 
 
-            document.title =
-                `${product.name || "Pwodwi"} | Macheya`;
-
-
         } catch (error) {
 
             console.error(
@@ -570,9 +588,7 @@
                 Number(value);
 
 
-            if (
-                !Number.isFinite(number)
-            ) {
+            if (!Number.isFinite(number)) {
 
                 return "0 HTG";
             }
@@ -593,46 +609,23 @@
 
         function getAvailability(product) {
 
-            /*
-             * is_active se sous prensipal
-             * pou konnen si pwodwi a pibliye.
-             */
+            const possibleStockFields = [
 
-            if (
-                Object.prototype.hasOwnProperty.call(
-                    product,
-                    "is_active"
-                )
-            ) {
-
-                return {
-                    available:
-                        product.is_active === true,
-
-                    text:
-                        product.is_active === true
-                            ? "Disponib"
-                            : "Pa disponib"
-                };
-            }
-
-
-            /*
-             * Si products pa genyen is_active,
-             * nou gade stock si li egziste.
-             */
-
-            const stockFields = [
                 "stock",
+
                 "quantity",
+
                 "qty",
+
                 "inventory",
+
                 "stock_quantity"
+
             ];
 
 
             for (
-                const field of stockFields
+                const field of possibleStockFields
             ) {
 
                 if (
@@ -652,7 +645,9 @@
                     ) {
 
                         return {
-                            available: value,
+
+                            available:
+                                value,
 
                             text:
                                 value
@@ -667,12 +662,11 @@
 
 
                     if (
-                        Number.isFinite(
-                            number
-                        )
+                        Number.isFinite(number)
                     ) {
 
                         return {
+
                             available:
                                 number > 0,
 
@@ -686,13 +680,10 @@
             }
 
 
-            /*
-             * Si pa gen okenn enfòmasyon
-             * sou stock, pwodwi a disponib.
-             */
-
             return {
+
                 available: true,
+
                 text: "Disponib"
             };
         }
@@ -740,10 +731,7 @@
                     );
 
 
-                if (
-                    text &&
-                    message
-                ) {
+                if (text && message) {
 
                     text.textContent =
                         message;
@@ -789,9 +777,7 @@
                 );
 
 
-            if (
-                existingIndex >= 0
-            ) {
+            if (existingIndex >= 0) {
 
                 cart[
                     existingIndex
@@ -842,37 +828,46 @@
 
 
         /* =========================
-           BUY NOW
+           CHECKOUT
         ========================= */
 
         function buyProduct(product) {
 
+            const checkoutProduct = {
+
+                id:
+                    product.id,
+
+                name:
+                    product.name,
+
+                price:
+                    product.price,
+
+                image_url:
+                    product.image_url ||
+                    "",
+
+                seller_id:
+                    product.seller_id ||
+                    null,
+
+                quantity:
+                    1
+            };
+
+
             localStorage.setItem(
-
                 "macheya_checkout_product",
+                JSON.stringify(
+                    checkoutProduct
+                )
+            );
 
-                JSON.stringify({
 
-                    id:
-                        product.id,
-
-                    name:
-                        product.name,
-
-                    price:
-                        product.price,
-
-                    image_url:
-                        product.image_url ||
-                        "",
-
-                    seller_id:
-                        product.seller_id ||
-                        null,
-
-                    quantity:
-                        1
-                })
+            console.log(
+                "MACHEYA CHECKOUT PRODUCT:",
+                checkoutProduct
             );
 
 
