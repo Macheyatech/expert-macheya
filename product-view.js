@@ -11,10 +11,6 @@
             return;
         }
 
-        /* =========================
-           ELEMENTS
-        ========================= */
-
         const loading = document.getElementById("product-view-loading");
         const details = document.getElementById("product-view-details");
         const notFound = document.getElementById("product-view-not-found");
@@ -74,10 +70,7 @@
             sideMenu.setAttribute("aria-hidden", "false");
 
             if (menuButton) {
-                menuButton.setAttribute(
-                    "aria-expanded",
-                    "true"
-                );
+                menuButton.setAttribute("aria-expanded", "true");
             }
         }
 
@@ -90,32 +83,20 @@
             sideMenu.setAttribute("aria-hidden", "true");
 
             if (menuButton) {
-                menuButton.setAttribute(
-                    "aria-expanded",
-                    "false"
-                );
+                menuButton.setAttribute("aria-expanded", "false");
             }
         }
 
         if (menuButton) {
-            menuButton.addEventListener(
-                "click",
-                openMenu
-            );
+            menuButton.addEventListener("click", openMenu);
         }
 
         if (closeMenuButton) {
-            closeMenuButton.addEventListener(
-                "click",
-                closeMenu
-            );
+            closeMenuButton.addEventListener("click", closeMenu);
         }
 
         if (overlay) {
-            overlay.addEventListener(
-                "click",
-                closeMenu
-            );
+            overlay.addEventListener("click", closeMenu);
         }
 
         /* =========================
@@ -131,15 +112,10 @@
             params.get("product_id") ||
             params.get("product");
 
-        console.log(
-            "ID pwodwi a:",
-            productId
-        );
+        console.log("ID pwodwi a:", productId);
 
         if (!productId) {
-            showNotFound(
-                "Pa gen ID pwodwi nan lyen an."
-            );
+            showNotFound("Pa gen ID pwodwi nan lyen an.");
             return;
         }
 
@@ -158,12 +134,10 @@
                 .eq("id", productId)
                 .maybeSingle();
 
-            console.log(
-                "Pwodwi jwenn:",
-                product
-            );
+            console.log("Pwodwi jwenn:", product);
 
             if (productError) {
+
                 console.error(
                     "Erè pwodwi:",
                     productError
@@ -177,6 +151,7 @@
             }
 
             if (!product) {
+
                 showNotFound(
                     "Pwodwi sa pa egziste."
                 );
@@ -227,7 +202,7 @@
             }
 
             /* =========================
-               STOCK / AVAILABILITY
+               AVAILABILITY
             ========================= */
 
             const availability =
@@ -276,34 +251,34 @@
             sellerName.textContent =
                 "Ap chèche vandè a...";
 
-            if (product.seller_id) {
+            const sellerId =
+                product.seller_id;
 
-                console.log(
-                    "Seller ID:",
-                    product.seller_id
-                );
+            console.log(
+                "Seller ID pwodwi a:",
+                sellerId
+            );
+
+            if (sellerId) {
 
                 const {
                     data: seller,
                     error: sellerError
                 } = await supabaseClient
                     .from("profiles")
-                    .select("id, nom_complet, name")
-                    .eq(
-                        "id",
-                        product.seller_id
-                    )
+                    .select("id, nom_complet, name, est_vendeur")
+                    .eq("id", sellerId)
                     .maybeSingle();
 
                 console.log(
-                    "Vandè jwenn:",
+                    "Profile vandè:",
                     seller
                 );
 
                 if (sellerError) {
 
                     console.error(
-                        "Erè vandè:",
+                        "Erè rechèch vandè:",
                         sellerError
                     );
 
@@ -312,10 +287,20 @@
 
                 } else if (seller) {
 
-                    sellerName.textContent =
+                    const displayedSellerName =
                         seller.nom_complet ||
-                        seller.name ||
-                        "Vandè pa idantifye";
+                        seller.name;
+
+                    if (displayedSellerName) {
+
+                        sellerName.textContent =
+                            displayedSellerName;
+
+                    } else {
+
+                        sellerName.textContent =
+                            "Vandè Macheya";
+                    }
 
                 } else {
 
@@ -324,6 +309,10 @@
                 }
 
             } else {
+
+                console.warn(
+                    "Pwodwi sa a pa gen seller_id."
+                );
 
                 sellerName.textContent =
                     "Vandè pa idantifye";
@@ -345,7 +334,7 @@
             notFound.style.display = "none";
 
             /* =========================
-               BUTTONS
+               CART
             ========================= */
 
             if (cartButton) {
@@ -353,9 +342,11 @@
                 cartButton.onclick = function () {
 
                     if (!availability.available) {
+
                         alert(
                             "Pwodwi sa a pa disponib kounye a."
                         );
+
                         return;
                     }
 
@@ -363,14 +354,20 @@
                 };
             }
 
+            /* =========================
+               BUY
+            ========================= */
+
             if (buyButton) {
 
                 buyButton.onclick = function () {
 
                     if (!availability.available) {
+
                         alert(
                             "Pwodwi sa a pa disponib kounye a."
                         );
+
                         return;
                     }
 
@@ -417,11 +414,6 @@
 
         function getAvailability(product) {
 
-            /*
-             * Nou sipòte plizyè non stock posib
-             * san nou pa oblije chanje database la.
-             */
-
             const possibleStockFields = [
                 "stock",
                 "quantity",
@@ -449,8 +441,8 @@
             }
 
             /*
-             * Si pa gen okenn kolòn stock,
-             * pwodwi a konsidere kòm disponib.
+             * Si products pa gen okenn kolòn stock,
+             * pwodwi a disponib.
              */
 
             if (!stockFieldFound) {
@@ -461,10 +453,32 @@
                 };
             }
 
+            const rawValue =
+                product[stockFieldFound];
+
+            /*
+             * NULL oswa vid pa vle di pwodwi a fini.
+             */
+
+            if (
+                rawValue === null ||
+                rawValue === undefined ||
+                rawValue === ""
+            ) {
+
+                return {
+                    available: true,
+                    text: "Disponib"
+                };
+            }
+
             const value =
-                Number(
-                    product[stockFieldFound]
-                );
+                Number(rawValue);
+
+            /*
+             * Se sèlman yon kantite 0 oswa mwens
+             * ki fè pwodwi a pa disponib.
+             */
 
             if (
                 Number.isFinite(value) &&
@@ -495,7 +509,9 @@
             }
 
             if (details) {
+
                 details.style.display = "none";
+
                 details.setAttribute(
                     "aria-hidden",
                     "true"
@@ -594,29 +610,29 @@
 
         function buyProduct(product) {
 
-            /*
-             * Pou kounye a nou mete pwodwi a
-             * nan localStorage pou buyer page la
-             * ka sèvi avè l.
-             */
-
             localStorage.setItem(
                 "macheya_checkout_product",
                 JSON.stringify({
+
                     id: product.id,
+
                     name: product.name,
+
                     price: product.price,
+
                     image_url:
                         product.image_url || "",
+
                     seller_id:
                         product.seller_id || null,
+
                     quantity: 1
                 })
             );
 
             window.location.href =
-                "buyer.html?product_id="
-                + encodeURIComponent(
+                "buyer.html?product_id=" +
+                encodeURIComponent(
                     product.id
                 );
         }
