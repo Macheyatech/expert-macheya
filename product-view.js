@@ -2,39 +2,29 @@
     "use strict";
 
     const db = window.supabaseClient;
+
     const $ = id => document.getElementById(id);
 
-    const loading = $("product-view-loading");
-    const details = $("product-view-details");
-    const notFound = $("product-view-not-found");
+    const details = $("product-details-section");
+    const notFound = $("product-not-found");
 
-    const image = $("product-view-image");
-    const category = $("product-view-category");
-    const name = $("product-view-name");
-    const price = $("product-view-price");
-    const type = $("product-view-type");
-    const description = $("product-view-description");
-    const seller = $("product-view-seller-name");
-    const stock = $("product-view-stock");
+    const image = $("product-image");
+    const category = $("product-category");
+    const name = $("product-name");
+    const price = $("product-price");
+    const description = $("product-description");
+    const seller = $("product-seller-name");
 
-    const menu = $("product-view-side-menu");
-    const menuButton = $("product-view-menu-button");
-    const closeButton = $("product-view-close-menu-button");
-    const overlay = $("product-view-menu-overlay");
+    const menu = $("product-side-menu");
+    const menuButton = $("product-menu-button");
+    const closeButton = $("product-close-menu-button");
+    const overlay = $("product-menu-overlay");
 
-    const cartButton = $("product-view-cart-button");
-    const buyButton = $("product-view-buy-button");
+    const cartButton = $("product-add-cart-button");
+    const buyButton = $("product-buy-button");
 
     function getId() {
         return new URLSearchParams(location.search).get("id");
-    }
-
-    function clean(value) {
-        return String(value || "")
-            .trim()
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "");
     }
 
     function money(value) {
@@ -48,7 +38,11 @@
     }
 
     function categoryName(value) {
-        const v = clean(value);
+        const v = String(value || "")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
 
         const map = {
             mode: "Mode",
@@ -67,17 +61,9 @@
         return map[v] || "Lòt";
     }
 
-    function showLoading(show) {
-        if (!loading) return;
-        loading.style.display = show ? "block" : "none";
-    }
-
     function showNotFound() {
-        showLoading(false);
-
         if (details) {
             details.style.display = "none";
-            details.setAttribute("aria-hidden", "true");
         }
 
         if (notFound) {
@@ -88,13 +74,10 @@
         document.title = "Pwodwi pa disponib | Macheya";
     }
 
-    function showProduct(product, sellerName) {
-        showLoading(false);
-
+    function showProduct(product) {
         if (!details) return;
 
         details.style.display = "grid";
-        details.setAttribute("aria-hidden", "false");
 
         if (notFound) {
             notFound.style.display = "none";
@@ -116,13 +99,6 @@
                 money(product.price);
         }
 
-        if (type) {
-            type.textContent =
-                product.product_type ||
-                product.type ||
-                "Pwodwi";
-        }
-
         if (description) {
             description.textContent =
                 product.description ||
@@ -131,23 +107,12 @@
 
         if (seller) {
             seller.textContent =
-                sellerName ||
+                product.seller_name ||
                 "Vandè pa idantifye";
-        }
-
-        if (stock) {
-            stock.textContent =
-                product.stock !== undefined &&
-                product.stock !== null
-                    ? Number(product.stock) > 0
-                        ? "Disponib"
-                        : "Epwize"
-                    : "Disponib";
         }
 
         if (image) {
             image.textContent = "";
-            image.style.backgroundImage = "";
 
             if (product.image_url) {
                 image.style.backgroundImage =
@@ -157,6 +122,7 @@
                 image.style.backgroundPosition = "center";
                 image.style.backgroundRepeat = "no-repeat";
             } else {
+                image.style.backgroundImage = "";
                 image.textContent = "🛍️";
             }
         }
@@ -168,31 +134,6 @@
             product.id;
     }
 
-    async function getSellerName(sellerId) {
-        if (!sellerId) return null;
-
-        const { data, error } = await db
-            .from("profiles")
-            .select("full_name,name,username")
-            .eq("id", sellerId)
-            .maybeSingle();
-
-        if (error) {
-            console.warn(
-                "MACHEYA SELLER PROFILE:",
-                error
-            );
-            return null;
-        }
-
-        return (
-            data?.full_name ||
-            data?.name ||
-            data?.username ||
-            null
-        );
-    }
-
     async function loadProduct() {
         const id = getId();
 
@@ -201,10 +142,8 @@
             return;
         }
 
-        showLoading(true);
-
         try {
-            const { data: product, error } = await db
+            const { data, error } = await db
                 .from("products")
                 .select(`
                     id,
@@ -214,8 +153,7 @@
                     description,
                     image_url,
                     seller_id,
-                    is_active,
-                    stock
+                    is_active
                 `)
                 .eq("id", id)
                 .eq("is_active", true)
@@ -225,18 +163,39 @@
                 throw error;
             }
 
-            if (!product) {
+            if (!data) {
                 showNotFound();
                 return;
             }
 
-            const sellerName =
-                await getSellerName(product.seller_id);
+            let sellerName = null;
 
-            showProduct(
-                product,
-                sellerName
-            );
+            if (data.seller_id) {
+                const {
+                    data: profile,
+                    error: profileError
+                } = await db
+                    .from("profiles")
+                    .select("nom_complet,name")
+                    .eq("id", data.seller_id)
+                    .maybeSingle();
+
+                if (profileError) {
+                    console.error(
+                        "MACHEYA SELLER PROFILE:",
+                        profileError
+                    );
+                }
+
+                sellerName =
+                    profile?.nom_complet ||
+                    profile?.name ||
+                    null;
+            }
+
+            data.seller_name = sellerName;
+
+            showProduct(data);
 
         } catch (error) {
             console.error(
@@ -304,7 +263,7 @@
 
     cartButton?.addEventListener(
         "click",
-        function () {
+        () => {
             const id = getId();
 
             if (!id) return;
@@ -317,7 +276,7 @@
 
     buyButton?.addEventListener(
         "click",
-        function () {
+        () => {
             const id = getId();
 
             if (!id) return;
