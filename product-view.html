@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ht">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Macheya — Detay pwodwi."
+    >
+
+    <title>Pwodwi | Macheya</title>
+
+    <link
+        rel="stylesheet"
+        href="product-view.css"
+    >
+</head>
+
+
+<body id="product-view-page">
+
+
+<header id="product-view-header">
+
+    <div id="product-view-header-left">
+
+        <button
+            id="product-view-menu-button"
+            type="button"
+            aria-label="Louvri meni"
+            aria-expanded="false"
+        >
+            ⋮
+        </button>
+
+
+        <a
+            id="product-view-logo"
+            href="index.html"
+        >
+
+            <span id="product-view-logo-mark">
+                M
+            </span>
+
+            <span id="product-view-logo-name">
+                macheya
+            </span>
+
+        </a>
+
+    </div>
+
+
+    <nav id="product-view-navigation">
+
+        <a
+            id="product-view-nav-home"
+            href="index.html"
+        >
+            Akèy
+        </a>
+
+        <a
+            id="product-view-nav-marketplace"
+            href="marketplace.html"
+        >
+            Achte
+        </a>
+
+        <a
+            id="product-view-nav-sell"
+            href="signup.html"
+        >
+            Vann
+        </a>
+
+    </nav>
+
+
+    <div id="product-view-header-actions">
+
+        <a
+            id="product-view-login-button"
+            href="login.html"
+        >
+            Konekte
+        </a>
+
+        <a
+            id="product-view-signup-button"
+            href="signup.html"
+        >
+            Kreye kont
+        </a>
+
+    </div>
+
+</header>
+
+
+
+<aside
+    id="product-view-side-menu"
+    aria-hidden="true"
+>
+
+    <div id="product-view-side-menu-header">
+
+        <a
+            id="product-view-side-menu-logo"
+            href="index.html"
+        >
+
+            <span id="product-view-side-logo-mark">
+                M
+            </span>
+
+            <span id="product-view-side-logo-name">
+                macheya
+            </span>
+
+        </a>
+
+
+        <button
+            id="product-view-close-menu-button"
+            type="button"
+            aria-label="Fèmen meni"
+        >
+            ×
+        </button>
+
+    </div>
+
+
+    <nav id="product-view-side-navigation">
+
+        <a
+            id="product-view-menu-home"
+            href="index.html"
+        >
+            Akèy
+        </a>
+
+        <a
+            id="product-view-menu-marketplace"
+            href="marketplace.html"
+        >
+            Marketplace
+        </a>
+
+        <a
+            id="product-view-menu-orders"
+            href="buyer.html"
+        >
+            Kòmand mwen
+        </a>
+
+        <a
+            id="product-view-menu-wallet"
+            href="buyer.html"
+        >
+            Wallet mwen
+        </a>
+
+        <a
+            id="product-view-menu-account"
+            href="buyer.html"
+        >
+            Kont mwen
+        </a>
+
+        <a
+            id="product-view-menu-settings"
+            href="#"
+        >
+            Paramèt
+        </a>
+
+        <a
+            id="product-view-menu-help"
+            href="#"
+        >
+            Èd
+        </a>
+
+        <a
+            id="product-view-menu-logout"
+            href="login.html"
+        >
+            Dekonekte
+        </a>
+
+    </nav>
+
+</aside>
+
+
+<div id="product-view-menu-overlay"></div>
+
+
+
+<main id="product-view-main">
+
+
+    <div id="product-view-breadcrumb">
+
+        <a
+            id="product-view-breadcrumb-home"
+            href="index.html"
+        >
+            Akèy
+        </a>
+
+
+        <span id="product-view-breadcrumb-separator-1">
+            /
+        </span>
+
+
+        <a
+            id="product-view-breadcrumb-marketplace"
+            href="marketplace.html"
+        >
+            Marketplace
+        </a>
+
+
+        <span id="product-view-breadcrumb-separator-2">
+            /
+        </span>
+
+
+        <span id="product-view-breadcrumb-current">
+            Pwodwi
+        </span>
+
+    </div>
+
+
+
+    <section id="product-view-loading">
+
+        <div id="product-view-loading-icon">
+            🛍️
+        </div>
+
+        <p id="product-view-loading-text">
+            Ap chaje pwodwi a...
+        </p>
+
+    </section>
+
+
+
+    <section
+        id="product-view-details"
+        aria-hidden="true"
+    >
+
+
+        <div id="product-view-image-area">
+
+            <div
+                id="product-view-image"
+                aria-label="Imaj pwodwi"
+            >
+                🛍️
+            </div>
+
+        </div>
+
+
+
+        <div id="product-view-information">
+
+
+            <span id="product-view-category">
+                Kategori
+            </span>
+
+
+            <h1 id="product-view-name">
+                Pwodwi
+            </h1>
+
+
+            <div id="product-view-price">
+                0 HTG
+            </div>
+
+
+            <div id="product-view-type">
+                Pwodwi
+            </div>
+
+
+            <p id="product-view-description">
+                Deskripsyon pwodwi a ap parèt isit la.
+            </p>
+
+
+
+            <div id="product-view-stock-area">
+
+                <span id="product-view-stock-label">
+                    Disponibilite
+                </span>
+
+                <strong id="product-view-stock">
+                    Disponib
+                </strong>
+
+            </div>
+
+
+
+            <div id="product-view-seller">
+
+                <span id="product-view-seller-label">
+                    Vandè
+                </span>
+
+                <strong id="product-view-seller-name">
+                    Vandè Macheya
+                </strong>
+
+            </div>
+
+
+
+            <div id="product-view-actions">
+
+
+                <button
+                    id="product-view-cart-button"
+                    type="button"
+                >
+                    Ajoute nan panier
+                </button>
+
+
+                <button
+                    id="product-view-buy-button"
+                    type="button"
+                >
+                    Achte kounye a
+                </button>
+
+
+            </div>
+
+
+        </div>
+
+    </section>
+
+
+
+    <section
+        id="product-view-not-found"
+        aria-hidden="true"
+    >
+
+        <div id="product-view-not-found-icon">
+            🔍
+        </div>
+
+
+        <h2 id="product-view-not-found-title">
+            Pwodwi sa pa disponib
+        </h2>
+
+
+        <p id="product-view-not-found-description">
+            Nou pa jwenn pwodwi ou t ap chèche a.
+        </p>
+
+
+        <a
+            id="product-view-not-found-button"
+            href="marketplace.html"
+        >
+            Retounen nan marketplace
+        </a>
+
+    </section>
+
+
+</main>
+
+
+
+<footer id="product-view-footer">
+
+
+    <div id="product-view-footer-brand">
+
+
+        <a
+            id="product-view-footer-logo"
+            href="index.html"
+        >
+
+            <span id="product-view-footer-logo-mark">
+                M
+            </span>
+
+            <span id="product-view-footer-logo-name">
+                macheya
+            </span>
+
+        </a>
+
+
+        <p id="product-view-footer-description">
+            Marketplace ayisyen pou achte ak vann
+            pwodwi fizik ak dijital.
+        </p>
+
+    </div>
+
+
+
+    <div id="product-view-footer-navigation">
+
+
+        <div id="product-view-footer-buy">
+
+            <h3 id="product-view-footer-buy-title">
+                Achte
+            </h3>
+
+
+            <a
+                id="product-view-footer-buy-marketplace"
+                href="marketplace.html"
+            >
+                Marketplace
+            </a>
+
+
+            <a
+                id="product-view-footer-buy-orders"
+                href="buyer.html"
+            >
+                Kòmand mwen
+            </a>
+
+        </div>
+
+
+
+        <div id="product-view-footer-sell">
+
+            <h3 id="product-view-footer-sell-title">
+                Vann
+            </h3>
+
+
+            <a
+                id="product-view-footer-sell-start"
+                href="signup.html"
+            >
+                Vin vandè
+            </a>
+
+
+            <a
+                id="product-view-footer-sell-login"
+                href="login.html"
+            >
+                Konekte
+            </a>
+
+        </div>
+
+
+
+        <div id="product-view-footer-help">
+
+            <h3 id="product-view-footer-help-title">
+                Èd
+            </h3>
+
+
+            <a
+                id="product-view-footer-help-contact"
+                href="#"
+            >
+                Kontakte nou
+            </a>
+
+
+            <a
+                id="product-view-footer-help-security"
+                href="#"
+            >
+                Sekirite
+            </a>
+
+        </div>
+
+    </div>
+
+
+
+    <div id="product-view-footer-bottom">
+
+        <span id="product-view-footer-copyright">
+            © 2026 Macheya. Tout dwa rezève.
+        </span>
+
+
+        <span id="product-view-footer-country">
+            🇭🇹 Fèt pou Ayiti.
+        </span>
+
+    </div>
+
+
+</footer>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase-config.js"></script>
+
+<script src="product-view.js"></script>
+
+
+</body>
+
+  </html>
