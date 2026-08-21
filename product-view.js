@@ -40,29 +40,19 @@
             document.getElementById("product-view-type");
 
         const description =
-            document.getElementById(
-                "product-view-description"
-            );
+            document.getElementById("product-view-description");
 
         const sellerName =
-            document.getElementById(
-                "product-view-seller-name"
-            );
+            document.getElementById("product-view-seller-name");
 
         const stock =
-            document.getElementById(
-                "product-view-stock"
-            );
+            document.getElementById("product-view-stock");
 
         const cartButton =
-            document.getElementById(
-                "product-view-cart-button"
-            );
+            document.getElementById("product-view-cart-button");
 
         const buyButton =
-            document.getElementById(
-                "product-view-buy-button"
-            );
+            document.getElementById("product-view-buy-button");
 
 
         /* =========================
@@ -70,9 +60,7 @@
         ========================= */
 
         const menuButton =
-            document.getElementById(
-                "product-view-menu-button"
-            );
+            document.getElementById("product-view-menu-button");
 
         const closeMenuButton =
             document.getElementById(
@@ -80,9 +68,7 @@
             );
 
         const sideMenu =
-            document.getElementById(
-                "product-view-side-menu"
-            );
+            document.getElementById("product-view-side-menu");
 
         const overlay =
             document.getElementById(
@@ -237,39 +223,84 @@
 
 
             /* =========================
-               PRODUCT DISPLAY
+               PRODUCT DATA
             ========================= */
 
-            name.textContent =
+            const productName =
                 product.name ||
+                product.nom ||
                 "Pwodwi san non";
 
 
-            price.textContent =
-                formatPrice(product.price);
+            const productPrice =
+                product.price;
 
 
-            category.textContent =
+            const productCategory =
                 product.category ||
                 "San kategori";
 
 
-            type.textContent =
+            const productType =
                 product.type ||
                 product.product_type ||
                 "Pwodwi";
 
 
-            description.textContent =
+            const productDescription =
                 product.description ||
                 "Pa gen deskripsyon pou pwodwi sa a.";
+
+
+            const sellerId =
+                product.seller_id ||
+                product.identifiant_vendeur ||
+                product.vendeur_id ||
+                null;
+
+
+            /* =========================
+               DISPLAY PRODUCT
+            ========================= */
+
+            if (name) {
+                name.textContent =
+                    productName;
+            }
+
+
+            if (price) {
+                price.textContent =
+                    formatPrice(productPrice);
+            }
+
+
+            if (category) {
+                category.textContent =
+                    productCategory;
+            }
+
+
+            if (type) {
+                type.textContent =
+                    productType;
+            }
+
+
+            if (description) {
+                description.textContent =
+                    productDescription;
+            }
 
 
             /* =========================
                IMAGE
             ========================= */
 
-            if (product.image_url) {
+            if (
+                image &&
+                product.image_url
+            ) {
 
                 image.style.backgroundImage =
                     `url("${product.image_url}")`;
@@ -285,11 +316,13 @@
 
                 image.textContent = "";
 
-            } else {
+            } else if (image) {
 
-                image.style.backgroundImage = "";
+                image.style.backgroundImage =
+                    "";
 
-                image.textContent = "🛍️";
+                image.textContent =
+                    "🛍️";
             }
 
 
@@ -384,6 +417,7 @@
 
             /* =========================
                SELLER
+               SQL FUNCTION / RPC
             ========================= */
 
             if (sellerName) {
@@ -393,10 +427,10 @@
             }
 
 
-            if (!product.seller_id) {
+            if (!sellerId) {
 
                 console.error(
-                    "MACHEYA: Pwodwi sa a pa gen seller_id.",
+                    "MACHEYA: Pa gen seller ID sou pwodwi a.",
                     product
                 );
 
@@ -410,7 +444,7 @@
 
                 console.log(
                     "MACHEYA SELLER ID:",
-                    product.seller_id
+                    sellerId
                 );
 
 
@@ -418,19 +452,17 @@
                     data: seller,
                     error: sellerError
                 } = await supabaseClient
-                    .from("profiles")
-                    .select(
-                        "id, nom_complet, name"
-                    )
-                    .eq(
-                        "id",
-                        product.seller_id
-                    )
-                    .maybeSingle();
+                    .rpc(
+                        "get_seller_name",
+                        {
+                            seller_uuid:
+                                sellerId
+                        }
+                    );
 
 
                 console.log(
-                    "MACHEYA SELLER RESULT:",
+                    "MACHEYA SELLER NAME:",
                     seller
                 );
 
@@ -438,7 +470,7 @@
                 if (sellerError) {
 
                     console.error(
-                        "MACHEYA SELLER ERROR:",
+                        "MACHEYA SELLER RPC ERROR:",
                         sellerError
                     );
 
@@ -450,24 +482,13 @@
 
                 } else if (seller) {
 
-                    const sellerDisplayName =
-                        seller.nom_complet ||
-                        seller.name;
-
-
                     if (sellerName) {
 
                         sellerName.textContent =
-                            sellerDisplayName ||
-                            "Vandè pa idantifye";
+                            seller;
                     }
 
                 } else {
-
-                    console.error(
-                        "MACHEYA: Aucun profil trouvé pour seller_id:",
-                        product.seller_id
-                    );
 
                     if (sellerName) {
 
@@ -514,7 +535,7 @@
 
 
             /* =========================
-               CART
+               ADD TO CART
             ========================= */
 
             if (cartButton) {
@@ -620,7 +641,6 @@
                 "inventory",
 
                 "stock_quantity"
-
             ];
 
 
@@ -682,9 +702,11 @@
 
             return {
 
-                available: true,
+                available:
+                    true,
 
-                text: "Disponib"
+                text:
+                    "Disponib"
             };
         }
 
@@ -796,7 +818,9 @@
                         product.id,
 
                     name:
-                        product.name,
+                        product.name ||
+                        product.nom ||
+                        "Pwodwi san non",
 
                     price:
                         product.price,
@@ -807,6 +831,7 @@
 
                     seller_id:
                         product.seller_id ||
+                        product.identifiant_vendeur ||
                         null,
 
                     quantity:
@@ -839,7 +864,9 @@
                     product.id,
 
                 name:
-                    product.name,
+                    product.name ||
+                    product.nom ||
+                    "Pwodwi san non",
 
                 price:
                     product.price,
@@ -850,6 +877,7 @@
 
                 seller_id:
                     product.seller_id ||
+                    product.identifiant_vendeur ||
                     null,
 
                 quantity:
