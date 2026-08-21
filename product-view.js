@@ -2,39 +2,29 @@
     "use strict";
 
     const db = window.supabaseClient;
+
     const $ = id => document.getElementById(id);
 
-    const loading = $("product-view-loading");
-    const details = $("product-view-details");
-    const notFound = $("product-view-not-found");
+    const details = $("product-details-section");
+    const notFound = $("product-not-found");
 
-    const image = $("product-view-image");
-    const category = $("product-view-category");
-    const name = $("product-view-name");
-    const price = $("product-view-price");
-    const type = $("product-view-type");
-    const description = $("product-view-description");
-    const stock = $("product-view-stock");
-    const seller = $("product-view-seller-name");
+    const image = $("product-image");
+    const category = $("product-category");
+    const name = $("product-name");
+    const price = $("product-price");
+    const description = $("product-description");
+    const seller = $("product-seller-name");
 
-    const cartButton = $("product-view-cart-button");
-    const buyButton = $("product-view-buy-button");
+    const menu = $("product-side-menu");
+    const menuButton = $("product-menu-button");
+    const closeButton = $("product-close-menu-button");
+    const overlay = $("product-menu-overlay");
 
-    const menu = $("product-view-side-menu");
-    const menuButton = $("product-view-menu-button");
-    const closeButton = $("product-view-close-menu-button");
-    const overlay = $("product-view-menu-overlay");
+    const cartButton = $("product-add-cart-button");
+    const buyButton = $("product-buy-button");
 
-    function getProductId() {
+    function getId() {
         return new URLSearchParams(location.search).get("id");
-    }
-
-    function clean(value) {
-        return String(value || "")
-            .trim()
-            .toLowerCase()
-            .normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "");
     }
 
     function money(value) {
@@ -48,7 +38,11 @@
     }
 
     function categoryName(value) {
-        const v = clean(value).replace(/[\s_-]/g, "");
+        const v = String(value || "")
+            .trim()
+            .toLowerCase()
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "");
 
         const map = {
             mode: "Mode",
@@ -67,17 +61,9 @@
         return map[v] || "Lòt";
     }
 
-    function showLoading(show) {
-        if (!loading) return;
-        loading.style.display = show ? "block" : "none";
-    }
-
     function showNotFound() {
-        showLoading(false);
-
         if (details) {
             details.style.display = "none";
-            details.setAttribute("aria-hidden", "true");
         }
 
         if (notFound) {
@@ -89,20 +75,16 @@
     }
 
     function showProduct(product, sellerName) {
-        showLoading(false);
+        if (!details) return;
+
+        details.style.display = "grid";
 
         if (notFound) {
             notFound.style.display = "none";
             notFound.setAttribute("aria-hidden", "true");
         }
 
-        if (!details) return;
-
-        details.style.display = "grid";
-        details.setAttribute("aria-hidden", "false");
-
-        category.textContent =
-            categoryName(product.category);
+        category.textContent = categoryName(product.category);
 
         name.textContent =
             product.name || "Pwodwi san non";
@@ -110,34 +92,33 @@
         price.textContent =
             money(product.price);
 
-        type.textContent =
-            product.product_type ||
-            product.type ||
-            "Pwodwi";
-
         description.textContent =
             product.description ||
             "Pa gen deskripsyon disponib pou pwodwi sa a.";
 
+        /*
+         * NON VANDÈ A
+         * Nou itilize nom_complet paske se kolòn ki
+         * egziste nan profiles ou a.
+         */
         seller.textContent =
             sellerName ||
             "Vandè pa idantifye";
 
-        stock.textContent =
-            product.stock === 0 ||
-            product.stock === "0"
-                ? "Pa disponib"
-                : "Disponib";
-
-        image.style.backgroundImage = "";
-
-        if (product.image_url) {
+        if (image) {
             image.textContent = "";
-            image.style.backgroundImage =
-                `url("${product.image_url}")`;
-        } else {
-            image.style.backgroundImage = "";
-            image.textContent = "🛍️";
+
+            if (product.image_url) {
+                image.style.backgroundImage =
+                    `url("${product.image_url}")`;
+
+                image.style.backgroundSize = "cover";
+                image.style.backgroundPosition = "center";
+                image.style.backgroundRepeat = "no-repeat";
+            } else {
+                image.style.backgroundImage = "";
+                image.textContent = "🛍️";
+            }
         }
 
         document.title =
@@ -147,48 +128,49 @@
             product.id;
     }
 
-    async function getSellerName(sellerId) {
-        if (!sellerId) return null;
-
-        const { data, error } = await db
-            .from("profiles")
-            .select("nom_complet")
-            .eq("id", sellerId)
-            .maybeSingle();
-
-        if (error) {
-            console.error(
-                "MACHEYA SELLER:",
-                error
-            );
-            return null;
-        }
-
-        return data?.nom_complet || null;
-    }
-
     async function loadProduct() {
-        const id = getProductId();
+        const id = getId();
 
-        if (!id || !db) {
+        if (!id) {
             showNotFound();
             return;
         }
 
-        showLoading(true);
+        if (!db) {
+            console.error(
+                "Macheya: supabaseClient pa jwenn."
+            );
+
+            showNotFound();
+            return;
+        }
 
         try {
-            const { data: product, error } = await db
+            /*
+             * 1. CHÈCHE PWODWI A
+             */
+            const {
+                data: product,
+                error: productError
+            } = await db
                 .from("products")
-                .select("*")
+                .select(`
+                    id,
+                    name,
+                    price,
+                    category,
+                    description,
+                    image_url,
+                    seller_id,
+                    is_active
+                `)
                 .eq("id", id)
-                .eq("is_active", true)
                 .maybeSingle();
 
-            if (error) {
+            if (productError) {
                 console.error(
-                    "MACHEYA PRODUCT:",
-                    error
+                    "MACHEYA PRODUCT ERROR:",
+                    productError
                 );
 
                 showNotFound();
@@ -200,9 +182,51 @@
                 return;
             }
 
-            const sellerName =
-                await getSellerName(product.seller_id);
+            /*
+             * 2. VERIFYE SI PWODWI A AKTIF
+             */
+            if (product.is_active === false) {
+                showNotFound();
+                return;
+            }
 
+            /*
+             * 3. CHÈCHE NON VANDÈ A
+             *
+             * seller_id nan products la deja ap refere
+             * ak profiles.id.
+             *
+             * Kolòn non an se nom_complet.
+             */
+            let sellerName = null;
+
+            if (product.seller_id) {
+                const {
+                    data: profile,
+                    error: profileError
+                } = await db
+                    .from("profiles")
+                    .select("nom_complet")
+                    .eq("id", product.seller_id)
+                    .maybeSingle();
+
+                if (profileError) {
+                    console.error(
+                        "MACHEYA SELLER ERROR:",
+                        profileError
+                    );
+                }
+
+                if (profile) {
+                    sellerName =
+                        profile.nom_complet ||
+                        null;
+                }
+            }
+
+            /*
+             * 4. AFFICHE PWODWI A + NON VANDÈ A
+             */
             showProduct(
                 product,
                 sellerName
@@ -265,7 +289,7 @@
 
     document.addEventListener(
         "keydown",
-        function (event) {
+        event => {
             if (event.key === "Escape") {
                 closeMenu();
             }
@@ -274,8 +298,8 @@
 
     cartButton?.addEventListener(
         "click",
-        function () {
-            const id = getProductId();
+        () => {
+            const id = getId();
 
             if (!id) return;
 
@@ -287,8 +311,8 @@
 
     buyButton?.addEventListener(
         "click",
-        function () {
-            const id = getProductId();
+        () => {
+            const id = getId();
 
             if (!id) return;
 
@@ -297,15 +321,6 @@
                 encodeURIComponent(id);
         }
     );
-
-    if (!db) {
-        console.error(
-            "Macheya: supabaseClient pa jwenn."
-        );
-
-        showNotFound();
-        return;
-    }
 
     loadProduct();
 
