@@ -521,7 +521,7 @@
 
 
                     location.href =
-                        "buyer.html";
+    "dashboard.html";
 
 
                 } catch (error) {
