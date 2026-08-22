@@ -2,7 +2,13 @@
     "use strict";
 
     const supabase = window.supabaseClient;
-    const id = new URLSearchParams(location.search).get("id");
+
+    const params = new URLSearchParams(location.search);
+
+    const id =
+        params.get("id") ||
+        params.get("product_id") ||
+        params.get("product");
 
     const form = document.getElementById("checkout-form");
     const name = document.getElementById("checkout-name");
@@ -40,7 +46,9 @@
 
 
     function msg(text) {
-        message.textContent = text;
+        if (message) {
+            message.textContent = text;
+        }
     }
 
 
@@ -52,18 +60,29 @@
 
     function updateTotal() {
 
-        const q = Number(quantity.value || 1);
-        const price = Number(product?.price || 0);
+        const q =
+            Number(quantity?.value || 1);
 
-        summaryQuantity.textContent = q;
-        total.textContent = money(price * q);
+        const price =
+            Number(product?.price || 0);
+
+        if (summaryQuantity) {
+            summaryQuantity.textContent = q;
+        }
+
+        if (total) {
+            total.textContent =
+                money(price * q);
+        }
     }
 
 
     async function start() {
 
-        if (!supabase || !id) {
-            msg("Macheya pa kapab prepare kòmand lan.");
+        if (!supabase) {
+            msg(
+                "Macheya pa kapab konekte ak bazdone a."
+            );
             return;
         }
 
@@ -78,27 +97,104 @@
                 "Tanpri konekte ak kont achtè ou anvan ou fè yon kòmand."
             );
 
-            location.href = "login.html";
+            location.href =
+                "login.html";
+
             return;
         }
 
 
-        const { data, error } =
-            await supabase
-                .from("products")
-                .select(
-                    "id,name,description,price,stock,category,seller_id,image_url,is_active"
-                )
-                .eq("id", id)
-                .eq("is_active", true)
-                .single();
+        /*
+         * Nou itilize product_id ki soti
+         * nan product-view.js.
+         */
+
+        let productId = id;
 
 
-        if (error || !data) {
+        /*
+         * Si pa gen ID nan URL la,
+         * verifye pwodwi ki te sove pou checkout la.
+         */
 
-            console.error(error);
+        if (!productId) {
 
-            msg("Pwodwi sa a pa disponib ankò.");
+            try {
+
+                const saved =
+                    localStorage.getItem(
+                        "macheya_checkout_product"
+                    );
+
+                if (saved) {
+
+                    const savedProduct =
+                        JSON.parse(saved);
+
+                    productId =
+                        savedProduct?.id || null;
+                }
+
+            } catch (error) {
+
+                console.error(
+                    "Macheya checkout localStorage:",
+                    error
+                );
+            }
+        }
+
+
+        if (!productId) {
+
+            msg(
+                "Pa gen pwodwi pou achte."
+            );
+
+            return;
+        }
+
+
+        console.log(
+            "Macheya Checkout Product ID:",
+            productId
+        );
+
+
+        const {
+            data,
+            error
+        } = await supabase
+            .from("products")
+            .select(
+                "id,name,description,price,stock,category,seller_id,image_url,is_active"
+            )
+            .eq("id", productId)
+            .eq("is_active", true)
+            .maybeSingle();
+
+
+        if (error) {
+
+            console.error(
+                "Macheya Checkout Product Error:",
+                error
+            );
+
+            msg(
+                "Nou pa kapab chaje pwodwi sa a."
+            );
+
+            return;
+        }
+
+
+        if (!data) {
+
+            msg(
+                "Pwodwi sa a pa disponib ankò."
+            );
+
             return;
         }
 
@@ -106,20 +202,42 @@
         product = data;
 
 
-        productName.textContent =
-            data.name;
+        /*
+         * PRODUCT INFORMATION
+         */
 
-        productDescription.textContent =
-            data.description || "";
-
-        productPrice.textContent =
-            money(data.price);
-
-        summaryProduct.textContent =
-            data.name;
+        if (productName) {
+            productName.textContent =
+                data.name || "Pwodwi san non";
+        }
 
 
-        if (data.image_url) {
+        if (productDescription) {
+            productDescription.textContent =
+                data.description || "";
+        }
+
+
+        if (productPrice) {
+            productPrice.textContent =
+                money(data.price);
+        }
+
+
+        if (summaryProduct) {
+            summaryProduct.textContent =
+                data.name || "Pwodwi";
+        }
+
+
+        /*
+         * IMAGE
+         */
+
+        if (
+            productImage &&
+            data.image_url
+        ) {
 
             productImage.style.backgroundImage =
                 `url("${data.image_url}")`;
@@ -130,25 +248,53 @@
             productImage.style.backgroundPosition =
                 "center";
 
+            productImage.style.backgroundRepeat =
+                "no-repeat";
+
             productImage.textContent = "";
         }
 
 
-        const { data: profile } =
-            await supabase
-                .from("profiles")
-                .select("name,phone")
-                .eq("id", auth.user.id)
-                .maybeSingle();
+        /*
+         * BUYER PROFILE
+         */
+
+        const {
+            data: profile,
+            error: profileError
+        } = await supabase
+            .from("profiles")
+            .select("name,full_name,nom_complet,phone")
+            .eq("id", auth.user.id)
+            .maybeSingle();
+
+
+        if (profileError) {
+
+            console.error(
+                "Macheya Profile Error:",
+                profileError
+            );
+        }
 
 
         if (profile) {
 
-            name.value =
-                profile.name || "";
+            if (name) {
 
-            phone.value =
-                profile.phone || "";
+                name.value =
+                    profile.name ||
+                    profile.full_name ||
+                    profile.nom_complet ||
+                    "";
+            }
+
+
+            if (phone) {
+
+                phone.value =
+                    profile.phone || "";
+            }
         }
 
 
@@ -156,116 +302,168 @@
     }
 
 
-    minus.addEventListener(
-        "click",
-        function () {
+    /*
+     * QUANTITY - MINUS
+     */
 
-            const value =
-                Number(quantity.value);
+    if (minus) {
 
-            if (value > 1) {
+        minus.addEventListener(
+            "click",
+            function () {
 
-                quantity.value =
-                    value - 1;
+                const value =
+                    Number(quantity?.value || 1);
 
-                updateTotal();
+                if (value > 1) {
+
+                    quantity.value =
+                        value - 1;
+
+                    updateTotal();
+                }
             }
-        }
-    );
+        );
+    }
 
 
-    plus.addEventListener(
-        "click",
-        function () {
+    /*
+     * QUANTITY - PLUS
+     */
 
-            const value =
-                Number(quantity.value);
+    if (plus) {
 
-            const stock =
-                Number(product?.stock || 0);
+        plus.addEventListener(
+            "click",
+            function () {
 
-
-            if (stock > 0 && value < stock) {
-
-                quantity.value =
-                    value + 1;
-
-                updateTotal();
-            }
-        }
-    );
-
-
-    form.addEventListener(
-        "submit",
-        async function (e) {
-
-            e.preventDefault();
-
-
-            if (!product) {
-                return;
-            }
-
-
-            if (
-                !name.value.trim() ||
-                !phone.value.trim() ||
-                !address.value.trim()
-            ) {
-
-                msg(
-                    "Tanpri ranpli non, telefòn ak adrès livrezon an."
-                );
-
-                return;
-            }
-
-
-            const { data: auth } =
-                await supabase.auth.getUser();
-
-
-            if (!auth?.user) {
-
-                location.href =
-                    "login.html";
-
-                return;
-            }
-
-
-            submit.disabled = true;
-            submit.textContent =
-                "Kreyasyon kòmand...";
-            msg("");
-
-
-            try {
-
-                const q =
-                    Number(quantity.value || 1);
-
-                const unitPrice =
-                    Number(product.price || 0);
+                const value =
+                    Number(quantity?.value || 1);
 
                 const stock =
-                    Number(product.stock || 0);
-
-                const orderTotal =
-                    unitPrice * q;
+                    Number(product?.stock || 0);
 
 
-                if (stock > 0 && q > stock) {
+                if (stock > 0) {
 
-                    throw new Error(
-                        "Kantite ou chwazi a depase stock vandè a."
+                    if (value < stock) {
+
+                        quantity.value =
+                            value + 1;
+
+                        updateTotal();
+                    }
+
+                } else {
+
+                    quantity.value =
+                        value + 1;
+
+                    updateTotal();
+                }
+            }
+        );
+    }
+
+
+    /*
+     * CHECKOUT
+     */
+
+    if (form) {
+
+        form.addEventListener(
+            "submit",
+            async function (e) {
+
+                e.preventDefault();
+
+
+                if (!product) {
+
+                    msg(
+                        "Pwodwi a poko chaje."
                     );
+
+                    return;
                 }
 
 
-                const { error } =
-                    await supabase
+                if (
+                    !name?.value.trim() ||
+                    !phone?.value.trim() ||
+                    !address?.value.trim()
+                ) {
+
+                    msg(
+                        "Tanpri ranpli non, telefòn ak adrès livrezon an."
+                    );
+
+                    return;
+                }
+
+
+                const {
+                    data: auth
+                } = await supabase.auth.getUser();
+
+
+                if (!auth?.user) {
+
+                    location.href =
+                        "login.html";
+
+                    return;
+                }
+
+
+                if (submit) {
+
+                    submit.disabled =
+                        true;
+
+                    submit.textContent =
+                        "Kreyasyon kòmand...";
+                }
+
+                msg("");
+
+
+                try {
+
+                    const q =
+                        Number(
+                            quantity?.value || 1
+                        );
+
+                    const unitPrice =
+                        Number(
+                            product.price || 0
+                        );
+
+                    const stock =
+                        Number(
+                            product.stock || 0
+                        );
+
+                    const orderTotal =
+                        unitPrice * q;
+
+
+                    if (
+                        stock > 0 &&
+                        q > stock
+                    ) {
+
+                        throw new Error(
+                            "Kantite ou chwazi a depase stock vandè a."
+                        );
+                    }
+
+
+                    const {
+                        error
+                    } = await supabase
                         .from("orders")
                         .insert({
 
@@ -297,49 +495,66 @@
                                 address.value.trim(),
 
                             delivery_note:
-                                note.value.trim() || null
-
+                                note?.value.trim() ||
+                                null
                         });
 
 
-                if (error) {
-                    throw error;
+                    if (error) {
+                        throw error;
+                    }
+
+
+                    /*
+                     * Netwaye pwodwi checkout la
+                     * apre kòmand lan fin kreye.
+                     */
+
+                    localStorage.removeItem(
+                        "macheya_checkout_product"
+                    );
+
+
+                    alert(
+                        "Kòmand ou kreye avèk siksè!"
+                    );
+
+
+                    location.href =
+                        "buyer.html";
+
+
+                } catch (error) {
+
+                    console.error(
+                        "MACHEYA CHECKOUT:",
+                        error
+                    );
+
+
+                    msg(
+                        error.message ||
+                        "Nou pa t kapab kreye kòmand lan."
+                    );
+
+
+                    if (submit) {
+
+                        submit.disabled =
+                            false;
+
+                        submit.textContent =
+                            "Konfime kòmand";
+                    }
                 }
-
-
-                alert(
-                    "Kòmand ou kreye avèk siksè!"
-                );
-
-
-                location.href =
-                    "buyer.html";
-
-
-            } catch (error) {
-
-                console.error(
-                    "MACHEYA CHECKOUT:",
-                    error
-                );
-
-
-                msg(
-                    error.message ||
-                    "Nou pa t kapab kreye kòmand lan."
-                );
-
-
-                submit.disabled =
-                    false;
-
-                submit.textContent =
-                    "Konfime kòmand";
             }
+        );
+    }
 
-        }
-    );
 
+    /*
+     * START
+     */
 
     start();
 
