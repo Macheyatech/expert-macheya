@@ -10,20 +10,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const db = window.supabaseClient;
 
-    if (!db) {
-
-        console.error(
-            "Macheya: Supabase pa konekte."
-        );
-
-        showError(
-            "Supabase pa konekte. Tanpri verifye configuration la."
-        );
-
-        return;
-    }
-
-
     /* ========================================================
        ELEMENTS
     ======================================================== */
@@ -111,7 +97,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     /* ========================================================
-       GET NAME
+       GET USER NAME
     ======================================================== */
 
     function getUserName(profile, user) {
@@ -121,12 +107,30 @@ document.addEventListener("DOMContentLoaded", () => {
             profile?.full_name ||
             profile?.name ||
             profile?.nom ||
+            profile?.username ||
             user?.user_metadata?.nom_complet ||
             user?.user_metadata?.full_name ||
             user?.user_metadata?.name ||
+            user?.user_metadata?.username ||
             user?.email?.split("@")[0] ||
             "Itilizatè"
         );
+    }
+
+
+    /* ========================================================
+       SHOW BUYER CONTENT
+    ======================================================== */
+
+    function showBuyerContent() {
+
+        if (loadingSection) {
+            loadingSection.hidden = true;
+        }
+
+        if (buyerContent) {
+            buyerContent.hidden = false;
+        }
     }
 
 
@@ -138,37 +142,49 @@ document.addEventListener("DOMContentLoaded", () => {
 
         hideError();
 
-
         if (loadingSection) {
             loadingSection.hidden = false;
         }
-
 
         if (buyerContent) {
             buyerContent.hidden = true;
         }
 
 
+        if (!db) {
+
+            console.error(
+                "Macheya: Supabase pa konekte."
+            );
+
+            showError(
+                "Supabase pa konekte. Tanpri verifye configuration la."
+            );
+
+            return;
+        }
+
+
         try {
 
             /* ------------------------------------------------
-               USER
+               AUTH SESSION
             ------------------------------------------------ */
 
             const {
-                data,
-                error
+                data: sessionData,
+                error: sessionError
             } =
-                await db.auth.getUser();
+                await db.auth.getSession();
 
 
-            if (error) {
-                throw error;
+            if (sessionError) {
+                throw sessionError;
             }
 
 
             const user =
-                data?.user;
+                sessionData?.session?.user;
 
 
             if (!user) {
@@ -187,96 +203,19 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             /* ------------------------------------------------
-               PROFILE
+               NAME FROM AUTH FIRST
             ------------------------------------------------ */
 
-            const {
-                data: profile,
-                error: profileError
-            } =
-                await db
-                    .from("profiles")
-                    .select("*")
-                    .eq(
-                        "id",
-                        user.id
-                    )
-                    .maybeSingle();
-
-
-            if (profileError) {
-
-                console.error(
-                    "Macheya Profile Error:",
-                    profileError
-                );
-
-                throw new Error(
-                    "Nou pa kapab li pwofil kont ou."
-                );
-            }
-
-
-            if (!profile) {
-
-                throw new Error(
-                    "Pwofil kont sa a pa egziste."
-                );
-            }
-
-
-            console.log(
-                "Macheya Buyer Profile:",
-                profile
-            );
-
-
-            /* ------------------------------------------------
-               VERIFY ROLE
-            ------------------------------------------------ */
-
-            const role =
-                normalize(profile.role);
-
-
-            const isBuyer =
-                profile.est_acheteur === true ||
-                profile.is_buyer === true ||
-                profile.acheteur === true ||
-                role === "acheteur" ||
-                role === "achte" ||
-                role === "buyer";
-
-
-            if (!isBuyer) {
-
-                throw new Error(
-                    "Kont sa a pa yon kont achtè."
-                );
-            }
-
-
-            /* ------------------------------------------------
-               NAME
-            ------------------------------------------------ */
-
-            const name =
-                getUserName(
-                    profile,
-                    user
-                );
+            const authName =
+                getUserName(null, user);
 
 
             if (userName) {
 
                 userName.textContent =
-                    name;
+                    authName;
             }
 
-
-            /* ------------------------------------------------
-               ROLE
-            ------------------------------------------------ */
 
             if (roleBadge) {
 
@@ -284,10 +223,6 @@ document.addEventListener("DOMContentLoaded", () => {
                     "Achtè";
             }
 
-
-            /* ------------------------------------------------
-               WELCOME MESSAGE
-            ------------------------------------------------ */
 
             if (welcomeMessage) {
 
@@ -297,16 +232,119 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
             /* ------------------------------------------------
-               SHOW CONTENT
+               SHOW DASHBOARD
+               
+               Nou montre dashboard la an premye.
+               Pwofil la pap kapab bloke paj la.
             ------------------------------------------------ */
 
-            if (loadingSection) {
-                loadingSection.hidden = true;
-            }
+            showBuyerContent();
 
 
-            if (buyerContent) {
-                buyerContent.hidden = false;
+            /* ------------------------------------------------
+               LOAD PROFILE
+            ------------------------------------------------ */
+
+            try {
+
+                const {
+                    data: profile,
+                    error: profileError
+                } =
+                    await db
+                        .from("profiles")
+                        .select("*")
+                        .eq(
+                            "id",
+                            user.id
+                        )
+                        .maybeSingle();
+
+
+                if (profileError) {
+
+                    console.error(
+                        "Macheya Profile Error:",
+                        profileError
+                    );
+
+                    /*
+                     * Pa bloke Espas Achtè a.
+                     * Itilizatè a deja konekte.
+                     */
+
+                } else if (profile) {
+
+                    console.log(
+                        "Macheya Buyer Profile:",
+                        profile
+                    );
+
+
+                    /* ----------------------------------------
+                       NAME
+                    ---------------------------------------- */
+
+                    const name =
+                        getUserName(
+                            profile,
+                            user
+                        );
+
+
+                    if (userName) {
+
+                        userName.textContent =
+                            name;
+                    }
+
+
+                    /* ----------------------------------------
+                       ROLE
+                    ---------------------------------------- */
+
+                    const role =
+                        normalize(profile.role);
+
+
+                    const isBuyer =
+                        profile.est_acheteur === true ||
+                        profile.is_buyer === true ||
+                        profile.acheteur === true ||
+                        role === "acheteur" ||
+                        role === "achte" ||
+                        role === "buyer";
+
+
+                    console.log(
+                        "Macheya Buyer Role:",
+                        {
+                            role,
+                            isBuyer
+                        }
+                    );
+
+
+                    if (roleBadge) {
+
+                        roleBadge.textContent =
+                            "Achtè";
+                    }
+                }
+
+
+            } catch (profileError) {
+
+                console.error(
+                    "Macheya Profile Loading Error:",
+                    profileError
+                );
+
+                /*
+                 * Pwofil la pa dwe anpeche dashboard
+                 * achtè a parèt.
+                 */
+
             }
 
 
