@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="ht">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Panier mwen sou macheya."
+    >
+
+    <title>Panier | macheya</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f7f7f7;
+            color: #171717;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        /* =========================
+           HEADER
+        ========================= */
+
+        .cart-header {
+            background: #ffffff;
+            border-bottom: 1px solid #eeeeee;
+            padding: 15px 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 700;
+            font-size: 21px;
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f97316;
+            color: #ffffff;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+        }
+
+        .back-button {
+            color: #555555;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           MAIN
+        ========================= */
+
+        .cart-container {
+            width: min(1100px, 92%);
+            margin: 35px auto 70px;
+        }
+
+        .cart-heading {
+            margin-bottom: 25px;
+        }
+
+        .cart-label {
+            color: #f97316;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .5px;
+        }
+
+        .cart-heading h1 {
+            margin: 7px 0;
+            font-size: 30px;
+        }
+
+        .cart-heading p {
+            color: #666666;
+            font-size: 14px;
+        }
+
+        /* =========================
+           EMPTY CART
+        ========================= */
+
+        .empty-cart {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 50px 25px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,.06);
+        }
+
+        .empty-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+        }
+
+        .empty-cart h2 {
+            margin-bottom: 8px;
+        }
+
+        .empty-cart p {
+            color: #777777;
+            margin-bottom: 22px;
+        }
+
+        .main-button {
+            display: inline-block;
+            border: 0;
+            border-radius: 10px;
+            padding: 13px 20px;
+            background: #f97316;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+        }
+
+        /* =========================
+           CART LAYOUT
+        ========================= */
+
+        .cart-layout {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 22px;
+            align-items: start;
+        }
+
+        .cart-items {
+            display: grid;
+            gap: 15px;
+        }
+
+        /* =========================
+           CART ITEM
+        ========================= */
+
+        .cart-item {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 90px 1fr auto;
+            gap: 16px;
+            align-items: center;
+            box-shadow: 0 6px 25px rgba(0,0,0,.05);
+        }
+
+        .product-image {
+            width: 90px;
+            height: 90px;
+            border-radius: 12px;
+            background: #eeeeee;
+            background-size: cover;
+            background-position: center;
+            display: grid;
+            place-items: center;
+            font-size: 30px;
+            overflow: hidden;
+        }
+
+        .item-info h3 {
+            font-size: 17px;
+            margin-bottom: 5px;
+        }
+
+        .item-price {
+            color: #f97316;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .quantity-controls button {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #dddddd;
+            border-radius: 8px;
+            background: #ffffff;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .quantity-controls span {
+            min-width: 25px;
+            text-align: center;
+            font-weight: 700;
+        }
+
+        .item-right {
+            text-align: right;
+        }
+
+        .item-total {
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .remove-button {
+            border: 0;
+            background: transparent;
+            color: #dc2626;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* =========================
+           SUMMARY
+        ========================= */
+
+        .cart-summary {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 22px;
+            box-shadow: 0 8px 30px rgba(0,0,0,.06);
+            position: sticky;
+            top: 20px;
+        }
+
+        .cart-summary h2 {
+            font-size: 20px;
+            margin-bottom: 20px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            padding: 10px 0;
+            color: #555555;
+        }
+
+        .summary-row.total {
+            border-top: 1px solid #eeeeee;
+            margin-top: 8px;
+            padding-top: 16px;
+            color: #171717;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .checkout-button {
+            width: 100%;
+            margin-top: 18px;
+            border: 0;
+            border-radius: 11px;
+            padding: 14px;
+            background: #f97316;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 15px;
+        }
+
+        .continue-button {
+            display: block;
+            text-align: center;
+            margin-top: 12px;
+            color: #555555;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 760px) {
+
+            .cart-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .cart-summary {
+                position: static;
+            }
+
+        }
+
+        @media (max-width: 560px) {
+
+            .cart-header {
+                padding: 14px 5%;
+            }
+
+            .cart-container {
+                width: 92%;
+                margin-top: 25px;
+            }
+
+            .cart-heading h1 {
+                font-size: 25px;
+            }
+
+            .cart-item {
+                grid-template-columns: 70px 1fr;
+                gap: 12px;
+            }
+
+            .product-image {
+                width: 70px;
+                height: 70px;
+            }
+
+            .item-right {
+                grid-column: 2;
+                text-align: left;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header class="cart-header">
+
+    <a
+        href="dashboard.html"
+        class="brand"
+    >
+
+        <span class="logo">
+            M
+        </span>
+
+        <span>
+            macheya
+        </span>
+
+    </a>
+
+
+    <a
+        href="marketplace.html"
+        class="back-button"
+    >
+        ← Kontinye achte
+    </a>
+
+</header>
+
+
+
+<main class="cart-container">
+
+
+    <section class="cart-heading">
+
+        <span class="cart-label">
+            ESPAS ACHTÈ
+        </span>
+
+        <h1>
+            Panier mwen
+        </h1>
+
+        <p>
+            Revize pwodwi ou chwazi yo anvan ou pase kòmand.
+        </p>
+
+    </section>
+
+
+
+    <!-- PANIER VID -->
+
+    <section
+        id="emptyCart"
+        class="empty-cart"
+        hidden
+    >
+
+        <div class="empty-icon">
+            🛒
+        </div>
+
+        <h2>
+            Panier ou vid
+        </h2>
+
+        <p>
+            Ou poko ajoute okenn pwodwi nan panier ou.
+        </p>
+
+        <a
+            href="marketplace.html"
+            class="main-button"
+        >
+            Eksplore pwodwi
+        </a>
+
+    </section>
+
+
+
+    <!-- PANIER -->
+
+    <section
+        id="cartContent"
+        class="cart-layout"
+        hidden
+    >
+
+
+        <div
+            id="cartItems"
+            class="cart-items"
+        >
+        </div>
+
+
+
+        <aside class="cart-summary">
+
+            <h2>
+                Rezime panier
+            </h2>
+
+
+            <div class="summary-row">
+
+                <span>
+                    Pwodwi
+                </span>
+
+                <strong id="cartItemCount">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row">
+
+                <span>
+                    Kantite
+                </span>
+
+                <strong id="cartQuantity">
+                    0
+                </strong>
+
+            </div>
+
+
+            <div class="summary-row total">
+
+                <span>
+                    Total
+                </span>
+
+                <strong id="cartTotal">
+                    0 HTG
+                </strong>
+
+            </div>
+
+
+            <button
+                id="checkoutButton"
+                class="checkout-button"
+                type="button"
+            >
+                Kontinye pou pase kòmand
+            </button>
+
+
+            <a
+                href="marketplace.html"
+                class="continue-button"
+            >
+                Kontinye achte
+            </a>
+
+        </aside>
+
+
+    </section>
+
+
+</main>
+
+
+
+<script src="cart.js"></script>
+
+
+</body>
+
+  </html>
