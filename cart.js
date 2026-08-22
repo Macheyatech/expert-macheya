@@ -33,35 +33,36 @@
 
 
         /* ==================================================
-           CHARGE PANIER
+           LI PANIER
         ================================================== */
 
-        function loadCart() {
+        function getCart() {
+
+            const saved =
+                localStorage.getItem("macheya_cart");
+
+            if (!saved) {
+                return [];
+            }
 
             try {
 
-                cart =
-                    JSON.parse(
-                        localStorage.getItem(
-                            "macheya_cart"
-                        )
-                    ) || [];
+                const parsed =
+                    JSON.parse(saved);
 
-                if (!Array.isArray(cart)) {
-                    cart = [];
-                }
+                return Array.isArray(parsed)
+                    ? parsed
+                    : [];
 
             } catch (error) {
 
                 console.error(
-                    "Macheya Cart Error:",
+                    "Macheya: panier localStorage pa valid.",
                     error
                 );
 
-                cart = [];
+                return [];
             }
-
-            renderCart();
         }
 
 
@@ -75,11 +76,12 @@
                 "macheya_cart",
                 JSON.stringify(cart)
             );
+
         }
 
 
         /* ==================================================
-           FORMAT PRI
+           MONEY
         ================================================== */
 
         function money(value) {
@@ -89,19 +91,49 @@
                     .format(Number(value) || 0)
                 + " HTG"
             );
+
         }
 
 
         /* ==================================================
-           AFFICHAGE
+           ESCAPE
+        ================================================== */
+
+        function escapeHtml(value) {
+
+            return String(value || "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+
+        }
+
+
+        /* ==================================================
+           AFFICHER PANIER
         ================================================== */
 
         function renderCart() {
 
-            if (!itemsContainer) return;
+            cart = getCart();
+
+            console.log(
+                "Macheya CART:",
+                cart
+            );
+
+
+            if (!itemsContainer) {
+                return;
+            }
+
 
             itemsContainer.innerHTML = "";
 
+
+            /* PANIER VID */
 
             if (cart.length === 0) {
 
@@ -110,7 +142,7 @@
                 }
 
                 if (contentSection) {
-                    contentSection.hidden = true;
+                    contentSection.hidden = false;
                 }
 
                 if (itemsCount) {
@@ -158,8 +190,6 @@
                 const article =
                     document.createElement("article");
 
-                article.id =
-                    "cart-item-" + product.id;
 
                 article.className =
                     "cart-item";
@@ -171,10 +201,13 @@
 
                         ${
                             product.image_url
-                                ? `<img
-                                    src="${escapeHtml(product.image_url)}"
-                                    alt="${escapeHtml(product.name || "Pwodwi")}"
-                                >`
+                                ? `
+                                    <img
+                                        src="${escapeHtml(product.image_url)}"
+                                        alt="${escapeHtml(product.name)}"
+                                        style="width:100%;max-width:180px;height:150px;object-fit:cover;"
+                                    >
+                                  `
                                 : "🛍️"
                         }
 
@@ -196,7 +229,7 @@
                         </p>
 
 
-                        <div class="cart-item-quantity">
+                        <div>
 
                             <button
                                 type="button"
@@ -228,6 +261,9 @@
                         </strong>
 
 
+                        <br>
+
+
                         <button
                             type="button"
                             data-action="remove"
@@ -247,27 +283,31 @@
 
 
             if (itemsCount) {
+
                 itemsCount.textContent =
                     quantityTotal;
+
             }
 
 
             if (totalElement) {
+
                 totalElement.textContent =
                     money(total);
+
             }
 
 
-            addItemActions();
+            addActions();
 
         }
 
 
         /* ==================================================
-           ACTION PRODUWI
+           ACTIONS
         ================================================== */
 
-        function addItemActions() {
+        function addActions() {
 
             const buttons =
                 itemsContainer.querySelectorAll(
@@ -290,10 +330,7 @@
                             button.dataset.action;
 
 
-                        if (
-                            !Number.isInteger(index) ||
-                            !cart[index]
-                        ) {
+                        if (!cart[index]) {
                             return;
                         }
 
@@ -372,13 +409,11 @@
                     }
 
 
-                    const confirmed =
-                        confirm(
-                            "Èske ou sèten ou vle retire tout pwodwi yo nan panier la?"
-                        );
-
-
-                    if (!confirmed) {
+                    if (
+                        !confirm(
+                            "Èske ou sèten ou vle vide panier la?"
+                        )
+                    ) {
                         return;
                     }
 
@@ -388,14 +423,6 @@
                     saveCart();
 
                     renderCart();
-
-
-                    if (message) {
-
-                        message.textContent =
-                            "Panier ou vid kounye a.";
-
-                    }
 
                 }
             );
@@ -413,6 +440,9 @@
                 "click",
                 function () {
 
+                    cart = getCart();
+
+
                     if (cart.length === 0) {
 
                         alert(
@@ -422,15 +452,6 @@
                         return;
                     }
 
-
-                    /*
-                     * Pou kounye a checkout la
-                     * itilize yon sèl pwodwi.
-                     *
-                     * Nou pran premye pwodwi a
-                     * epi sove l nan menm sistèm
-                     * checkout ki deja egziste a.
-                     */
 
                     const product =
                         cart[0];
@@ -477,26 +498,10 @@
 
 
         /* ==================================================
-           ESCAPE HTML
-        ================================================== */
-
-        function escapeHtml(value) {
-
-            return String(value || "")
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-
-        }
-
-
-        /* ==================================================
            START
         ================================================== */
 
-        loadCart();
+        renderCart();
 
     });
 
