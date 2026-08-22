@@ -2,7 +2,6 @@
     "use strict";
 
     const supabase = window.supabaseClient;
-
     const params = new URLSearchParams(location.search);
 
     const id =
@@ -15,11 +14,21 @@
     const phone = document.getElementById("checkout-phone");
     const address = document.getElementById("checkout-address");
     const note = document.getElementById("checkout-note");
-    const quantity = document.getElementById("checkout-quantity");
-    const minus = document.getElementById("checkout-quantity-minus");
-    const plus = document.getElementById("checkout-quantity-plus");
-    const submit = document.getElementById("checkout-submit");
-    const message = document.getElementById("checkout-message");
+
+    const quantity =
+        document.getElementById("checkout-quantity");
+
+    const minus =
+        document.getElementById("checkout-quantity-minus");
+
+    const plus =
+        document.getElementById("checkout-quantity-plus");
+
+    const submit =
+        document.getElementById("checkout-submit");
+
+    const message =
+        document.getElementById("checkout-message");
 
     const productName =
         document.getElementById("checkout-product-name");
@@ -59,20 +68,15 @@
 
 
     function updateTotal() {
-
-        const q =
-            Number(quantity?.value || 1);
-
-        const price =
-            Number(product?.price || 0);
+        const q = Number(quantity?.value || 1);
+        const price = Number(product?.price || 0);
 
         if (summaryQuantity) {
             summaryQuantity.textContent = q;
         }
 
         if (total) {
-            total.textContent =
-                money(price * q);
+            total.textContent = money(price * q);
         }
     }
 
@@ -80,54 +84,34 @@
     async function start() {
 
         if (!supabase) {
-            msg(
-                "Macheya pa kapab konekte ak bazdone a."
-            );
+            msg("Macheya pa kapab konekte ak bazdone a.");
             return;
         }
-
 
         const { data: auth } =
             await supabase.auth.getUser();
 
-
         if (!auth?.user) {
-
             alert(
                 "Tanpri konekte ak kont achtè ou anvan ou fè yon kòmand."
             );
 
-            location.href =
-                "login.html";
-
+            location.href = "login.html";
             return;
         }
 
 
-        /*
-         * Nou itilize product_id ki soti
-         * nan product-view.js.
-         */
-
         let productId = id;
 
 
-        /*
-         * Si pa gen ID nan URL la,
-         * verifye pwodwi ki te sove pou checkout la.
-         */
-
         if (!productId) {
-
             try {
-
                 const saved =
                     localStorage.getItem(
                         "macheya_checkout_product"
                     );
 
                 if (saved) {
-
                     const savedProduct =
                         JSON.parse(saved);
 
@@ -136,9 +120,8 @@
                 }
 
             } catch (error) {
-
                 console.error(
-                    "Macheya checkout localStorage:",
+                    "Checkout localStorage:",
                     error
                 );
             }
@@ -146,65 +129,41 @@
 
 
         if (!productId) {
-
-            msg(
-                "Pa gen pwodwi pou achte."
-            );
-
+            msg("Pa gen pwodwi pou achte.");
             return;
         }
 
 
-        console.log(
-            "Macheya Checkout Product ID:",
-            productId
-        );
-
-
-        const {
-            data,
-            error
-        } = await supabase
-            .from("products")
-            .select(
-                "id,name,description,price,stock,category,seller_id,image_url,is_active"
-            )
-            .eq("id", productId)
-            .eq("is_active", true)
-            .maybeSingle();
+        const { data, error } =
+            await supabase
+                .from("products")
+                .select(
+                    "id,name,description,price,stock,category,seller_id,image_url,is_active"
+                )
+                .eq("id", productId)
+                .eq("is_active", true)
+                .maybeSingle();
 
 
         if (error) {
-
             console.error(
-                "Macheya Checkout Product Error:",
+                "Checkout Product Error:",
                 error
             );
 
-            msg(
-                "Nou pa kapab chaje pwodwi sa a."
-            );
-
+            msg("Nou pa kapab chaje pwodwi sa a.");
             return;
         }
 
 
         if (!data) {
-
-            msg(
-                "Pwodwi sa a pa disponib ankò."
-            );
-
+            msg("Pwodwi sa a pa disponib ankò.");
             return;
         }
 
 
         product = data;
 
-
-        /*
-         * PRODUCT INFORMATION
-         */
 
         if (productName) {
             productName.textContent =
@@ -230,49 +189,33 @@
         }
 
 
-        /*
-         * IMAGE
-         */
-
-        if (
-            productImage &&
-            data.image_url
-        ) {
-
+        if (productImage && data.image_url) {
             productImage.style.backgroundImage =
                 `url("${data.image_url}")`;
 
-            productImage.style.backgroundSize =
-                "cover";
-
-            productImage.style.backgroundPosition =
-                "center";
-
-            productImage.style.backgroundRepeat =
-                "no-repeat";
+            productImage.style.backgroundSize = "cover";
+            productImage.style.backgroundPosition = "center";
+            productImage.style.backgroundRepeat = "no-repeat";
 
             productImage.textContent = "";
         }
 
-
-        /*
-         * BUYER PROFILE
-         */
 
         const {
             data: profile,
             error: profileError
         } = await supabase
             .from("profiles")
-            .select("name,full_name,nom_complet,phone")
+            .select(
+                "name,full_name,nom_complet,phone"
+            )
             .eq("id", auth.user.id)
             .maybeSingle();
 
 
         if (profileError) {
-
             console.error(
-                "Macheya Profile Error:",
+                "Profile Error:",
                 profileError
             );
         }
@@ -281,7 +224,6 @@
         if (profile) {
 
             if (name) {
-
                 name.value =
                     profile.name ||
                     profile.full_name ||
@@ -289,9 +231,7 @@
                     "";
             }
 
-
             if (phone) {
-
                 phone.value =
                     profile.phone || "";
             }
@@ -302,12 +242,7 @@
     }
 
 
-    /*
-     * QUANTITY - MINUS
-     */
-
     if (minus) {
-
         minus.addEventListener(
             "click",
             function () {
@@ -316,10 +251,7 @@
                     Number(quantity?.value || 1);
 
                 if (value > 1) {
-
-                    quantity.value =
-                        value - 1;
-
+                    quantity.value = value - 1;
                     updateTotal();
                 }
             }
@@ -327,12 +259,7 @@
     }
 
 
-    /*
-     * QUANTITY - PLUS
-     */
-
     if (plus) {
-
         plus.addEventListener(
             "click",
             function () {
@@ -343,35 +270,21 @@
                 const stock =
                     Number(product?.stock || 0);
 
-
                 if (stock > 0) {
 
                     if (value < stock) {
-
-                        quantity.value =
-                            value + 1;
-
+                        quantity.value = value + 1;
                         updateTotal();
                     }
 
                 } else {
-
-                    quantity.value =
-                        value + 1;
-
+                    quantity.value = value + 1;
                     updateTotal();
                 }
             }
         );
     }
-
-
-    /*
-     * CHECKOUT
-     */
-
     if (form) {
-
         form.addEventListener(
             "submit",
             async function (e) {
@@ -380,11 +293,7 @@
 
 
                 if (!product) {
-
-                    msg(
-                        "Pwodwi a poko chaje."
-                    );
-
+                    msg("Pwodwi a poko chaje.");
                     return;
                 }
 
@@ -394,34 +303,25 @@
                     !phone?.value.trim() ||
                     !address?.value.trim()
                 ) {
-
                     msg(
                         "Tanpri ranpli non, telefòn ak adrès livrezon an."
                     );
-
                     return;
                 }
 
 
-                const {
-                    data: auth
-                } = await supabase.auth.getUser();
+                const { data: auth } =
+                    await supabase.auth.getUser();
 
 
                 if (!auth?.user) {
-
-                    location.href =
-                        "login.html";
-
+                    location.href = "login.html";
                     return;
                 }
 
 
                 if (submit) {
-
-                    submit.disabled =
-                        true;
-
+                    submit.disabled = true;
                     submit.textContent =
                         "Kreyasyon kòmand...";
                 }
@@ -432,83 +332,67 @@
                 try {
 
                     const q =
-                        Number(
-                            quantity?.value || 1
-                        );
+                        Number(quantity?.value || 1);
 
                     const unitPrice =
-                        Number(
-                            product.price || 0
-                        );
+                        Number(product.price || 0);
 
                     const stock =
-                        Number(
-                            product.stock || 0
-                        );
+                        Number(product.stock || 0);
 
                     const orderTotal =
                         unitPrice * q;
 
 
-                    if (
-                        stock > 0 &&
-                        q > stock
-                    ) {
-
+                    if (stock > 0 && q > stock) {
                         throw new Error(
                             "Kantite ou chwazi a depase stock vandè a."
                         );
                     }
 
 
-                    const {
-                        error
-                    } = await supabase
-                        .from("orders")
-                        .insert({
+                    const { error } =
+                        await supabase
+                            .from("orders")
+                            .insert({
 
-                            buyer_id:
-                                auth.user.id,
+                                buyer_id:
+                                    auth.user.id,
 
-                            seller_id:
-                                product.seller_id,
+                                seller_id:
+                                    product.seller_id,
 
-                            product_id:
-                                product.id,
+                                product_id:
+                                    product.id,
 
-                            product_name:
-                                product.name,
+                                product_name:
+                                    product.name,
 
-                            quantity:
-                                q,
+                                quantity:
+                                    q,
 
-                            total:
-                                orderTotal,
+                                total:
+                                    orderTotal,
 
-                            buyer_name:
-                                name.value.trim(),
+                                buyer_name:
+                                    name.value.trim(),
 
-                            buyer_phone:
-                                phone.value.trim(),
+                                buyer_phone:
+                                    phone.value.trim(),
 
-                            delivery_address:
-                                address.value.trim(),
+                                delivery_address:
+                                    address.value.trim(),
 
-                            delivery_note:
-                                note?.value.trim() ||
-                                null
-                        });
+                                delivery_note:
+                                    note?.value.trim() ||
+                                    null
+                            });
 
 
                     if (error) {
                         throw error;
                     }
 
-
-                    /*
-                     * Netwaye pwodwi checkout la
-                     * apre kòmand lan fin kreye.
-                     */
 
                     localStorage.removeItem(
                         "macheya_checkout_product"
@@ -521,7 +405,7 @@
 
 
                     location.href =
-    "dashboard.html";
+                        "dashboard.html";
 
 
                 } catch (error) {
@@ -539,9 +423,7 @@
 
 
                     if (submit) {
-
-                        submit.disabled =
-                            false;
+                        submit.disabled = false;
 
                         submit.textContent =
                             "Konfime kòmand";
@@ -552,10 +434,6 @@
     }
 
 
-    /*
-     * START
-     */
-
     start();
 
-})();
+})();    
