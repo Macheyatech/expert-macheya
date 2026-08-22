@@ -3,25 +3,17 @@
    DESIGN SYSTEM
 ============================================================ */
 
-
-/* ============================================================
-   RESET
-============================================================ */
-
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
-
 html {
     scroll-behavior: smooth;
 }
 
-
 body {
-
     min-height: 100vh;
 
     font-family:
@@ -41,95 +33,61 @@ body {
     color: #1f2937;
 }
 
-
-/* ============================================================
-   HIDDEN
-============================================================ */
-
 [hidden] {
     display: none !important;
 }
-
-
-/* ============================================================
-   LINKS
-============================================================ */
 
 a {
     color: inherit;
     text-decoration: none;
 }
 
-
 /* ============================================================
    HEADER
 ============================================================ */
 
 .buyer-header {
-
     width: 100%;
-
     min-height: 76px;
 
-    padding:
-        0 6%;
+    padding: 0 6%;
 
     display: flex;
-
     align-items: center;
-
     justify-content: space-between;
 
     gap: 20px;
 
     background: #ffffff;
 
-    border-bottom:
-        1px solid #eee7e0;
+    border-bottom: 1px solid #eee7e0;
 
     box-shadow:
-        0 4px 20px
-        rgba(
-            0,
-            0,
-            0,
-            0.05
-        );
+        0 4px 20px rgba(0, 0, 0, 0.05);
 
     position: sticky;
-
     top: 0;
-
     z-index: 100;
 }
-
 
 /* ============================================================
    BRAND
 ============================================================ */
 
 .brand {
-
     display: flex;
-
     align-items: center;
-
     gap: 10px;
 
     font-weight: 700;
 }
 
-
 .logo {
-
     width: 43px;
-
     height: 43px;
 
     display: flex;
-
     align-items: center;
-
     justify-content: center;
 
     border-radius: 50%;
@@ -144,81 +102,55 @@ a {
     color: #ffffff;
 
     font-size: 20px;
-
     font-weight: 800;
 
     box-shadow:
         0 6px 16px
-        rgba(
-            249,
-            115,
-            22,
-            0.25
-        );
+        rgba(249, 115, 22, 0.25);
 }
-
 
 .brand-name {
-
     font-size: 23px;
-
     letter-spacing: -0.5px;
-
     color: #111827;
 }
-
 
 /* ============================================================
    HEADER ACTIONS
 ============================================================ */
 
 .header-actions {
-
     display: flex;
-
     align-items: center;
-
     gap: 12px;
 }
 
-
 .role-badge {
-
-    padding:
-        7px 13px;
+    padding: 7px 13px;
 
     border-radius: 999px;
 
     background: #fff7ed;
-
     color: #ea580c;
 
-    border:
-        1px solid #fed7aa;
+    border: 1px solid #fed7aa;
 
     font-size: 13px;
-
     font-weight: 700;
 }
 
-
 .logout-button {
-
     border: none;
-
     cursor: pointer;
 
-    padding:
-        9px 15px;
+    padding: 9px 15px;
 
     border-radius: 10px;
 
     background: #111827;
-
     color: #ffffff;
 
     font-size: 13px;
-
     font-weight: 600;
 
     transition:
@@ -226,47 +158,32 @@ a {
         background 0.2s ease;
 }
 
-
 .logout-button:hover {
-
     background: #374151;
-
-    transform:
-        translateY(-1px);
+    transform: translateY(-1px);
 }
-
 
 /* ============================================================
    MAIN CONTAINER
 ============================================================ */
 
 .buyer-container {
+    width: min(1180px, 92%);
 
-    width: min(
-        1180px,
-        92%
-    );
+    margin: 0 auto;
 
-    margin:
-        0 auto;
-
-    padding:
-        45px 0 70px;
+    padding: 45px 0 70px;
 }
-
 
 /* ============================================================
    WELCOME CARD
 ============================================================ */
 
 .welcome-card {
-
     position: relative;
-
     overflow: hidden;
 
-    padding:
-        42px;
+    padding: 42px;
 
     border-radius: 25px;
 
@@ -283,87 +200,51 @@ a {
 
     box-shadow:
         0 18px 40px
-        rgba(
-            17,
-            24,
-            39,
-            0.16
-        );
+        rgba(17, 24, 39, 0.16);
 
     margin-bottom: 35px;
 }
 
-
-/* ============================================================
-   DECORATION
-============================================================ */
-
 .welcome-card::before {
-
     content: "";
 
     position: absolute;
 
     width: 240px;
-
     height: 240px;
 
     right: -80px;
-
     top: -105px;
 
     border-radius: 50%;
 
     background:
-        rgba(
-            255,
-            255,
-            255,
-            0.045
-        );
+        rgba(255, 255, 255, 0.045);
 }
 
-
 .welcome-card::after {
-
     content: "";
 
     position: absolute;
 
     width: 160px;
-
     height: 160px;
 
     right: 125px;
-
     bottom: -95px;
 
     border-radius: 50%;
 
     background:
-        rgba(
-            255,
-            255,
-            255,
-            0.035
-        );
+        rgba(255, 255, 255, 0.035);
 }
 
-
 .welcome-content {
-
     position: relative;
-
     z-index: 2;
 }
 
-
-/* ============================================================
-   WELCOME LABEL
-============================================================ */
-
 .welcome-label {
-
     display: block;
 
     margin-bottom: 10px;
@@ -377,13 +258,7 @@ a {
     letter-spacing: 1.3px;
 }
 
-
-/* ============================================================
-   USER NAME
-============================================================ */
-
 .welcome-card h1 {
-
     font-size:
         clamp(
             30px,
@@ -404,13 +279,7 @@ a {
     overflow-wrap: break-word;
 }
 
-
-/* ============================================================
-   WELCOME MESSAGE
-============================================================ */
-
 .welcome-card p {
-
     font-size: 15px;
 
     color: #d1d5db;
@@ -420,56 +289,41 @@ a {
     max-width: 680px;
 }
 
-
 /* ============================================================
    LOADING
 ============================================================ */
 
 .loading-section {
-
     min-height: 220px;
 
     display: flex;
-
     flex-direction: column;
 
     align-items: center;
-
     justify-content: center;
 
     gap: 15px;
 
     background: #ffffff;
 
-    border:
-        1px solid #eee7e0;
+    border: 1px solid #eee7e0;
 
     border-radius: 22px;
 
     box-shadow:
         0 8px 30px
-        rgba(
-            0,
-            0,
-            0,
-            0.04
-        );
+        rgba(0, 0, 0, 0.04);
 
     color: #6b7280;
 }
 
-
 .loading-spinner {
-
     width: 38px;
-
     height: 38px;
 
-    border:
-        4px solid #fed7aa;
+    border: 4px solid #fed7aa;
 
-    border-top-color:
-        #f97316;
+    border-top-color: #f97316;
 
     border-radius: 50%;
 
@@ -478,59 +332,42 @@ a {
         0.8s linear infinite;
 }
 
-
 @keyframes macheya-spin {
-
     to {
-
-        transform:
-            rotate(360deg);
+        transform: rotate(360deg);
     }
 }
-
 
 /* ============================================================
    BUYER CONTENT
 ============================================================ */
 
 .buyer-content {
-
     animation:
         macheya-fade
         0.35s ease;
 }
 
-
 @keyframes macheya-fade {
-
     from {
-
         opacity: 0;
-
-        transform:
-            translateY(8px);
+        transform: translateY(8px);
     }
 
     to {
-
         opacity: 1;
-
-        transform:
-            translateY(0);
+        transform: translateY(0);
     }
 }
-
 
 /* ============================================================
    SECTION HEADING
 ============================================================ */
 
 .section-heading {
-
     display: flex;
 
     align-items: center;
-
     justify-content: space-between;
 
     gap: 25px;
@@ -538,9 +375,7 @@ a {
     margin-bottom: 25px;
 }
 
-
 .section-label {
-
     display: block;
 
     margin-bottom: 6px;
@@ -554,9 +389,7 @@ a {
     letter-spacing: 1.2px;
 }
 
-
 .section-heading h2 {
-
     font-size:
         clamp(
             24px,
@@ -569,9 +402,7 @@ a {
     margin-bottom: 7px;
 }
 
-
 .section-heading p {
-
     color: #6b7280;
 
     font-size: 14px;
@@ -581,26 +412,511 @@ a {
     line-height: 1.6;
 }
 
-
 /* ============================================================
    MAIN BUTTON
 ============================================================ */
 
 .main-button {
-
     display: inline-flex;
 
     align-items: center;
-
     justify-content: center;
 
     white-space: nowrap;
 
-    padding:
-        12px 18px;
+    padding: 12px 18px;
 
     border-radius: 12px;
 
     background:
         linear-gradient(
             135deg,
+            #f97316,
+            #ea580c
+        );
+
+    color: #ffffff;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    box-shadow:
+        0 8px 20px
+        rgba(249, 115, 22, 0.22);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+}
+
+.main-button:hover {
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 12px 25px
+        rgba(249, 115, 22, 0.28);
+}
+
+/* ============================================================
+   BUYER GRID
+============================================================ */
+
+.buyer-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0, 1fr)
+        );
+
+    gap: 20px;
+
+    margin-bottom: 45px;
+}
+
+/* ============================================================
+   BUYER CARD
+============================================================ */
+
+.buyer-card {
+    min-width: 0;
+
+    padding: 26px;
+
+    background: #ffffff;
+
+    border:
+        1px solid #eee7e0;
+
+    border-radius: 20px;
+
+    box-shadow:
+        0 8px 25px
+        rgba(0, 0, 0, 0.04);
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease,
+        border-color 0.2s ease;
+}
+
+.buyer-card:hover {
+    transform: translateY(-4px);
+
+    border-color: #fed7aa;
+
+    box-shadow:
+        0 15px 35px
+        rgba(0, 0, 0, 0.07);
+}
+
+.card-icon {
+    width: 52px;
+    height: 52px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-bottom: 18px;
+
+    border-radius: 15px;
+
+    background: #fff7ed;
+
+    font-size: 25px;
+}
+
+.buyer-card h3 {
+    margin-bottom: 9px;
+
+    color: #111827;
+
+    font-size: 19px;
+
+    font-weight: 800;
+
+    line-height: 1.3;
+}
+
+.buyer-card p {
+    margin-bottom: 18px;
+
+    color: #6b7280;
+
+    font-size: 14px;
+
+    line-height: 1.6;
+}
+
+.buyer-card a {
+    display: inline-flex;
+
+    align-items: center;
+
+    color: #ea580c;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    transition:
+        color 0.2s ease,
+        transform 0.2s ease;
+}
+
+.buyer-card a:hover {
+    color: #c2410c;
+
+    transform:
+        translateX(3px);
+}
+
+/* ============================================================
+   WALLET CARD
+============================================================ */
+
+.wallet-card {
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #fffaf5
+        );
+}
+
+/* ============================================================
+   QUICK SECTION
+============================================================ */
+
+.quick-section {
+    margin-top: 10px;
+
+    padding: 32px;
+
+    background: #ffffff;
+
+    border:
+        1px solid #eee7e0;
+
+    border-radius: 24px;
+
+    box-shadow:
+        0 10px 30px
+        rgba(0, 0, 0, 0.04);
+}
+
+.quick-heading {
+    margin-bottom: 22px;
+}
+
+.quick-heading h2 {
+    margin-top: 4px;
+
+    color: #111827;
+
+    font-size:
+        clamp(
+            23px,
+            4vw,
+            30px
+        );
+
+    font-weight: 800;
+}
+
+.quick-actions {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            3,
+            minmax(0, 1fr)
+        );
+
+    gap: 14px;
+}
+
+.quick-button {
+    min-height: 52px;
+
+    display: flex;
+
+    align-items: center;
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 12px 15px;
+
+    border:
+        1px solid #e5e7eb;
+
+    border-radius: 13px;
+
+    background: #ffffff;
+
+    color: #374151;
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    transition:
+        transform 0.2s ease,
+        border-color 0.2s ease,
+        background 0.2s ease;
+}
+
+.quick-button:hover {
+    transform: translateY(-2px);
+
+    border-color: #fdba74;
+
+    background: #fff7ed;
+}
+
+.quick-button.primary {
+    border-color: #f97316;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f97316,
+            #ea580c
+        );
+
+    color: #ffffff;
+
+    box-shadow:
+        0 8px 20px
+        rgba(249, 115, 22, 0.18);
+}
+
+.quick-button.primary:hover {
+    background:
+        linear-gradient(
+            135deg,
+            #ea580c,
+            #c2410c
+        );
+}
+
+/* ============================================================
+   ERROR
+============================================================ */
+
+.error-section {
+    padding: 45px 25px;
+
+    text-align: center;
+
+    background: #ffffff;
+
+    border:
+        1px solid #fecaca;
+
+    border-radius: 22px;
+
+    box-shadow:
+        0 8px 25px
+        rgba(0, 0, 0, 0.04);
+}
+
+.error-icon {
+    margin-bottom: 12px;
+
+    font-size: 38px;
+}
+
+.error-section h2 {
+    margin-bottom: 8px;
+
+    color: #111827;
+
+    font-size: 25px;
+}
+
+.error-section p {
+    margin-bottom: 22px;
+
+    color: #6b7280;
+
+    line-height: 1.6;
+}
+
+/* ============================================================
+   TABLET
+============================================================ */
+
+@media (max-width: 900px) {
+
+    .buyer-grid {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+
+    .quick-actions {
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0, 1fr)
+            );
+    }
+}
+
+/* ============================================================
+   MOBILE
+============================================================ */
+
+@media (max-width: 650px) {
+
+    .buyer-header {
+        min-height: 68px;
+
+        padding: 0 18px;
+
+        gap: 10px;
+    }
+
+    .logo {
+        width: 40px;
+        height: 40px;
+
+        font-size: 18px;
+    }
+
+    .brand-name {
+        font-size: 21px;
+    }
+
+    .header-actions {
+        gap: 7px;
+    }
+
+    .role-badge {
+        padding:
+            6px 10px;
+
+        font-size: 12px;
+    }
+
+    .logout-button {
+        padding:
+            8px 11px;
+
+        font-size: 12px;
+    }
+
+    .buyer-container {
+        width: 92%;
+
+        padding:
+            25px 0 45px;
+    }
+
+    .welcome-card {
+        padding: 30px 25px;
+
+        border-radius: 21px;
+
+        margin-bottom: 25px;
+    }
+
+    .welcome-label {
+        font-size: 11px;
+    }
+
+    .welcome-card h1 {
+        font-size: 34px;
+    }
+
+    .welcome-card p {
+        font-size: 14px;
+    }
+
+    .section-heading {
+        flex-direction: column;
+
+        align-items: flex-start;
+
+        gap: 17px;
+    }
+
+    .section-heading .main-button {
+        width: 100%;
+    }
+
+    .buyer-grid {
+        grid-template-columns: 1fr;
+
+        gap: 15px;
+
+        margin-bottom: 32px;
+    }
+
+    .buyer-card {
+        padding: 22px;
+    }
+
+    .quick-section {
+        padding: 23px 18px;
+
+        border-radius: 20px;
+    }
+
+    .quick-actions {
+        grid-template-columns: 1fr;
+
+        gap: 10px;
+    }
+
+    .quick-button {
+        width: 100%;
+    }
+}
+
+/* ============================================================
+   SMALL MOBILE
+============================================================ */
+
+@media (max-width: 420px) {
+
+    .buyer-header {
+        padding: 0 14px;
+    }
+
+    .brand {
+        gap: 7px;
+    }
+
+    .brand-name {
+        font-size: 19px;
+    }
+
+    .logo {
+        width: 38px;
+        height: 38px;
+    }
+
+    .role-badge {
+        display: none;
+    }
+
+    .welcome-card {
+        padding: 27px 21px;
+    }
+
+    .welcome-card h1 {
+        font-size: 31px;
+    }
+
+    .buyer-card {
+        padding: 20px;
+    }
+}
