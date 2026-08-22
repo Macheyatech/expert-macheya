@@ -189,22 +189,30 @@
                 sellerName.textContent =
                     "Ap chèche vandè a...";
 
-                if (product.seller_id) {
+                const sellerId =
+                    product.identifiant_vendeur ||
+                    product.seller_id ||
+                    null;
+
+                if (sellerId) {
 
                     console.log(
                         "Macheya Seller ID:",
-                        product.seller_id
+                        sellerId
                     );
 
                     const {
                         data: seller,
                         error: sellerError
                     } = await db
-                        .from("profiles")
+                        .from("seller_public")
                         .select(
-                            "id, full_name, name, username, nom_complet"
+                            "id, nom_complet, name"
                         )
-                        .eq("id", product.seller_id)
+                        .eq(
+                            "id",
+                            sellerId
+                        )
                         .maybeSingle();
 
                     console.log(
@@ -225,10 +233,8 @@
                     } else if (seller) {
 
                         sellerName.textContent =
-                            seller.full_name ||
                             seller.nom_complet ||
                             seller.name ||
-                            seller.username ||
                             "Vandè pa idantifye";
 
                     } else {
@@ -238,6 +244,10 @@
                     }
 
                 } else {
+
+                    console.warn(
+                        "Macheya: Pa gen identifiant_vendeur ni seller_id sou pwodwi a."
+                    );
 
                     sellerName.textContent =
                         "Vandè pa idantifye";
@@ -317,7 +327,9 @@
                             image_url:
                                 product.image_url || "",
                             seller_id:
-                                product.seller_id || null,
+                                product.identifiant_vendeur ||
+                                product.seller_id ||
+                                null,
                             quantity: 1
                         })
                     );
@@ -469,7 +481,9 @@
                         product.image_url || "",
 
                     seller_id:
-                        product.seller_id || null,
+                        product.identifiant_vendeur ||
+                        product.seller_id ||
+                        null,
 
                     quantity: 1
                 });
