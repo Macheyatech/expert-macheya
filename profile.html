@@ -365,17 +365,15 @@
 
 <script src="supabase-config.js"></script>
 
-
+.auth.getUser();
 <script>
 
 (function () {
 
     "use strict";
 
-
     const supabase =
         window.supabaseClient;
-
 
     const message =
         document.getElementById("profileMessage");
@@ -425,81 +423,19 @@
     }
 
 
-    async function loadProfile() {
+    function showProfile(user, profile) {
 
-        if (!supabase) {
-
-            showMessage(
-                "⚠️",
-                "Macheya pa kapab konekte ak bazdone a."
-            );
-
-            return;
-
-        }
-
-
-        const {
-            data: auth,
-            error: authError
-        } =
-            await supabase.auth.getUser();
-
-
-        if (
-            authError ||
-            !auth?.user
-        ) {
-
-            location.href =
-                "login.html";
-
-            return;
-
-        }
-
-
-        const user =
-            auth.user;
-
-
-        const {
-            data: profile,
-            error
-        } =
-            await supabase
-                .from("profiles")
-                .select(
-                    "name,full_name,nom_complet,phone"
-                )
-                .eq(
-                    "id",
-                    user.id
-                )
-                .maybeSingle();
-
-
-        if (error) {
-
-            console.error(
-                "Macheya Profile Error:",
-                error
-            );
-
-            showMessage(
-                "⚠️",
-                "Nou pa kapab chaje pwofil ou."
-            );
-
-            return;
-
-        }
+        const metadata =
+            user.user_metadata || {};
 
 
         const displayName =
             profile?.name ||
             profile?.full_name ||
             profile?.nom_complet ||
+            metadata.name ||
+            metadata.full_name ||
+            metadata.nom_complet ||
             "Achtè macheya";
 
 
@@ -507,6 +443,16 @@
             profile?.full_name ||
             profile?.nom_complet ||
             profile?.name ||
+            metadata.full_name ||
+            metadata.nom_complet ||
+            metadata.name ||
+            "—";
+
+
+        const displayPhone =
+            profile?.phone ||
+            metadata.phone ||
+            metadata.telephone ||
             "—";
 
 
@@ -547,19 +493,113 @@
         if (phone) {
 
             phone.textContent =
-                profile?.phone || "—";
+                displayPhone;
 
         }
 
 
         if (message) {
+
             message.hidden = true;
+
         }
 
 
         if (card) {
+
             card.hidden = false;
+
         }
+
+    }
+
+
+    async function loadProfile() {
+
+        if (!supabase) {
+
+            showMessage(
+                "⚠️",
+                "Macheya pa kapab konekte ak bazdone a."
+            );
+
+            return;
+
+        }
+
+
+        const {
+            data: auth,
+            error: authError
+        } =
+            await supabase.auth.getUser();
+
+
+        if (
+            authError ||
+            !auth?.user
+        ) {
+
+            location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        const user =
+            auth.user;
+
+
+        let profile = null;
+
+
+        /*
+         * Nou itilize select("*")
+         * pou evite pwoblèm si non
+         * kolòn yo diferan.
+         */
+
+        const {
+            data,
+            error
+        } =
+            await supabase
+                .from("profiles")
+                .select("*")
+                .eq(
+                    "id",
+                    user.id
+                )
+                .maybeSingle();
+
+
+        if (error) {
+
+            console.error(
+                "Macheya Profile Error:",
+                error
+            );
+
+        } else {
+
+            profile = data;
+
+        }
+
+
+        /*
+         * Menm si profiles pa gen
+         * done oswa RLS bloke li,
+         * nou toujou montre enfòmasyon
+         * ki soti nan kont Supabase la.
+         */
+
+        showProfile(
+            user,
+            profile
+        );
 
     }
 
@@ -571,6 +611,8 @@
 
 </script>
 
+
+        
 
 </body>
 
