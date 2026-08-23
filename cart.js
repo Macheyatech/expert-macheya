@@ -3,9 +3,14 @@
 
     document.addEventListener("DOMContentLoaded", function () {
 
-        const emptyCart = document.getElementById("emptyCart");
-        const cartContent = document.getElementById("cartContent");
-        const cartItems = document.getElementById("cartItems");
+        const emptyCart =
+            document.getElementById("emptyCart");
+
+        const cartContent =
+            document.getElementById("cartContent");
+
+        const cartItems =
+            document.getElementById("cartItems");
 
         const cartItemCount =
             document.getElementById("cartItemCount");
@@ -20,31 +25,37 @@
             document.getElementById("checkoutButton");
 
 
+        let cart = loadCart();
+
+
         /* =========================
            LOAD CART
         ========================= */
 
-        function getCart() {
+        function loadCart() {
 
             try {
 
-                const savedCart =
-                    localStorage.getItem("macheya_cart");
+                const saved =
+                    localStorage.getItem(
+                        "macheya_cart"
+                    );
 
-                if (!savedCart) {
+                if (!saved) {
                     return [];
                 }
 
-                const cart = JSON.parse(savedCart);
+                const parsed =
+                    JSON.parse(saved);
 
-                return Array.isArray(cart)
-                    ? cart
+                return Array.isArray(parsed)
+                    ? parsed
                     : [];
 
             } catch (error) {
 
                 console.error(
-                    "Macheya Cart Error:",
+                    "Macheya Cart Load Error:",
                     error
                 );
 
@@ -57,7 +68,7 @@
            SAVE CART
         ========================= */
 
-        function saveCart(cart) {
+        function saveCart() {
 
             localStorage.setItem(
                 "macheya_cart",
@@ -67,12 +78,13 @@
 
 
         /* =========================
-           FORMAT PRICE
+           MONEY
         ========================= */
 
-        function formatPrice(value) {
+        function money(value) {
 
-            const number = Number(value);
+            const number =
+                Number(value || 0);
 
             if (!Number.isFinite(number)) {
                 return "0 HTG";
@@ -87,54 +99,83 @@
 
 
         /* =========================
-           DISPLAY CART
+           ESCAPE HTML
+        ========================= */
+
+        function escapeHTML(value) {
+
+            return String(value ?? "")
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        /* =========================
+           RENDER CART
         ========================= */
 
         function renderCart() {
 
-            const cart = getCart();
+            cart =
+                loadCart();
 
-            cartItems.innerHTML = "";
+            if (!cart.length) {
 
-            if (cart.length === 0) {
+                if (emptyCart) {
+                    emptyCart.hidden = false;
+                }
 
-                emptyCart.hidden = false;
-                cartContent.hidden = true;
+                if (cartContent) {
+                    cartContent.hidden = true;
+                }
 
-                updateSummary([]);
+                updateSummary();
 
                 return;
             }
 
 
-            emptyCart.hidden = true;
-            cartContent.hidden = false;
+            if (emptyCart) {
+                emptyCart.hidden = true;
+            }
+
+            if (cartContent) {
+                cartContent.hidden = false;
+            }
 
 
-            cart.forEach(function (product, index) {
+            if (!cartItems) {
+                return;
+            }
+
+
+            cartItems.innerHTML = "";
+
+
+            cart.forEach(function (item, index) {
 
                 const quantity =
                     Math.max(
                         1,
-                        Number(product.quantity) || 1
+                        Number(item.quantity || 1)
                     );
 
-                const productPrice =
-                    Number(product.price) || 0;
+                const price =
+                    Number(item.price || 0);
 
-                const productTotal =
-                    productPrice * quantity;
+                const itemTotal =
+                    price * quantity;
 
 
-                const item =
+                const article =
                     document.createElement("article");
 
-                item.className = "cart-item";
+                article.className =
+                    "cart-item";
 
-
-                /* =========================
-                   IMAGE
-                ========================= */
 
                 const image =
                     document.createElement("div");
@@ -143,130 +184,66 @@
                     "product-image";
 
 
-                if (product.image_url) {
+                if (item.image_url) {
 
                     image.style.backgroundImage =
-                        `url("${product.image_url}")`;
+                        `url("${item.image_url}")`;
 
                 } else {
 
-                    image.textContent = "🛍️";
+                    image.textContent =
+                        "🛍️";
                 }
 
-
-                /* =========================
-                   INFORMATION
-                ========================= */
 
                 const info =
                     document.createElement("div");
 
-                info.className = "item-info";
+                info.className =
+                    "item-info";
 
 
-                const title =
-                    document.createElement("h3");
+                info.innerHTML = `
 
-                title.textContent =
-                    product.name ||
-                    "Pwodwi san non";
+                    <h3>
+                        ${escapeHTML(
+                            item.name ||
+                            "Pwodwi san non"
+                        )}
+                    </h3>
 
+                    <div class="item-price">
+                        ${money(price)}
+                    </div>
 
-                const price =
-                    document.createElement("div");
+                    <div class="quantity-controls">
 
-                price.className =
-                    "item-price";
+                        <button
+                            type="button"
+                            data-action="minus"
+                            data-index="${index}"
+                            aria-label="Diminye kantite"
+                        >
+                            −
+                        </button>
 
-                price.textContent =
-                    formatPrice(productPrice);
+                        <span>
+                            ${quantity}
+                        </span>
 
+                        <button
+                            type="button"
+                            data-action="plus"
+                            data-index="${index}"
+                            aria-label="Ogmante kantite"
+                        >
+                            +
+                        </button>
 
-                /* =========================
-                   QUANTITY
-                ========================= */
+                    </div>
 
-                const quantityControls =
-                    document.createElement("div");
+                `;
 
-                quantityControls.className =
-                    "quantity-controls";
-
-
-                const decrease =
-                    document.createElement("button");
-
-                decrease.type = "button";
-                decrease.textContent = "−";
-                decrease.setAttribute(
-                    "aria-label",
-                    "Diminye kantite"
-                );
-
-
-                const quantityDisplay =
-                    document.createElement("span");
-
-                quantityDisplay.textContent =
-                    quantity;
-
-
-                const increase =
-                    document.createElement("button");
-
-                increase.type = "button";
-                increase.textContent = "+";
-                increase.setAttribute(
-                    "aria-label",
-                    "Ogmante kantite"
-                );
-
-
-                decrease.addEventListener(
-                    "click",
-                    function () {
-
-                        changeQuantity(
-                            index,
-                            -1
-                        );
-                    }
-                );
-
-
-                increase.addEventListener(
-                    "click",
-                    function () {
-
-                        changeQuantity(
-                            index,
-                            1
-                        );
-                    }
-                );
-
-
-                quantityControls.appendChild(
-                    decrease
-                );
-
-                quantityControls.appendChild(
-                    quantityDisplay
-                );
-
-                quantityControls.appendChild(
-                    increase
-                );
-
-
-                info.appendChild(title);
-                info.appendChild(price);
-                info.appendChild(quantityControls);
-
-
-                /* =========================
-                   RIGHT SIDE
-                ========================= */
 
                 const right =
                     document.createElement("div");
@@ -275,117 +252,47 @@
                     "item-right";
 
 
-                const total =
-                    document.createElement("div");
+                right.innerHTML = `
 
-                total.className =
-                    "item-total";
+                    <div>
 
-                total.textContent =
-                    formatPrice(productTotal);
+                        <div class="item-total">
+                            ${money(itemTotal)}
+                        </div>
 
+                        <button
+                            type="button"
+                            class="buy-single-button"
+                            data-action="buy"
+                            data-index="${index}"
+                        >
+                            Achte kounye a
+                        </button>
 
-                const remove =
-                    document.createElement("button");
+                        <button
+                            type="button"
+                            class="remove-button"
+                            data-action="remove"
+                            data-index="${index}"
+                        >
+                            Retire
+                        </button>
 
-                remove.type = "button";
+                    </div>
 
-                remove.className =
-                    "remove-button";
-
-                remove.textContent =
-                    "Retire";
-
-
-                remove.addEventListener(
-                    "click",
-                    function () {
-
-                        removeProduct(index);
-                    }
-                );
-
-
-                right.appendChild(total);
-                right.appendChild(remove);
+                `;
 
 
-                /* =========================
-                   BUILD ITEM
-                ========================= */
+                article.appendChild(image);
+                article.appendChild(info);
+                article.appendChild(right);
 
-                item.appendChild(image);
-                item.appendChild(info);
-                item.appendChild(right);
-
-
-                cartItems.appendChild(item);
+                cartItems.appendChild(article);
 
             });
 
 
-            updateSummary(cart);
-        }
-
-
-        /* =========================
-           CHANGE QUANTITY
-        ========================= */
-
-        function changeQuantity(
-            index,
-            change
-        ) {
-
-            const cart = getCart();
-
-            if (!cart[index]) {
-                return;
-            }
-
-
-            let quantity =
-                Number(cart[index].quantity) || 1;
-
-
-            quantity += change;
-
-
-            if (quantity <= 0) {
-
-                cart.splice(index, 1);
-
-            } else {
-
-                cart[index].quantity =
-                    quantity;
-            }
-
-
-            saveCart(cart);
-
-            renderCart();
-        }
-
-
-        /* =========================
-           REMOVE PRODUCT
-        ========================= */
-
-        function removeProduct(index) {
-
-            const cart = getCart();
-
-            if (!cart[index]) {
-                return;
-            }
-
-
-            cart.splice(index, 1);
-
-            saveCart(cart);
-
-            renderCart();
+            updateSummary();
         }
 
 
@@ -393,35 +300,39 @@
            SUMMARY
         ========================= */
 
-        function updateSummary(cart) {
+        function updateSummary() {
 
+            let totalProducts = 0;
             let totalQuantity = 0;
             let totalPrice = 0;
 
 
-            cart.forEach(function (product) {
+            cart.forEach(function (item) {
 
                 const quantity =
                     Math.max(
                         1,
-                        Number(product.quantity) || 1
+                        Number(item.quantity || 1)
                     );
 
                 const price =
-                    Number(product.price) || 0;
+                    Number(item.price || 0);
 
+
+                totalProducts += 1;
 
                 totalQuantity += quantity;
 
                 totalPrice +=
                     price * quantity;
+
             });
 
 
             if (cartItemCount) {
 
                 cartItemCount.textContent =
-                    cart.length;
+                    totalProducts;
             }
 
 
@@ -435,30 +346,190 @@
             if (cartTotal) {
 
                 cartTotal.textContent =
-                    formatPrice(totalPrice);
-            }
-
-
-            if (checkoutButton) {
-
-                checkoutButton.disabled =
-                    cart.length === 0;
-
-                checkoutButton.style.opacity =
-                    cart.length === 0
-                        ? "0.55"
-                        : "1";
-
-                checkoutButton.style.cursor =
-                    cart.length === 0
-                        ? "not-allowed"
-                        : "pointer";
+                    money(totalPrice);
             }
         }
 
 
         /* =========================
-           CHECKOUT
+           CART ACTIONS
+        ========================= */
+
+        if (cartItems) {
+
+            cartItems.addEventListener(
+                "click",
+                function (event) {
+
+                    const button =
+                        event.target.closest(
+                            "button[data-action]"
+                        );
+
+                    if (!button) {
+                        return;
+                    }
+
+
+                    const action =
+                        button.dataset.action;
+
+                    const index =
+                        Number(
+                            button.dataset.index
+                        );
+
+
+                    if (
+                        !Number.isInteger(index) ||
+                        !cart[index]
+                    ) {
+                        return;
+                    }
+
+
+                    /* PLUS */
+
+                    if (action === "plus") {
+
+                        cart[index].quantity =
+                            Math.max(
+                                1,
+                                Number(
+                                    cart[index].quantity || 1
+                                )
+                            ) + 1;
+
+                        saveCart();
+                        renderCart();
+
+                        return;
+                    }
+
+
+                    /* MINUS */
+
+                    if (action === "minus") {
+
+                        const current =
+                            Math.max(
+                                1,
+                                Number(
+                                    cart[index].quantity || 1
+                                )
+                            );
+
+
+                        if (current > 1) {
+
+                            cart[index].quantity =
+                                current - 1;
+
+                        }
+
+                        saveCart();
+                        renderCart();
+
+                        return;
+                    }
+
+
+                    /* REMOVE */
+
+                    if (action === "remove") {
+
+                        cart.splice(
+                            index,
+                            1
+                        );
+
+                        saveCart();
+                        renderCart();
+
+                        return;
+                    }
+
+
+                    /* BUY SINGLE */
+
+                    if (action === "buy") {
+
+                        buySingleProduct(
+                            cart[index]
+                        );
+
+                    }
+
+                }
+            );
+        }
+
+
+        /* =========================
+           BUY SINGLE PRODUCT
+        ========================= */
+
+        function buySingleProduct(product) {
+
+            if (!product || !product.id) {
+
+                alert(
+                    "Pwodwi sa a pa gen ID."
+                );
+
+                return;
+            }
+
+
+            const checkoutProduct = {
+
+                id:
+                    product.id,
+
+                name:
+                    product.name || "",
+
+                price:
+                    Number(
+                        product.price || 0
+                    ),
+
+                image_url:
+                    product.image_url || "",
+
+                seller_id:
+                    product.seller_id ||
+                    product.identifiant_vendeur ||
+                    null,
+
+                quantity:
+                    Math.max(
+                        1,
+                        Number(
+                            product.quantity || 1
+                        )
+                    )
+            };
+
+
+            localStorage.setItem(
+                "macheya_checkout_product",
+                JSON.stringify(
+                    checkoutProduct
+                )
+            );
+
+
+            window.location.href =
+                "checkout.html?product_id=" +
+                encodeURIComponent(
+                    product.id
+                );
+        }
+
+
+        /* =========================
+           BUY ALL CART
         ========================= */
 
         if (checkoutButton) {
@@ -467,9 +538,11 @@
                 "click",
                 function () {
 
-                    const cart = getCart();
+                    cart =
+                        loadCart();
 
-                    if (cart.length === 0) {
+
+                    if (!cart.length) {
 
                         alert(
                             "Panier ou vid."
@@ -480,8 +553,8 @@
 
 
                     /*
-                     * Kenbe panier la tou.
-                     * Checkout la ka li li.
+                     * Nou sove tout panier an
+                     * pou checkout la ka itilize l.
                      */
 
                     localStorage.setItem(
@@ -490,24 +563,26 @@
                     );
 
 
+                    /*
+                     * Pou kounye a nou ale
+                     * sou checkout la.
+                     *
+                     * checkout.js ap bezwen
+                     * sipòte plizyè pwodwi pou
+                     * bouton sa a pase tout
+                     * panier la ansanm.
+                     */
+
                     window.location.href =
-                        "checkout.html";
+                        "checkout.html?cart=all";
+
                 }
             );
         }
 
 
         /* =========================
-           INITIALIZE
-        ========================= */
-
-        renderCart();
-
-
-        /* =========================
-           SYNCHRONIZE
-           SI CART LA CHANJE NAN
-           YON LÒT ONGLET
+           STORAGE UPDATE
         ========================= */
 
         window.addEventListener(
@@ -519,10 +594,20 @@
                     "macheya_cart"
                 ) {
 
+                    cart =
+                        loadCart();
+
                     renderCart();
                 }
             }
         );
+
+
+        /* =========================
+           START
+        ========================= */
+
+        renderCart();
 
     });
 
