@@ -1,0 +1,732 @@
+orders.html
+
+<!DOCTYPE html>
+<html lang="ht">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Kòmand mwen yo sou macheya."
+    >
+
+    <title>Kòmand mwen yo | macheya</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f7f7f7;
+            color: #171717;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+        .orders-header {
+            background: #ffffff;
+            border-bottom: 1px solid #eeeeee;
+            padding: 15px 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #f97316;
+            color: #ffffff;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+        }
+
+        .back-button {
+            color: #555555;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .orders-container {
+            width: min(1000px, 92%);
+            margin: 35px auto 70px;
+        }
+
+        .orders-heading {
+            margin-bottom: 25px;
+        }
+
+        .orders-label {
+            color: #f97316;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .5px;
+        }
+
+        .orders-heading h1 {
+            margin: 7px 0;
+            font-size: 30px;
+        }
+
+        .orders-heading p {
+            color: #777777;
+            font-size: 14px;
+        }
+
+        .orders-message {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 35px 25px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,.06);
+            color: #666666;
+        }
+
+        .empty-icon {
+            font-size: 50px;
+            margin-bottom: 12px;
+        }
+
+        .orders-list {
+            display: grid;
+            gap: 16px;
+        }
+
+        .order-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow: 0 7px 28px rgba(0,0,0,.05);
+        }
+
+        .order-top {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .order-product {
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .order-date {
+            color: #888888;
+            font-size: 12px;
+            margin-top: 4px;
+        }
+
+        .order-status {
+            background: #fff7ed;
+            color: #f97316;
+            border-radius: 20px;
+            padding: 7px 12px;
+            height: fit-content;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .order-info {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .info-box {
+            background: #f8f8f8;
+            border-radius: 12px;
+            padding: 13px;
+        }
+
+        .info-box span {
+            display: block;
+            color: #888888;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .info-box strong {
+            font-size: 14px;
+        }
+
+        .order-total {
+            border-top: 1px solid #eeeeee;
+            padding-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .order-total span {
+            color: #666666;
+        }
+
+        .order-total strong {
+            color: #f97316;
+            font-size: 19px;
+        }
+
+        .delivery-box {
+            margin-top: 15px;
+            padding: 14px;
+            border-radius: 12px;
+            background: #fafafa;
+            border: 1px solid #eeeeee;
+        }
+
+        .delivery-box strong {
+            display: block;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        .delivery-box p {
+            color: #666666;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .main-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: #f97316;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        @media (max-width: 650px) {
+
+            .orders-header {
+                padding: 14px 5%;
+            }
+
+            .orders-container {
+                width: 92%;
+                margin-top: 25px;
+            }
+
+            .orders-heading h1 {
+                font-size: 26px;
+            }
+
+            .order-top {
+                align-items: flex-start;
+            }
+
+            .order-info {
+                grid-template-columns: 1fr 1fr;
+            }
+
+        }
+
+        @media (max-width: 430px) {
+
+            .brand {
+                font-size: 19px;
+            }
+
+            .logo {
+                width: 35px;
+                height: 35px;
+            }
+
+            .back-button {
+                font-size: 12px;
+            }
+
+            .order-info {
+                grid-template-columns: 1fr;
+            }
+
+            .order-top {
+                flex-direction: column;
+            }
+
+            .order-status {
+                width: fit-content;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header class="orders-header">
+
+    <a
+        href="dashboard.html"
+        class="brand"
+    >
+
+        <span class="logo">
+            M
+        </span>
+
+        <span>
+            macheya
+        </span>
+
+    </a>
+
+
+    <a
+        href="dashboard.html"
+        class="back-button"
+    >
+        ← Dashboard
+    </a>
+
+</header>
+
+
+<main class="orders-container">
+
+
+    <section class="orders-heading">
+
+        <span class="orders-label">
+            ESPAS ACHTÈ
+        </span>
+
+        <h1>
+            Kòmand mwen yo
+        </h1>
+
+        <p>
+            Swiv tout kòmand ou te fè sou macheya.
+        </p>
+
+    </section>
+
+
+    <section
+        id="ordersMessage"
+        class="orders-message"
+    >
+
+        <div class="empty-icon">
+            📦
+        </div>
+
+        <p>
+            Ap chaje kòmand ou yo...
+        </p>
+
+    </section>
+
+
+    <section
+        id="ordersList"
+        class="orders-list"
+        hidden
+    >
+    </section>
+
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase-config.js"></script>
+
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    const supabase =
+        window.supabaseClient;
+
+
+    const ordersMessage =
+        document.getElementById("ordersMessage");
+
+    const ordersList =
+        document.getElementById("ordersList");
+
+
+    function money(value) {
+
+        return new Intl.NumberFormat("fr-FR")
+            .format(Number(value || 0))
+            + " HTG";
+
+    }
+
+
+    function date(value) {
+
+        if (!value) {
+            return "Dat pa disponib";
+        }
+
+        try {
+
+            return new Intl.DateTimeFormat(
+                "fr-FR",
+                {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            ).format(new Date(value));
+
+        } catch (error) {
+
+            return value;
+
+        }
+
+    }
+
+
+    function showMessage(icon, text) {
+
+        ordersMessage.hidden = false;
+
+        ordersMessage.innerHTML = `
+            <div class="empty-icon">${icon}</div>
+            <p>${text}</p>
+            <a
+                href="marketplace.html"
+                class="main-button"
+            >
+                Eksplore pwodwi
+            </a>
+        `;
+
+    }
+
+
+    async function loadOrders() {
+
+        if (!supabase) {
+
+            showMessage(
+                "⚠️",
+                "Macheya pa kapab konekte ak bazdone a."
+            );
+
+            return;
+
+        }
+
+
+        const {
+            data: auth,
+            error: authError
+        } = await supabase.auth.getUser();
+
+
+        if (
+            authError ||
+            !auth?.user
+        ) {
+
+            location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        const {
+            data: orders,
+            error
+        } = await supabase
+
+            .from("orders")
+
+            .select(`
+                id,
+                product_name,
+                quantity,
+                total,
+                buyer_name,
+                buyer_phone,
+                delivery_address,
+                delivery_note,
+                created_at
+            `)
+
+            .eq(
+                "buyer_id",
+                auth.user.id
+            )
+
+            .order(
+                "created_at",
+                {
+                    ascending: false
+                }
+            );
+
+
+        if (error) {
+
+            console.error(
+                "Macheya Orders Error:",
+                error
+            );
+
+            showMessage(
+                "⚠️",
+                "Nou pa kapab chaje kòmand ou yo."
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !orders ||
+            !orders.length
+        ) {
+
+            showMessage(
+                "📦",
+                "Ou poko fè okenn kòmand."
+            );
+
+            return;
+
+        }
+
+
+        ordersMessage.hidden = true;
+
+        ordersList.hidden = false;
+
+        ordersList.innerHTML = "";
+
+
+        orders.forEach(function (order) {
+
+            const card =
+                document.createElement("article");
+
+            card.className =
+                "order-card";
+
+
+            card.innerHTML = `
+
+                <div class="order-top">
+
+                    <div>
+
+                        <div class="order-product">
+                            ${escapeHtml(
+                                order.product_name ||
+                                "Pwodwi"
+                            )}
+                        </div>
+
+                        <div class="order-date">
+                            ${date(order.created_at)}
+                        </div>
+
+                    </div>
+
+                    <span class="order-status">
+                        Kòmand resevwa
+                    </span>
+
+                </div>
+
+
+                <div class="order-info">
+
+                    <div class="info-box">
+
+                        <span>
+                            Kantite
+                        </span>
+
+                        <strong>
+                            ${Number(
+                                order.quantity || 1
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="info-box">
+
+                        <span>
+                            Achtè
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                order.buyer_name ||
+                                "—"
+                            )}
+                        </strong>
+
+                    </div>
+
+
+                    <div class="info-box">
+
+                        <span>
+                            Telefòn
+                        </span>
+
+                        <strong>
+                            ${escapeHtml(
+                                order.buyer_phone ||
+                                "—"
+                            )}
+                        </strong>
+
+                    </div>
+
+                </div>
+
+
+                <div class="order-total">
+
+                    <span>
+                        Total kòmand
+                    </span>
+
+                    <strong>
+                        ${money(order.total)}
+                    </strong>
+
+                </div>
+
+
+                <div class="delivery-box">
+
+                    <strong>
+                        📍 Adrès livrezon
+                    </strong>
+
+                    <p>
+                        ${escapeHtml(
+                            order.delivery_address ||
+                            "—"
+                        )}
+                    </p>
+
+                </div>
+
+
+                ${
+                    order.delivery_note
+                    ? `
+                        <div class="delivery-box">
+
+                            <strong>
+                                📝 Remak
+                            </strong>
+
+                            <p>
+                                ${escapeHtml(
+                                    order.delivery_note
+                                )}
+                            </p>
+
+                        </div>
+                    `
+                    : ""
+                }
+
+            `;
+
+
+            ordersList.appendChild(card);
+
+        });
+
+    }
+
+
+    function escapeHtml(value) {
+
+        return String(value || "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
+    }
+
+
+    loadOrders();
+
+
+})();
+
+</script>
+
+
+</body>
+
+</html>
