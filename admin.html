@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="ht">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Macheya Super Admin Dashboard."
+    >
+
+    <title>Super Admin | macheya</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f6f7f9;
+            color: #171717;
+        }
+
+        button,
+        input,
+        select {
+            font-family: inherit;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .admin-header {
+            background: #ffffff;
+            border-bottom: 1px solid #eeeeee;
+            padding: 15px 5%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .logo {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #f97316;
+            color: #ffffff;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+        }
+
+        .admin-badge {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 12px;
+            border-radius: 20px;
+            background: #fff7ed;
+            color: #f97316;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .admin-container {
+            width: min(1200px, 92%);
+            margin: 30px auto 70px;
+        }
+
+        .page-heading {
+            margin-bottom: 25px;
+        }
+
+        .page-label {
+            color: #f97316;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: .8px;
+        }
+
+        .page-heading h1 {
+            margin-top: 6px;
+            font-size: 30px;
+        }
+
+        .page-heading p {
+            margin-top: 5px;
+            color: #777777;
+            font-size: 14px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns:
+                repeat(4, minmax(0, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow:
+                0 7px 25px rgba(0,0,0,.05);
+        }
+
+        .stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            background: #fff7ed;
+            display: grid;
+            place-items: center;
+            font-size: 20px;
+            margin-bottom: 14px;
+        }
+
+        .stat-title {
+            color: #777777;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .stat-sub {
+            margin-top: 5px;
+            color: #999999;
+            font-size: 11px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1.7fr 1fr;
+            gap: 18px;
+            margin-bottom: 25px;
+        }
+
+        .panel {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow:
+                0 7px 25px rgba(0,0,0,.05);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .panel-header h2 {
+            font-size: 17px;
+        }
+
+        .panel-header span {
+            color: #888888;
+            font-size: 12px;
+        }
+
+        .circulation-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .circulation-card {
+            padding: 17px;
+            border-radius: 14px;
+            background: #fafafa;
+            border: 1px solid #eeeeee;
+        }
+
+        .circulation-card span {
+            display: block;
+            color: #777777;
+            font-size: 12px;
+            margin-bottom: 7px;
+        }
+
+        .circulation-card strong {
+            font-size: 19px;
+        }
+
+        .quick-actions {
+            display: grid;
+            gap: 10px;
+        }
+
+        .action-button {
+            border: 0;
+            border-radius: 12px;
+            padding: 13px 15px;
+            background: #f97316;
+            color: #ffffff;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: left;
+        }
+
+        .action-button.secondary {
+            background: #f8f8f8;
+            color: #333333;
+            border: 1px solid #eeeeee;
+        }
+
+        .action-button:hover {
+            opacity: .92;
+        }
+
+        .chart-panel {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 20px;
+            box-shadow:
+                0 7px 25px rgba(0,0,0,.05);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 18px;
+        }
+
+        .chart-header h2 {
+            font-size: 17px;
+        }
+
+        .period-select {
+            border: 1px solid #dddddd;
+            border-radius: 9px;
+            padding: 8px 10px;
+            background: #ffffff;
+            font-size: 12px;
+        }
+
+        #admin-chart {
+            width: 100%;
+            height: 300px;
+            display: block;
+        }
+
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            display: grid;
+            place-items: center;
+            z-index: 9999;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-logo {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            background: #f97316;
+            color: #ffffff;
+            display: grid;
+            place-items: center;
+            margin: 0 auto 14px;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .loading-content p {
+            color: #777777;
+            font-size: 13px;
+        }
+
+        .access-denied {
+            min-height: 100vh;
+            display: grid;
+            place-items: center;
+            padding: 25px;
+            background: #f7f7f7;
+        }
+
+        .access-card {
+            width: min(420px, 100%);
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 35px 25px;
+            text-align: center;
+            box-shadow:
+                0 10px 35px rgba(0,0,0,.08);
+        }
+
+        .access-icon {
+            font-size: 55px;
+            margin-bottom: 12px;
+        }
+
+        .access-card h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+        }
+
+        .access-card p {
+            color: #777777;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: #f97316;
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 700;
+        }
+
+        @media (max-width: 900px) {
+
+            .stats-grid {
+                grid-template-columns:
+                    repeat(2, minmax(0, 1fr));
+            }
+
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+
+        }
+
+        @media (max-width: 500px) {
+
+            .admin-header {
+                padding: 13px 4%;
+            }
+
+            .brand {
+                font-size: 18px;
+            }
+
+            .logo {
+                width: 36px;
+                height: 36px;
+            }
+
+            .admin-container {
+                width: 92%;
+                margin-top: 22px;
+            }
+
+            .page-heading h1 {
+                font-size: 25px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .stat-value {
+                font-size: 17px;
+            }
+
+            .circulation-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .admin-badge {
+                font-size: 10px;
+                padding: 7px 9px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<div
+    id="loading-screen"
+    class="loading-screen"
+>
+
+    <div class="loading-content">
+
+        <div class="loading-logo">
+            M
+        </div>
+
+        <p>
+            Verifikasyon Super Admin...
+        </p>
+
+    </div>
+
+</div>
+
+
+<header
+    id="admin-header"
+    class="admin-header"
+    hidden
+>
+
+    <a
+        href="dashboard.html"
+        class="brand"
+    >
+
+        <span class="logo">
+            M
+        </span>
+
+        <span>
+            macheya
+        </span>
+
+    </a>
+
+
+    <div class="admin-badge">
+        🔐 Super Admin
+    </div>
+
+  </header>
+  <main
+    id="admin-main"
+    class="admin-container"
+    hidden
+>
+
+    <section class="page-heading">
+
+        <span class="page-label">
+            CENTRE DE CONTRÔLE
+        </span>
+
+        <h1>
+            Dashboard Super Admin
+        </h1>
+
+        <p>
+            Men eta finansye ak aktivite macheya an tan reyèl.
+        </p>
+
+    </section>
+
+
+    <!-- =========================================
+         MAIN STATISTICS
+    ========================================== -->
+
+    <section class="stats-grid">
+
+        <article class="stat-card">
+
+            <div class="stat-icon">
+                💰
+            </div>
+
+            <div class="stat-title">
+                Total lajan ki sikile
+            </div>
+
+            <div
+                id="totalCirculation"
+                class="stat-value"
+            >
+                0 HTG
+            </div>
+
+            <div class="stat-sub">
+                Achtè + Vandè
+            </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+            <div class="stat-icon">
+                👤
+            </div>
+
+            <div class="stat-title">
+                Lajan bò achtè
+            </div>
+
+            <div
+                id="buyerBalance"
+                class="stat-value"
+            >
+                0 HTG
+            </div>
+
+            <div class="stat-sub">
+                Wallet achtè yo
+            </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+            <div class="stat-icon">
+                🏪
+            </div>
+
+            <div class="stat-title">
+                Lajan bò vandè
+            </div>
+
+            <div
+                id="sellerBalance"
+                class="stat-value"
+            >
+                0 HTG
+            </div>
+
+            <div class="stat-sub">
+                Wallet vandè yo
+            </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+            <div class="stat-icon">
+                💸
+            </div>
+
+            <div class="stat-title">
+                Frè Macheya
+            </div>
+
+            <div
+                id="totalFees"
+                class="stat-value"
+            >
+                0 HTG
+            </div>
+
+            <div class="stat-sub">
+                Frè retrè kolekte
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =========================================
+         SECONDARY STATISTICS
+    ========================================== -->
+
+    <section class="stats-grid">
+
+        <article class="stat-card">
+
+            <div class="stat-icon">
+                ➕
+            </div>
+
+            <div class="stat-title">
+                Total deposit
+            </div>
+
+            <div
+                id="totalDeposits"
+                class="stat-value"
+            >
+                0 HTG
+            </div>
+
+            <div class="stat-sub">
+                Rechaj apwouve
+            </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+            <div class="stat-icon">
+                ➖
+            </div>
+
+            <div class="stat-title">
+                Total retrè
+            </div>
+
+            <div
+                id="totalWithdrawals"
+                class="stat-value"
+            >
+                0 HTG
+            </div>
+
+            <div class="stat-sub">
+                Retrè apwouve
+            </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+            <div class="stat-icon">
+                👥
+            </div>
+
+            <div class="stat-title">
+                Itilizatè yo
+            </div>
+
+            <div
+                id="totalUsers"
+                class="stat-value"
+            >
+                0
+            </div>
+
+            <div class="stat-sub">
+                Achtè + vandè
+            </div>
+
+        </article>
+
+
+        <article class="stat-card">
+
+            <div class="stat-icon">
+                📦
+            </div>
+
+            <div class="stat-title">
+                Kòmand
+            </div>
+
+            <div
+                id="totalOrders"
+                class="stat-value"
+            >
+                0
+            </div>
+
+            <div class="stat-sub">
+                Kòmand Macheya
+            </div>
+
+        </article>
+
+    </section>
+
+
+    <!-- =========================================
+         CIRCULATION + QUICK ACTIONS
+    ========================================== -->
+
+    <section class="main-grid">
+
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        💰 Sikilasyon lajan
+                    </h2>
+
+                    <span>
+                        Eta aktyèl wallet yo
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="circulation-grid">
+
+                <div class="circulation-card">
+
+                    <span>
+                        👤 Achtè
+                    </span>
+
+                    <strong
+                        id="buyerBalanceLarge"
+                    >
+                        0 HTG
+                    </strong>
+
+                </div>
+
+
+                <div class="circulation-card">
+
+                    <span>
+                        🏪 Vandè
+                    </span>
+
+                    <strong
+                        id="sellerBalanceLarge"
+                    >
+                        0 HTG
+                    </strong>
+
+                </div>
+
+
+                <div class="circulation-card">
+
+                    <span>
+                        💳 Deposit
+                    </span>
+
+                    <strong
+                        id="depositCount"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+
+                <div class="circulation-card">
+
+                    <span>
+                        💸 Retrè
+                    </span>
+
+                    <strong
+                        id="withdrawalCount"
+                    >
+                        0
+                    </strong>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <h2>
+                        ⚡ Aksyon rapid
+                    </h2>
+
+                    <span>
+                        Zòn administrasyon
+                    </span>
+
+                </div>
+
+            </div>
+
+
+            <div class="quick-actions">
+
+                <button
+                    id="walletAdminButton"
+                    class="action-button"
+                    type="button"
+                >
+                    💳 Jesyon Wallet
+                </button>
+
+
+                <button
+                    id="settingsAdminButton"
+                    class="action-button secondary"
+                    type="button"
+                >
+                    ⚙️ Paramèt Macheya
+                </button>
+
+
+                <button
+                    id="logoutButton"
+                    class="action-button secondary"
+                    type="button"
+                >
+                    🚪 Dekonekte
+                </button>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =========================================
+         REAL EVOLUTION CHART
+    ========================================== -->
+
+    <section class="chart-panel">
+
+        <div class="chart-header">
+
+            <div>
+
+                <h2>
+                    📈 Evolisyon lajan
+                </h2>
+
+                <span
+                    style="
+                        display:block;
+                        color:#888;
+                        font-size:12px;
+                        margin-top:4px;
+                    "
+                >
+                    Done reyèl ki soti nan wallet Macheya
+                </span>
+
+            </div>
+
+
+            <select
+                id="chartPeriod"
+                class="period-select"
+            >
+
+                <option value="7">
+                    7 jou
+                </option>
+
+                <option value="30" selected>
+                    30 jou
+                </option>
+
+                <option value="90">
+                    90 jou
+                </option>
+
+                <option value="365">
+                    1 ane
+                </option>
+
+            </select>
+
+        </div>
+
+
+        <canvas
+            id="admin-chart"
+        ></canvas>
+
+    </section>
+
+</main>
+
+
+<!-- =========================================
+     ACCESS DENIED
+========================================== -->
+
+<div
+    id="access-denied"
+    class="access-denied"
+    hidden
+>
+
+    <div class="access-card">
+
+        <div class="access-icon">
+            🔒
+        </div>
+
+        <h1>
+            Aksè refize
+        </h1>
+
+        <p>
+            Kont sa a pa gen otorizasyon
+            Super Admin pou antre nan
+            zòn sa a.
+        </p>
+
+        <a
+            href="dashboard.html"
+            class="back-button"
+        >
+            ← Retounen
+        </a>
+
+    </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase-config.js"></script>
+
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    const loadingScreen =
+        document.getElementById(
+            "loading-screen"
+        );
+
+
+    const adminHeader =
+        document.getElementById(
+            "admin-header"
+        );
+
+
+    const adminMain =
+        document.getElementById(
+            "admin-main"
+        );
+
+
+    const accessDenied =
+        document.getElementById(
+            "access-denied"
+        );
+
+
+    const supabase =
+        window.supabaseClient;
+
+
+    async function checkSuperAdmin() {
+
+        try {
+
+            if (!supabase) {
+
+                showAccessDenied();
+
+                return false;
+
+            }
+
+
+            const {
+                data: authData,
+                error: authError
+            } =
+                await supabase.auth.getUser();
+
+
+            if (
+                authError ||
+                !authData ||
+                !authData.user
+            ) {
+
+                showAccessDenied();
+
+                return false;
+
+            }
+
+
+            const userId =
+                authData.user.id;
+
+
+            const {
+                data: adminData,
+                error: adminError
+            } =
+                await supabase
+
+                    .from("super_admins")
+
+                    .select("user_id")
+
+                    .eq(
+                        "user_id",
+                        userId
+                    )
+
+                    .maybeSingle();
+
+
+            if (
+                adminError ||
+                !adminData
+            ) {
+
+                showAccessDenied();
+
+                return false;
+
+            }
+
+
+            loadingScreen.hidden = true;
+
+            adminHeader.hidden = false;
+
+            adminMain.hidden = false;
+
+            return true;
+
+        } catch (error) {
+
+            console.error(
+                "Super Admin verification error:",
+                error
+            );
+
+            showAccessDenied();
+
+            return false;
+
+        }
+
+    }
+
+
+    function showAccessDenied() {
+
+        loadingScreen.hidden = true;
+
+        adminHeader.hidden = true;
+
+        adminMain.hidden = true;
+
+        accessDenied.hidden = false;
+
+    }
+
+
+    function money(value) {
+
+        return new Intl.NumberFormat(
+            "fr-FR"
+        ).format(
+            Number(value || 0)
+        ) + " HTG";
+
+    }
+
+
+    function setText(id, value) {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+
+            element.textContent = value;
+
+        }
+
+    }
+
+
+    async function loadDashboard() {
+
+        const authorized =
+            await checkSuperAdmin();
+
+
+        if (!authorized) {
+
+            return;
+
+        }
+
+
+        try {
+
+            /*
+             * Nou pral konekte estatistik
+             * yo ak Supabase nan pwochen
+             * etap backend dashboard la.
+             *
+             * Pou kounya nou kite 0 yo
+             * pou paj la pa montre fo done.
+             */
+
+            setText(
+                "totalCirculation",
+                money(0)
+            );
+
+            setText(
+                "buyerBalance",
+                money(0)
+            );
+
+            setText(
+                "sellerBalance",
+                money(0)
+            );
+
+            setText(
+                "totalFees",
+                money(0)
+            );
+
+            setText(
+                "totalDeposits",
+                money(0)
+            );
+
+            setText(
+                "totalWithdrawals",
+                money(0)
+            );
+
+            setText(
+                "totalUsers",
+                0
+            );
+
+            setText(
+                "totalOrders",
+                0
+            );
+
+            setText(
+                "buyerBalanceLarge",
+                money(0)
+            );
+
+            setText(
+                "sellerBalanceLarge",
+                money(0)
+            );
+
+            setText(
+                "depositCount",
+                0
+            );
+
+            setText(
+                "withdrawalCount",
+                0
+            );
+
+
+            setupButtons();
+
+
+        } catch (error) {
+
+            console.error(
+                "Dashboard error:",
+                error
+            );
+
+        }
+
+    }
+
+
+    function setupButtons() {
+
+        const walletButton =
+            document.getElementById(
+                "walletAdminButton"
+            );
+
+
+        const settingsButton =
+            document.getElementById(
+                "settingsAdminButton"
+            );
+
+
+        const logoutButton =
+            document.getElementById(
+                "logoutButton"
+            );
+
+
+        if (walletButton) {
+
+            walletButton.onclick =
+                function () {
+
+                    window.location.href =
+                        "admin-wallet.html";
+
+                };
+
+        }
+
+
+        if (settingsButton) {
+
+            settingsButton.onclick =
+                function () {
+
+                    window.location.href =
+                        "admin-settings.html";
+
+                };
+
+        }
+
+
+        if (logoutButton) {
+
+            logoutButton.onclick =
+                async function () {
+
+                    await supabase.auth.signOut();
+
+                    window.location.href =
+                        "login.html";
+
+                };
+
+        }
+
+    }
+
+
+    loadDashboard();
+
+
+})();
+
+</script>
+
+
+</body>
+
+              </html>
