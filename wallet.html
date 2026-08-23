@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ht">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Wallet mwen sou macheya."
+    >
+
+    <title>Wallet mwen | macheya</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <style>
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Poppins", sans-serif;
+            background: #f7f7f7;
+            color: #171717;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .wallet-header {
+            background: #ffffff;
+            border-bottom: 1px solid #eeeeee;
+            padding: 15px 6%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            font-size: 21px;
+            font-weight: 700;
+        }
+
+        .logo {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #f97316;
+            color: #ffffff;
+            display: grid;
+            place-items: center;
+            font-weight: 700;
+        }
+
+        .back-button {
+            color: #555555;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .wallet-container {
+            width: min(850px, 92%);
+            margin: 35px auto 70px;
+        }
+
+        .wallet-heading {
+            margin-bottom: 25px;
+        }
+
+        .wallet-label {
+            color: #f97316;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: .5px;
+        }
+
+        .wallet-heading h1 {
+            margin: 7px 0;
+            font-size: 30px;
+        }
+
+        .wallet-heading p {
+            color: #777777;
+            font-size: 14px;
+        }
+
+        .wallet-card {
+            background: linear-gradient(
+                135deg,
+                #171717,
+                #292929
+            );
+            color: #ffffff;
+            border-radius: 22px;
+            padding: 28px;
+            margin-bottom: 25px;
+            box-shadow: 0 12px 35px rgba(0,0,0,.12);
+        }
+
+        .wallet-card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .wallet-card-label {
+            font-size: 13px;
+            color: #cccccc;
+        }
+
+        .wallet-user {
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .wallet-balance {
+            margin-top: 25px;
+        }
+
+        .wallet-balance span {
+            display: block;
+            color: #bbbbbb;
+            font-size: 13px;
+            margin-bottom: 5px;
+        }
+
+        .wallet-balance strong {
+            font-size: 34px;
+            color: #ffffff;
+        }
+
+        .wallet-currency {
+            color: #f97316;
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 5px;
+        }
+
+        .wallet-message {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 35px 25px;
+            text-align: center;
+            color: #666666;
+            box-shadow: 0 8px 30px rgba(0,0,0,.06);
+        }
+
+        .message-icon {
+            font-size: 45px;
+            margin-bottom: 12px;
+        }
+
+        .transactions-title {
+            font-size: 21px;
+            margin-bottom: 15px;
+        }
+
+        .transactions {
+            display: grid;
+            gap: 12px;
+        }
+
+        .transaction {
+            background: #ffffff;
+            border-radius: 16px;
+            padding: 17px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 15px;
+            box-shadow: 0 6px 22px rgba(0,0,0,.04);
+        }
+
+        .transaction-left {
+            min-width: 0;
+        }
+
+        .transaction-title {
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .transaction-date {
+            color: #888888;
+            font-size: 11px;
+            margin-top: 4px;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .transaction-amount.credit {
+            color: #16a34a;
+        }
+
+        .transaction-amount.debit {
+            color: #dc2626;
+        }
+
+        .main-button {
+            display: inline-block;
+            margin-top: 18px;
+            padding: 12px 18px;
+            border-radius: 10px;
+            background: #f97316;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        @media (max-width: 600px) {
+
+            .wallet-header {
+                padding: 14px 5%;
+            }
+
+            .wallet-container {
+                width: 92%;
+                margin-top: 25px;
+            }
+
+            .wallet-heading h1 {
+                font-size: 26px;
+            }
+
+            .wallet-card {
+                padding: 22px;
+            }
+
+            .wallet-balance strong {
+                font-size: 29px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<header class="wallet-header">
+
+    <a
+        href="dashboard.html"
+        class="brand"
+    >
+
+        <span class="logo">
+            M
+        </span>
+
+        <span>
+            macheya
+        </span>
+
+    </a>
+
+
+    <a
+        href="dashboard.html"
+        class="back-button"
+    >
+        ← Dashboard
+    </a>
+
+</header>
+
+
+<main class="wallet-container">
+
+
+    <section class="wallet-heading">
+
+        <span class="wallet-label">
+            ESPAS ACHTÈ
+        </span>
+
+        <h1>
+            Wallet mwen
+        </h1>
+
+        <p>
+            Jere balans ak tranzaksyon kont ou sou macheya.
+        </p>
+
+    </section>
+
+
+    <section
+        id="wallet-message"
+        class="wallet-message"
+    >
+
+        <div class="message-icon">
+            💰
+        </div>
+
+        <p>
+            Ap chaje wallet ou...
+        </p>
+
+    </section>
+
+
+    <section
+        id="wallet-content"
+        hidden
+    >
+
+
+        <div class="wallet-card">
+
+            <div class="wallet-card-top">
+
+                <div>
+
+                    <div class="wallet-card-label">
+                        WALLET MWEN
+                    </div>
+
+                    <div
+                        id="wallet-user"
+                        class="wallet-user"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+                <div>
+                    💰
+                </div>
+
+            </div>
+
+
+            <div class="wallet-balance">
+
+                <span>
+                    Balans disponib
+                </span>
+
+                <strong id="wallet-balance">
+                    0 HTG
+                </strong>
+
+                <div class="wallet-currency">
+                    HTG
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <h2 class="transactions-title">
+            Dènye tranzaksyon
+        </h2>
+
+
+        <div
+            id="wallet-transactions"
+            class="transactions"
+        ></div>
+
+
+    </section>
+
+
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<script src="supabase-config.js"></script>
+
+
+<script>
+
+(function () {
+
+    "use strict";
+
+
+    const supabase =
+        window.supabaseClient;
+
+
+    const message =
+        document.getElementById(
+            "wallet-message"
+        );
+
+    const content =
+        document.getElementById(
+            "wallet-content"
+        );
+
+    const balanceElement =
+        document.getElementById(
+            "wallet-balance"
+        );
+
+    const userElement =
+        document.getElementById(
+            "wallet-user"
+        );
+
+    const transactionsElement =
+        document.getElementById(
+            "wallet-transactions"
+        );
+
+
+    function money(value) {
+
+        return new Intl.NumberFormat("fr-FR")
+            .format(
+                Number(value || 0)
+            )
+            + " HTG";
+
+    }
+
+
+    function date(value) {
+
+        if (!value) {
+            return "Dat pa disponib";
+        }
+
+        try {
+
+            return new Intl.DateTimeFormat(
+                "fr-FR",
+                {
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }
+            ).format(
+                new Date(value)
+            );
+
+        } catch (error) {
+
+            return value;
+
+        }
+
+    }
+
+
+    function showError(text) {
+
+        message.hidden = false;
+
+        message.innerHTML = `
+            <div class="message-icon">
+                ⚠️
+            </div>
+
+            <p>
+                ${escapeHtml(text)}
+            </p>
+
+            <a
+                href="dashboard.html"
+                class="main-button"
+            >
+                Retounen Dashboard
+            </a>
+        `;
+
+    }
+
+
+    async function loadWallet() {
+
+        if (!supabase) {
+
+            showError(
+                "Macheya pa kapab konekte ak bazdone a."
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * =========================
+         * USER KONEKTE A
+         * =========================
+         */
+
+        const {
+            data: auth,
+            error: authError
+        } =
+            await supabase.auth.getUser();
+
+
+        if (
+            authError ||
+            !auth?.user
+        ) {
+
+            location.href =
+                "login.html";
+
+            return;
+
+        }
+
+
+        const user =
+            auth.user;
+
+
+        /*
+         * =========================
+         * PROFILE
+         * =========================
+         */
+
+        const {
+            data: profile
+        } =
+            await supabase
+                .from("profiles")
+                .select(
+                    "name,full_name,nom_complet,email"
+                )
+                .eq(
+                    "id",
+                    user.id
+                )
+                .maybeSingle();
+
+
+        const displayName =
+            profile?.name ||
+            profile?.full_name ||
+            profile?.nom_complet ||
+            user.email ||
+            "Achtè";
+
+
+        userElement.textContent =
+            displayName;
+
+
+        /*
+         * =========================
+         * WALLET
+         * =========================
+         *
+         * IMPORTANT:
+         * Nou pa pran user_id nan URL.
+         *
+         * Nou pran user.id dirèkteman
+         * nan Supabase Auth.
+         */
+
+        const {
+            data: wallet,
+            error: walletError
+        } =
+            await supabase
+                .from("wallets")
+                .select(
+                    "id,user_id,balance,currency,updated_at"
+                )
+                .eq(
+                    "user_id",
+                    user.id
+                )
+                .maybeSingle();
+
+
+        if (walletError) {
+
+            console.error(
+                "Macheya Wallet Error:",
+                walletError
+            );
+
+            showError(
+                "Nou pa kapab chaje wallet ou."
+            );
+
+            return;
+
+        }
+
+
+        if (!wallet) {
+
+            showError(
+                "Wallet ou poko kreye."
+            );
+
+            return;
+
+        }
+
+
+        /*
+         * =========================
+         * VERIFY USER
+         * =========================
+         *
+         * Menm si yon bagay ta ale mal
+         * nan frontend lan, nou pa montre
+         * wallet si user_id pa menm.
+         */
+
+        if (
+            String(wallet.user_id) !==
+            String(user.id)
+        ) {
+
+            console.error(
+                "Wallet ownership mismatch."
+            );
+
+            showError(
+                "Aksè ak wallet sa a pa otorize."
+            );
+
+            return;
+
+        }
+
+
+        balanceElement.textContent =
+            money(wallet.balance);
+
+
+        /*
+         * =========================
+         * TRANSACTIONS
+         * =========================
+         */
+
+        const {
+            data: transactions,
+            error: transactionError
+        } =
+            await supabase
+                .from("wallet_transactions")
+                .select(`
+                    id,
+                    wallet_id,
+                    type,
+                    amount,
+                    description,
+                    created_at
+                `)
+                .eq(
+                    "wallet_id",
+                    wallet.id
+                )
+                .order(
+                    "created_at",
+                    {
+                        ascending: false
+                    }
+                )
+                .limit(30);
+
+
+        if (transactionError) {
+
+            console.error(
+                "Macheya Wallet Transactions:",
+                transactionError
+            );
+
+            /*
+             * Wallet la toujou ka parèt
+             * menm si pa gen tranzaksyon.
+             */
+
+            transactionsElement.innerHTML = `
+                <div class="wallet-message">
+                    <div class="message-icon">
+                        📭
+                    </div>
+
+                    <p>
+                        Pa gen tranzaksyon pou montre.
+                    </p>
+                </div>
+            `;
+
+        } else {
+
+            renderTransactions(
+                transactions || []
+            );
+
+        }
+
+
+        message.hidden = true;
+
+        content.hidden = false;
+
+    }
+
+
+    function renderTransactions(
+        transactions
+    ) {
+
+        if (!transactions.length) {
+
+            transactionsElement.innerHTML = `
+                <div class="wallet-message">
+                    <div class="message-icon">
+                        📭
+                    </div>
+
+                    <p>
+                        Ou poko gen okenn tranzaksyon.
+                    </p>
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        transactionsElement.innerHTML = "";
+
+
+        transactions.forEach(
+            function (transaction) {
+
+                const type =
+                    String(
+                        transaction.type || ""
+                    ).toLowerCase();
+
+
+                const credit =
+                    type === "credit" ||
+                    type === "deposit" ||
+                    type === "refund";
+
+
+                const sign =
+                    credit
+                        ? "+"
+                        : "-";
+
+
+                const className =
+                    credit
+                        ? "credit"
+                        : "debit";
+
+
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                item.className =
+                    "transaction";
+
+
+                item.innerHTML = `
+
+                    <div class="transaction-left">
+
+                        <div class="transaction-title">
+                            ${escapeHtml(
+                                transaction.description ||
+                                (
+                                    credit
+                                        ? "Kredi wallet"
+                                        : "Debi wallet"
+                                )
+                            )}
+                        </div>
+
+                        <div class="transaction-date">
+                            ${date(
+                                transaction.created_at
+                            )}
+                        </div>
+
+                    </div>
+
+
+                    <div
+                        class="transaction-amount ${className}"
+                    >
+                        ${sign}${money(
+                            transaction.amount
+                        )}
+                    </div>
+
+                `;
+
+
+                transactionsElement.appendChild(
+                    item
+                );
+
+            }
+        );
+
+    }
+
+
+    function escapeHtml(value) {
+
+        return String(value || "")
+            .replace(
+                /&/g,
+                "&amp;"
+            )
+            .replace(
+                /</g,
+                "&lt;"
+            )
+            .replace(
+                />/g,
+                "&gt;"
+            )
+            .replace(
+                /"/g,
+                "&quot;"
+            )
+            .replace(
+                /'/g,
+                "&#039;"
+            );
+
+    }
+
+
+    loadWallet();
+
+
+})();
+
+</script>
+
+
+</body>
+
+</html>
