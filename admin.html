@@ -4,11 +4,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="Macheya Super Admin Dashboard.">
+
+    <meta
+        name="description"
+        content="Macheya Super Admin Dashboard."
+    >
+
     <title>Super Admin | macheya</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+        crossorigin
+    >
 
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
@@ -18,6 +28,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
     <style>
+
         * {
             box-sizing: border-box;
             margin: 0;
@@ -42,8 +53,8 @@
         }
 
         .admin-header {
-            background: #fff;
-            border-bottom: 1px solid #eee;
+            background: #ffffff;
+            border-bottom: 1px solid #eeeeee;
             padding: 15px 5%;
             display: flex;
             align-items: center;
@@ -63,7 +74,7 @@
         .loading-logo {
             border-radius: 50%;
             background: #f97316;
-            color: #fff;
+            color: #ffffff;
             display: grid;
             place-items: center;
             font-weight: 700;
@@ -109,7 +120,7 @@
 
         .page-heading p {
             margin-top: 5px;
-            color: #777;
+            color: #777777;
             font-size: 14px;
         }
 
@@ -121,7 +132,7 @@
         }
 
         .stat-card {
-            background: #fff;
+            background: #ffffff;
             border-radius: 18px;
             padding: 20px;
             box-shadow: 0 7px 25px rgba(0,0,0,.05);
@@ -139,7 +150,7 @@
         }
 
         .stat-title {
-            color: #777;
+            color: #777777;
             font-size: 12px;
             margin-bottom: 5px;
         }
@@ -151,7 +162,7 @@
 
         .stat-sub {
             margin-top: 5px;
-            color: #999;
+            color: #999999;
             font-size: 11px;
         }
 
@@ -164,7 +175,7 @@
 
         .panel,
         .chart-panel {
-            background: #fff;
+            background: #ffffff;
             border-radius: 18px;
             padding: 20px;
             box-shadow: 0 7px 25px rgba(0,0,0,.05);
@@ -186,7 +197,7 @@
 
         .panel-header span,
         .chart-header span {
-            color: #888;
+            color: #888888;
             font-size: 12px;
         }
 
@@ -200,12 +211,12 @@
             padding: 17px;
             border-radius: 14px;
             background: #fafafa;
-            border: 1px solid #eee;
+            border: 1px solid #eeeeee;
         }
 
         .circulation-card span {
             display: block;
-            color: #777;
+            color: #777777;
             font-size: 12px;
             margin-bottom: 7px;
         }
@@ -224,7 +235,7 @@
             border-radius: 12px;
             padding: 13px 15px;
             background: #f97316;
-            color: #fff;
+            color: #ffffff;
             font-weight: 700;
             cursor: pointer;
             text-align: left;
@@ -232,8 +243,8 @@
 
         .action-button.secondary {
             background: #f8f8f8;
-            color: #333;
-            border: 1px solid #eee;
+            color: #333333;
+            border: 1px solid #eeeeee;
         }
 
         .action-button:hover {
@@ -241,10 +252,10 @@
         }
 
         .period-select {
-            border: 1px solid #ddd;
+            border: 1px solid #dddddd;
             border-radius: 9px;
             padding: 8px 10px;
-            background: #fff;
+            background: #ffffff;
             font-size: 12px;
         }
 
@@ -257,7 +268,7 @@
         .loading-screen {
             position: fixed;
             inset: 0;
-            background: #fff;
+            background: #ffffff;
             display: grid;
             place-items: center;
             z-index: 9999;
@@ -275,7 +286,7 @@
         }
 
         .loading-content p {
-            color: #777;
+            color: #777777;
             font-size: 13px;
         }
 
@@ -289,7 +300,7 @@
 
         .access-card {
             width: min(420px, 100%);
-            background: #fff;
+            background: #ffffff;
             border-radius: 20px;
             padding: 35px 25px;
             text-align: center;
@@ -307,7 +318,7 @@
         }
 
         .access-card p {
-            color: #777;
+            color: #777777;
             font-size: 13px;
             line-height: 1.6;
         }
@@ -318,12 +329,13 @@
             padding: 12px 18px;
             border-radius: 10px;
             background: #f97316;
-            color: #fff;
+            color: #ffffff;
             font-size: 13px;
             font-weight: 700;
         }
 
         @media (max-width: 900px) {
+
             .stats-grid {
                 grid-template-columns: repeat(2, minmax(0, 1fr));
             }
@@ -331,9 +343,11 @@
             .main-grid {
                 grid-template-columns: 1fr;
             }
+
         }
 
         @media (max-width: 500px) {
+
             .admin-header {
                 padding: 13px 4%;
             }
@@ -377,13 +391,18 @@
                 font-size: 10px;
                 padding: 7px 9px;
             }
+
         }
+
     </style>
 </head>
 
 <body>
 
-<div id="loading-screen" class="loading-screen">
+<div
+    id="loading-screen"
+    class="loading-screen"
+>
 
     <div class="loading-content">
 
@@ -399,9 +418,16 @@
 
 </div>
 
-<header id="admin-header" class="admin-header" hidden>
+<header
+    id="admin-header"
+    class="admin-header"
+    hidden
+>
 
-    <a href="dashboard.html" class="brand">
+    <a
+        href="dashboard.html"
+        class="brand"
+    >
 
         <span class="logo">
             M
@@ -419,7 +445,11 @@
 
 </header>
 
-<main id="admin-main" class="admin-container" hidden>
+<main
+    id="admin-main"
+    class="admin-container"
+    hidden
+>
 
     <section class="page-heading">
 
@@ -449,7 +479,10 @@
                 Total lajan ki sikile
             </div>
 
-            <div id="totalCirculation" class="stat-value">
+            <div
+                id="totalCirculation"
+                class="stat-value"
+            >
                 0 HTG
             </div>
 
@@ -469,7 +502,10 @@
                 Lajan bò achtè
             </div>
 
-            <div id="buyerBalance" class="stat-value">
+            <div
+                id="buyerBalance"
+                class="stat-value"
+            >
                 0 HTG
             </div>
 
@@ -489,7 +525,10 @@
                 Lajan bò vandè
             </div>
 
-            <div id="sellerBalance" class="stat-value">
+            <div
+                id="sellerBalance"
+                class="stat-value"
+            >
                 0 HTG
             </div>
 
@@ -509,7 +548,10 @@
                 Frè Macheya
             </div>
 
-            <div id="totalFees" class="stat-value">
+            <div
+                id="totalFees"
+                class="stat-value"
+            >
                 0 HTG
             </div>
 
@@ -533,7 +575,10 @@
                 Total deposit
             </div>
 
-            <div id="totalDeposits" class="stat-value">
+            <div
+                id="totalDeposits"
+                class="stat-value"
+            >
                 0 HTG
             </div>
 
@@ -553,7 +598,10 @@
                 Total retrè
             </div>
 
-            <div id="totalWithdrawals" class="stat-value">
+            <div
+                id="totalWithdrawals"
+                class="stat-value"
+            >
                 0 HTG
             </div>
 
@@ -573,7 +621,10 @@
                 Itilizatè yo
             </div>
 
-            <div id="totalUsers" class="stat-value">
+            <div
+                id="totalUsers"
+                class="stat-value"
+            >
                 0
             </div>
 
@@ -593,7 +644,10 @@
                 Kòmand
             </div>
 
-            <div id="totalOrders" class="stat-value">
+            <div
+                id="totalOrders"
+                class="stat-value"
+            >
                 0
             </div>
 
@@ -633,7 +687,9 @@
                         👤 Achtè
                     </span>
 
-                    <strong id="buyerBalanceLarge">
+                    <strong
+                        id="buyerBalanceLarge"
+                    >
                         0 HTG
                     </strong>
 
@@ -645,7 +701,9 @@
                         🏪 Vandè
                     </span>
 
-                    <strong id="sellerBalanceLarge">
+                    <strong
+                        id="sellerBalanceLarge"
+                    >
                         0 HTG
                     </strong>
 
@@ -657,7 +715,9 @@
                         💳 Deposit
                     </span>
 
-                    <strong id="depositCount">
+                    <strong
+                        id="depositCount"
+                    >
                         0
                     </strong>
 
@@ -669,7 +729,9 @@
                         💸 Retrè
                     </span>
 
-                    <strong id="withdrawalCount">
+                    <strong
+                        id="withdrawalCount"
+                    >
                         0
                     </strong>
 
@@ -745,13 +807,19 @@
 
             </div>
 
-            <select id="chartPeriod" class="period-select">
+            <select
+                id="chartPeriod"
+                class="period-select"
+            >
 
                 <option value="7">
                     7 jou
                 </option>
 
-                <option value="30" selected>
+                <option
+                    value="30"
+                    selected
+                >
                     30 jou
                 </option>
 
@@ -767,13 +835,19 @@
 
         </div>
 
-        <canvas id="admin-chart"></canvas>
+        <canvas
+            id="admin-chart"
+        ></canvas>
 
     </section>
 
 </main>
 
-<div id="access-denied" class="access-denied" hidden>
+<div
+    id="access-denied"
+    class="access-denied"
+    hidden
+>
 
     <div class="access-card">
 
@@ -799,10 +873,7 @@
         </a>
 
     </div>
-
-</div>
-
-<script src="supabase-config.js"></script>
+    <script src="supabase-config.js"></script>
 
 <script>
 
@@ -812,6 +883,7 @@
 
     const supabase =
         window.supabaseClient;
+
 
     const loadingScreen =
         document.getElementById(
@@ -833,6 +905,7 @@
             "access-denied"
         );
 
+
     function showAccessDenied() {
 
         loadingScreen.hidden = true;
@@ -844,6 +917,7 @@
         accessDenied.hidden = false;
 
     }
+
 
     async function checkSuperAdmin() {
 
@@ -861,11 +935,13 @@
 
             }
 
+
             const {
                 data: authData,
                 error: authError
             } =
                 await supabase.auth.getUser();
+
 
             if (
                 authError ||
@@ -879,8 +955,10 @@
 
             }
 
+
             const userId =
                 authData.user.id;
+
 
             const {
                 data: adminData,
@@ -895,6 +973,7 @@
                     )
                     .maybeSingle();
 
+
             if (adminError) {
 
                 console.error(
@@ -908,6 +987,7 @@
 
             }
 
+
             if (!adminData) {
 
                 showAccessDenied();
@@ -915,6 +995,7 @@
                 return false;
 
             }
+
 
             loadingScreen.hidden = true;
 
@@ -938,20 +1019,53 @@
         }
 
     }
+
+
+    function money(value) {
+
+        return new Intl.NumberFormat(
+            "fr-FR"
+        ).format(
+            Number(value || 0)
+        ) + " HTG";
+
+    }
+
+
+    function setText(id, value) {
+
+        const element =
+            document.getElementById(id);
+
+        if (element) {
+
+            element.textContent =
+                value;
+
+        }
+
+    }
+
+
     async function loadDashboard() {
 
         const authorized =
             await checkSuperAdmin();
 
+
         if (!authorized) {
+
             return;
+
         }
+
 
         try {
 
             /*
              * Estatistik yo pral konekte
-             * ak Supabase nan pwochen etap la.
+             * ak backend Supabase la
+             * apre baz done finansye a fin pare.
              */
 
             setText(
@@ -1014,9 +1128,11 @@
                 0
             );
 
+
             setupButtons();
 
             setupChart();
+
 
         } catch (error) {
 
@@ -1024,32 +1140,6 @@
                 "Dashboard error:",
                 error
             );
-
-        }
-
-    }
-
-
-    function money(value) {
-
-        return new Intl.NumberFormat(
-            "fr-FR"
-        ).format(
-            Number(value || 0)
-        ) + " HTG";
-
-    }
-
-
-    function setText(id, value) {
-
-        const element =
-            document.getElementById(id);
-
-        if (element) {
-
-            element.textContent =
-                value;
 
         }
 
@@ -1118,6 +1208,7 @@
 
                     }
 
+
                     window.location.href =
                         "login.html";
 
@@ -1135,12 +1226,17 @@
                 "admin-chart"
             );
 
+
         if (!canvas) {
+
             return;
+
         }
+
 
         const ctx =
             canvas.getContext("2d");
+
 
         function drawChart() {
 
@@ -1150,21 +1246,27 @@
             const height =
                 canvas.clientHeight;
 
+
             if (
                 width <= 0 ||
                 height <= 0
             ) {
+
                 return;
+
             }
+
 
             const ratio =
                 window.devicePixelRatio || 1;
+
 
             canvas.width =
                 width * ratio;
 
             canvas.height =
                 height * ratio;
+
 
             ctx.setTransform(
                 ratio,
@@ -1174,6 +1276,7 @@
                 0,
                 0
             );
+
 
             ctx.clearRect(
                 0,
@@ -1185,11 +1288,15 @@
 
             const padding = 35;
 
+
             const chartWidth =
-                width - padding * 2;
+                width -
+                padding * 2;
+
 
             const chartHeight =
-                height - padding * 2;
+                height -
+                padding * 2;
 
 
             ctx.strokeStyle =
@@ -1209,6 +1316,7 @@
                     (
                         chartHeight / 4
                     ) * i;
+
 
                 ctx.beginPath();
 
@@ -1250,6 +1358,7 @@
                             chartWidth /
                             (points.length - 1)
                         ) * index;
+
 
                     const y =
                         padding +
@@ -1295,6 +1404,7 @@
                             (points.length - 1)
                         ) * index;
 
+
                     const y =
                         padding +
                         chartHeight *
@@ -1302,6 +1412,7 @@
 
 
                     ctx.beginPath();
+
 
                     ctx.arc(
                         x,
@@ -1311,8 +1422,10 @@
                         Math.PI * 2
                     );
 
+
                     ctx.fillStyle =
                         "#f97316";
+
 
                     ctx.fill();
 
@@ -1361,4 +1474,7 @@
 
 </body>
 
-</html>
+    </html>
+
+    </div>
+    
