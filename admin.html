@@ -410,7 +410,7 @@
             M
         </div>
 
-        <p>
+        <p id="loading-message">
             Verifikasyon Super Admin...
         </p>
 
@@ -687,9 +687,7 @@
                         👤 Achtè
                     </span>
 
-                    <strong
-                        id="buyerBalanceLarge"
-                    >
+                    <strong id="buyerBalanceLarge">
                         0 HTG
                     </strong>
 
@@ -701,9 +699,7 @@
                         🏪 Vandè
                     </span>
 
-                    <strong
-                        id="sellerBalanceLarge"
-                    >
+                    <strong id="sellerBalanceLarge">
                         0 HTG
                     </strong>
 
@@ -715,9 +711,7 @@
                         💳 Deposit
                     </span>
 
-                    <strong
-                        id="depositCount"
-                    >
+                    <strong id="depositCount">
                         0
                     </strong>
 
@@ -729,9 +723,7 @@
                         💸 Retrè
                     </span>
 
-                    <strong
-                        id="withdrawalCount"
-                    >
+                    <strong id="withdrawalCount">
                         0
                     </strong>
 
@@ -835,9 +827,7 @@
 
         </div>
 
-        <canvas
-            id="admin-chart"
-        ></canvas>
+        <canvas id="admin-chart"></canvas>
 
     </section>
 
@@ -873,17 +863,21 @@
         </a>
 
     </div>
+
+</div>
+
+<script src="supabase-config.js"></script>
+
+<!-- FIN PATI 1 -->
     <script src="supabase-config.js"></script>
 
 <script>
-
 (function () {
 
     "use strict";
 
     const supabase =
         window.supabaseClient;
-
 
     const loadingScreen =
         document.getElementById(
@@ -1061,12 +1055,6 @@
 
 
         try {
-
-            /*
-             * Estatistik yo pral konekte
-             * ak backend Supabase la
-             * apre baz done finansye a fin pare.
-             */
 
             setText(
                 "totalCirculation",
@@ -1469,12 +1457,8 @@
     loadDashboard();
 
 })();
-
 </script>
 
 </body>
 
     </html>
-
-    </div>
-    
