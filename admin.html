@@ -9,14 +9,25 @@
 <script src="supabase-config.js"></script>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{
+box-sizing:border-box;
+margin:0;
+padding:0
+}
+
 body{
 font-family:Arial,Poppins,sans-serif;
 background:#f6f7f9;
 color:#171717
 }
-button,input,select{font:inherit}
-.hidden{display:none!important}
+
+button,input,select{
+font:inherit
+}
+
+.hidden{
+display:none!important
+}
 
 .login{
 min-height:100vh;
@@ -46,7 +57,11 @@ font-size:24px;
 font-weight:bold
 }
 
-h1{text-align:center;font-size:24px}
+h1{
+text-align:center;
+font-size:24px
+}
+
 .sub{
 text-align:center;
 color:#777;
@@ -69,7 +84,9 @@ border-radius:10px;
 outline:0
 }
 
-input:focus{border-color:#f97316}
+input:focus{
+border-color:#f97316
+}
 
 .btn{
 width:100%;
@@ -79,7 +96,12 @@ margin-top:17px;
 border-radius:10px;
 background:#f97316;
 color:#fff;
-font-weight:bold
+font-weight:bold;
+cursor:pointer
+}
+
+.btn:disabled{
+opacity:.6
 }
 
 .msg{
@@ -89,7 +111,9 @@ color:#d00;
 margin-top:12px
 }
 
-.admin{display:none}
+.admin{
+display:none
+}
 
 header{
 background:#fff;
@@ -100,7 +124,10 @@ justify-content:space-between;
 align-items:center
 }
 
-.brand{font-size:20px;font-weight:bold}
+.brand{
+font-size:20px;
+font-weight:bold
+}
 
 .badge{
 background:#fff7ed;
@@ -116,8 +143,14 @@ width:min(1100px,92%);
 margin:25px auto 60px
 }
 
-.title{margin-bottom:20px}
-.title h2{font-size:25px}
+.title{
+margin-bottom:20px
+}
+
+.title h2{
+font-size:25px
+}
+
 .title p{
 color:#777;
 font-size:13px;
@@ -182,7 +215,7 @@ background:#f5f5f5;
 color:#333
 }
 
-/* DEMANDES */
+/* REQUESTS */
 
 .requests{
 display:grid;
@@ -199,10 +232,13 @@ background:#fafafa
 .request-top{
 display:flex;
 justify-content:space-between;
+align-items:center;
 gap:10px
 }
 
-.request strong{font-size:14px}
+.request strong{
+font-size:14px
+}
 
 .status{
 font-size:10px;
@@ -213,11 +249,21 @@ background:#fff7ed;
 color:#f97316
 }
 
+.status.approved{
+background:#dcfce7;
+color:#15803d
+}
+
+.status.rejected{
+background:#fee2e2;
+color:#b91c1c
+}
+
 .request-info{
 font-size:11px;
 color:#777;
 margin-top:7px;
-line-height:1.6
+line-height:1.7
 }
 
 .request-buttons{
@@ -246,11 +292,24 @@ background:#fee2e2;
 color:#b91c1c
 }
 
+.approve:disabled,
+.reject:disabled{
+opacity:.5
+}
+
+.empty{
+padding:20px;
+text-align:center;
+color:#888;
+font-size:13px
+}
+
 /* GRAPH */
 
 .chart-wrap{
 width:100%;
-overflow:hidden
+height:260px;
+position:relative
 }
 
 #chart{
@@ -265,17 +324,38 @@ padding:7px;
 border:1px solid #ddd;
 border-radius:8px;
 font-size:11px;
-margin-top:-8px
+margin-top:-8px;
+background:#fff
+}
+
+.graph-note{
+font-size:11px;
+color:#888;
+margin-top:8px
 }
 
 @media(max-width:700px){
-.grid{grid-template-columns:1fr 1fr}
+
+.grid{
+grid-template-columns:1fr 1fr
+}
+
 }
 
 @media(max-width:400px){
-.card{padding:21px}
-.stat{padding:14px}
-.stat strong{font-size:16px}
+
+.card{
+padding:21px
+}
+
+.stat{
+padding:14px
+}
+
+.stat strong{
+font-size:16px
+}
+
 }
 </style>
 </head>
@@ -316,7 +396,11 @@ placeholder="••••••••"
 required
 >
 
-<button id="loginButton" class="btn">
+<button
+id="loginButton"
+class="btn"
+type="submit"
+>
 Konekte
 </button>
 
@@ -325,6 +409,7 @@ Konekte
 <div id="message" class="msg"></div>
 
 </div>
+
 </div>
 
 
@@ -364,12 +449,12 @@ Kontwòl ak siveyans macheya.
 
 <div class="stat">
 <span>👤 Achtè</span>
-<strong id="buyers">0 HTG</strong>
+<strong id="buyers">—</strong>
 </div>
 
 <div class="stat">
 <span>🏪 Vandè</span>
-<strong id="sellers">0 HTG</strong>
+<strong id="sellers">—</strong>
 </div>
 
 <div class="stat">
@@ -379,7 +464,7 @@ Kontwòl ak siveyans macheya.
 
 <div class="stat">
 <span>➕ Depo</span>
-<strong id="deposits">0 HTG</strong>
+<strong id="deposits">—</strong>
 </div>
 
 <div class="stat">
@@ -389,39 +474,29 @@ Kontwòl ak siveyans macheya.
 
 <div class="stat">
 <span>👥 Itilizatè</span>
-<strong id="users">0</strong>
+<strong id="users">—</strong>
 </div>
 
 <div class="stat">
 <span>📦 Kòmand</span>
-<strong id="orders">0</strong>
+<strong id="orders">—</strong>
 </div>
 
 </section>
 
 
-<!-- DEMANDES -->
+<!-- REQUESTS -->
 
 <section class="panel">
 
 <h3>
-🧾 Demann pou verifye
+🧾 Demann retrè
 </h3>
 
 <div id="requests" class="requests">
 
-<div class="request">
-
-<div class="request-top">
-
-<strong>Ap chèche demann...</strong>
-
-<span class="status">
-CHARGEMENT
-</span>
-
-</div>
-
+<div class="empty">
+Ap chèche demann...
 </div>
 
 </div>
@@ -436,13 +511,19 @@ CHARGEMENT
 <select id="period" class="chart-select">
 
 <option value="7">7 jou</option>
-<option value="30" selected>30 jou</option>
-<option value="90">90 jou</option>
+
+<option value="30" selected>
+30 jou
+</option>
+
+<option value="90">
+90 jou
+</option>
 
 </select>
 
 <h3>
-📈 Evolisyon Macheya
+📈 Evolisyon retrè
 </h3>
 
 <div class="chart-wrap">
@@ -451,6 +532,10 @@ CHARGEMENT
 
 </div>
 
+<p class="graph-note">
+Graf la montre kantite retrè yo dapre dat demann yo.
+</p>
+
 </section>
 
 
@@ -458,20 +543,22 @@ CHARGEMENT
 
 <section class="panel">
 
-<h3>⚡ Aksyon rapid</h3>
+<h3>
+⚡ Aksyon rapid
+</h3>
 
 <div class="actions">
 
 <button
 class="action"
-onclick="location.href='admin-wallet.html'"
+id="walletButton"
 >
 💳 Jesyon Wallet
 </button>
 
 <button
 class="action gray"
-onclick="location.href='admin-settings.html'"
+id="settingsButton"
 >
 ⚙️ Paramèt Macheya
 </button>
@@ -495,170 +582,1116 @@ class="action gray"
 
 "use strict";
 
-const sb=window.supabaseClient;
 
-const $=id=>document.getElementById(id);
+/* =========================
+   SUPABASE
+========================= */
 
-const loginPage=$("loginPage");
-const adminPage=$("adminPage");
-const form=$("loginForm");
-const msg=$("message");
-const loginButton=$("loginButton");
+const sb = window.supabaseClient;
 
-function money(n){
+const $ = id =>
+document.getElementById(id);
+
+
+const loginPage = $("loginPage");
+const adminPage = $("adminPage");
+const form = $("loginForm");
+const msg = $("message");
+const loginButton = $("loginButton");
+
+
+let withdrawalData = [];
+
+
+/* =========================
+   HELPERS
+========================= */
+
+function money(value){
+
 return new Intl.NumberFormat("fr-FR")
-.format(Number(n||0))+" HTG";
+.format(Number(value || 0))
++ " HTG";
+
 }
 
-function message(t){
-msg.textContent=t;
+
+function message(text){
+
+msg.textContent = text;
+
 }
 
 
-/* VERIFIKASYON ADMIN */
+/* =========================
+   VERIFY ADMIN
+========================= */
 
 async function verifyAdmin(){
 
 if(!sb){
+
 message("Supabase pa konekte.");
+
 return false;
+
 }
 
-const {data,error}=await sb.auth.getUser();
 
-if(error||!data.user)return false;
+const {
+data,
+error
+} = await sb.auth.getUser();
 
-const {data:admin,error:ae}=await sb
+
+if(error || !data.user){
+
+return false;
+
+}
+
+
+const {
+data:admin,
+error:adminError
+} = await sb
 .from("super_admins")
 .select("user_id")
 .eq("user_id",data.user.id)
 .maybeSingle();
 
-if(ae){
-console.error(ae);
-message("Erè verifikasyon Super Admin.");
+
+if(adminError){
+
+console.error(adminError);
+
+message(
+"Erè verifikasyon Super Admin."
+);
+
 return false;
+
 }
+
 
 if(!admin){
+
 await sb.auth.signOut();
-message("Kont sa a pa Super Admin.");
+
+message(
+"Kont sa a pa Super Admin."
+);
+
 return false;
+
 }
+
 
 loginPage.classList.add("hidden");
-adminPage.style.display="block";
+
+adminPage.style.display = "block";
 
 return true;
+
 }
 
 
-/* LOGIN */
+/* =========================
+   LOGIN
+========================= */
 
-form.addEventListener("submit",async e=>{
+form.addEventListener(
+"submit",
+async function(e){
 
 e.preventDefault();
 
-loginButton.disabled=true;
-loginButton.textContent="Koneksyon...";
+
+if(!sb){
+
+message(
+"Supabase pa disponib."
+);
+
+return;
+
+}
+
+
+loginButton.disabled = true;
+
+loginButton.textContent =
+"Koneksyon...";
+
 message("");
 
-const email=$("email").value.trim();
-const password=$("password").value;
 
-const {error}=await sb.auth.signInWithPassword({
-email,
-password
+const email =
+$("email").value.trim();
+
+const password =
+$("password").value;
+
+
+const {
+error
+} = await sb.auth.signInWithPassword({
+
+email:email,
+
+password:password
+
 });
+
 
 if(error){
 
 console.error(error);
 
-message("Email oswa modpas la pa kòrèk.");
+message(
+"Email oswa modpas la pa kòrèk."
+);
 
-loginButton.disabled=false;
-loginButton.textContent="Konekte";
+loginButton.disabled = false;
+
+loginButton.textContent =
+"Konekte";
 
 return;
+
 }
 
-const ok=await verifyAdmin();
+
+const ok =
+await verifyAdmin();
+
 
 if(!ok){
 
-loginButton.disabled=false;
-loginButton.textContent="Konekte";
+loginButton.disabled = false;
+
+loginButton.textContent =
+"Konekte";
 
 return;
+
 }
 
-loadDashboard();
+
+await loadDashboard();
+
 
 });
 
-    </script>
-    async function loadStats() {
 
-    document.getElementById("circulation").textContent =
-        money(0);
+/* =========================
+   LOAD DASHBOARD
+========================= */
 
-    document.getElementById("buyers").textContent =
-        money(0);
+async function loadDashboard(){
 
-    document.getElementById("sellers").textContent =
-        money(0);
+await loadWithdrawals();
 
-    document.getElementById("fees").textContent =
-        money(0);
+drawChart();
 
-    document.getElementById("deposits").textContent =
-        money(0);
-
-    document.getElementById("withdrawals").textContent =
-        money(0);
-
-    document.getElementById("users").textContent =
-        "0";
-
-    document.getElementById("orders").textContent =
-        "0";
 }
 
 
-document.getElementById("logout").onclick =
-    async function() {
+/* =========================
+   WITHDRAWALS
+========================= */
 
-        if (sb) {
-            await sb.auth.signOut();
-        }
+async function loadWithdrawals(){
 
-        adminPage.style.display = "none";
-
-        loginPage.classList.remove("hidden");
-
-        document.getElementById("email").value = "";
-
-        document.getElementById("password").value = "";
-
-        showMessage("Ou dekonekte.");
-
-    };
+const container =
+$("requests");
 
 
-(async function() {
+container.innerHTML =
+'<div class="empty">Ap chèche demann...</div>';
 
-    const ok = await verifyAdmin();
 
-    if (ok) {
+const {
+data,
+error
+} = await sb
+.from("withdrawal_requests")
+.select("*")
+.order("created_at",{
+ascending:false
+});
 
-        await loadStats();
 
-    }
+if(error){
+
+console.error(
+"Withdrawal error:",
+error
+);
+
+container.innerHTML = `
+<div class="empty">
+Pa kapab chaje demann retrè yo.
+<br><br>
+${error.message}
+</div>
+`;
+
+return;
+
+}
+
+
+withdrawalData =
+data || [];
+
+
+renderWithdrawals(
+withdrawalData
+);
+
+
+updateWithdrawalStats(
+withdrawalData
+);
+
+
+drawChart();
+
+}
+
+
+/* =========================
+   RENDER REQUESTS
+========================= */
+
+function renderWithdrawals(data){
+
+const container =
+$("requests");
+
+
+if(!data.length){
+
+container.innerHTML = `
+<div class="empty">
+Pa gen okenn demann retrè pou kounye a.
+</div>
+`;
+
+return;
+
+}
+
+
+container.innerHTML = "";
+
+
+data.forEach(request => {
+
+const amount =
+Number(
+request.total_deducted || 0
+);
+
+
+const status =
+String(
+request.status || "pending"
+).toLowerCase();
+
+
+const date =
+request.created_at
+?
+new Date(
+request.created_at
+).toLocaleString(
+"fr-FR"
+)
+:
+"—";
+
+
+let statusText =
+status;
+
+
+if(status === "pending"){
+statusText =
+"AN ATANT";
+}
+
+if(status === "approved"){
+statusText =
+"APWOUVE";
+}
+
+if(status === "rejected"){
+statusText =
+"REJETE";
+}
+
+
+const statusClass =
+status === "approved"
+?
+"approved"
+:
+status === "rejected"
+?
+"rejected"
+:
+"";
+
+
+const buttons =
+status === "pending"
+?
+`
+<div class="request-buttons">
+
+<button
+class="approve"
+data-id="${request.id}"
+>
+✓ Apwouve
+</button>
+
+<button
+class="reject"
+data-id="${request.id}"
+>
+✕ Rejte
+</button>
+
+</div>
+`
+:
+"";
+
+
+const div =
+document.createElement("div");
+
+
+div.className =
+"request";
+
+
+div.innerHTML = `
+
+<div class="request-top">
+
+<strong>
+💸 ${money(amount)}
+</strong>
+
+<span class="status ${statusClass}">
+${statusText}
+</span>
+
+</div>
+
+<div class="request-info">
+
+📅 ${date}
+
+<br>
+
+💳 Metòd:
+${request.method || "—"}
+
+<br>
+
+📱 Destinasyon:
+${request.destination_account || "—"}
+
+<br>
+
+📝 Nòt:
+${request.note || "—"}
+
+</div>
+
+${buttons}
+
+`;
+
+
+container.appendChild(div);
+
+});
+
+
+document
+.querySelectorAll(".approve")
+.forEach(button => {
+
+button.addEventListener(
+"click",
+() => reviewWithdrawal(
+button.dataset.id,
+"approved"
+)
+);
+
+});
+
+
+document
+.querySelectorAll(".reject")
+.forEach(button => {
+
+button.addEventListener(
+"click",
+() => reviewWithdrawal(
+button.dataset.id,
+"rejected"
+)
+);
+
+});
+
+}
+
+
+/* =========================
+   APPROVE / REJECT
+========================= */
+
+async function reviewWithdrawal(
+id,
+newStatus
+){
+
+const confirmText =
+newStatus === "approved"
+?
+"Èske ou vle APWOUVE demann retrè sa a?"
+:
+"Èske ou vle REJETE demann retrè sa a?";
+
+
+if(!confirm(confirmText)){
+
+return;
+
+}
+
+
+const {
+data:{
+user
+}
+} = await sb.auth.getUser();
+
+
+const updateData = {
+
+status:newStatus,
+
+reviewed_by:
+user
+?
+user.id
+:
+null,
+
+reviewed_at:
+new Date().toISOString(),
+
+updated_at:
+new Date().toISOString()
+
+};
+
+
+const {
+error
+} = await sb
+.from("withdrawal_requests")
+.update(updateData)
+.eq("id",id);
+
+
+if(error){
+
+console.error(error);
+
+alert(
+"Pa kapab modifye demann lan:\n"
++
+error.message
+);
+
+return;
+
+}
+
+
+await loadWithdrawals();
+
+}
+
+
+/* =========================
+   STATS
+========================= */
+
+function updateWithdrawalStats(
+data
+){
+
+let total = 0;
+
+let pending = 0;
+
+
+data.forEach(row => {
+
+const amount =
+Number(
+row.total_deducted || 0
+);
+
+
+if(
+row.status === "approved"
+){
+total += amount;
+}
+
+
+if(
+!row.status ||
+row.status === "pending"
+){
+pending++;
+}
+
+});
+
+
+$("withdrawals")
+.textContent =
+money(total);
+
+
+$("fees")
+.textContent =
+money(0);
+
+
+$("circulation")
+.textContent =
+money(0);
+
+
+$("deposits")
+.textContent =
+"—";
+
+
+$("buyers")
+.textContent =
+"—";
+
+
+$("sellers")
+.textContent =
+"—";
+
+
+$("users")
+.textContent =
+"—";
+
+
+$("orders")
+.textContent =
+"—";
+
+}
+
+
+/* =========================
+   GRAPH
+========================= */
+
+function drawChart(){
+
+const canvas =
+$("chart");
+
+if(!canvas){
+
+return;
+
+}
+
+
+const ctx =
+canvas.getContext("2d");
+
+
+const rect =
+canvas.getBoundingClientRect();
+
+
+const width =
+Math.max(
+rect.width,
+300
+);
+
+
+const height = 260;
+
+
+const dpr =
+window.devicePixelRatio || 1;
+
+
+canvas.width =
+width * dpr;
+
+canvas.height =
+height * dpr;
+
+canvas.style.width =
+width + "px";
+
+canvas.style.height =
+height + "px";
+
+
+ctx.scale(dpr,dpr);
+
+
+ctx.clearRect(
+0,
+0,
+width,
+height
+);
+
+
+const days =
+Number(
+$("period").value || 30
+);
+
+
+const now =
+new Date();
+
+
+const values = [];
+
+
+for(
+let i = days - 1;
+i >= 0;
+i--
+){
+
+const date =
+new Date(now);
+
+
+date.setHours(
+0,
+0,
+0,
+0
+);
+
+date.setDate(
+date.getDate() - i
+);
+
+
+const key =
+date.toISOString()
+.slice(0,10);
+
+
+let total = 0;
+
+
+withdrawalData.forEach(row => {
+
+if(!row.created_at){
+
+return;
+
+}
+
+
+const rowDate =
+new Date(
+row.created_at
+)
+.toISOString()
+.slice(0,10);
+
+
+if(
+rowDate === key
+){
+
+total += Number(
+row.total_deducted || 0
+);
+
+}
+
+});
+
+
+values.push({
+date:key,
+value:total
+});
+
+}
+
+
+const max =
+Math.max(
+...values.map(
+x => x.value
+),
+1
+);
+
+
+const left = 42;
+
+const right = 12;
+
+const top = 20;
+
+const bottom = 35;
+
+
+const graphWidth =
+width - left - right;
+
+const graphHeight =
+height - top - bottom;
+
+
+/* GRID */
+
+ctx.strokeStyle =
+"#eeeeee";
+
+ctx.lineWidth = 1;
+
+
+for(
+let i=0;
+i<=4;
+i++
+){
+
+const y =
+top +
+(
+graphHeight / 4
+) * i;
+
+
+ctx.beginPath();
+
+ctx.moveTo(
+left,
+y
+);
+
+ctx.lineTo(
+width - right,
+y
+);
+
+ctx.stroke();
+
+}
+
+
+/* LINE */
+
+ctx.beginPath();
+
+values.forEach(
+(point,index) => {
+
+const x =
+left +
+(
+index /
+Math.max(
+values.length - 1,
+1
+)
+) *
+graphWidth;
+
+
+const y =
+top +
+graphHeight -
+(
+point.value /
+max
+) *
+graphHeight;
+
+
+if(index === 0){
+
+ctx.moveTo(
+x,
+y
+);
+
+}else{
+
+ctx.lineTo(
+x,
+y
+);
+
+}
+
+});
+
+
+ctx.strokeStyle =
+"#f97316";
+
+ctx.lineWidth = 3;
+
+ctx.stroke();
+
+
+/* POINTS */
+
+values.forEach(
+(point,index) => {
+
+const x =
+left +
+(
+index /
+Math.max(
+values.length - 1,
+1
+)
+) *
+graphWidth;
+
+
+const y =
+top +
+graphHeight -
+(
+point.value /
+max
+) *
+graphHeight;
+
+
+ctx.beginPath();
+
+ctx.arc(
+x,
+y,
+3,
+0,
+Math.PI * 2
+);
+
+ctx.fillStyle =
+"#f97316";
+
+ctx.fill();
+
+});
+
+
+/* LABELS */
+
+ctx.fillStyle =
+"#888";
+
+ctx.font =
+"10px Arial";
+
+ctx.fillText(
+"0",
+8,
+height - bottom + 3
+);
+
+ctx.fillText(
+money(max)
+.replace(" HTG",""),
+8,
+top + 4
+);
+
+
+/* X LABELS */
+
+if(values.length){
+
+const first =
+values[0].date
+.split("-")
+.reverse()
+.join("/");
+
+const last =
+values[values.length - 1]
+.date
+.split("-")
+.reverse()
+.join("/");
+
+
+ctx.fillText(
+first,
+left,
+height - 10
+);
+
+ctx.fillText(
+last,
+width - 55,
+height - 10
+);
+
+}
+
+}
+
+
+/* =========================
+   PERIOD
+========================= */
+
+$("period")
+.addEventListener(
+"change",
+drawChart
+);
+
+
+/* =========================
+   WINDOW RESIZE
+========================= */
+
+window.addEventListener(
+"resize",
+drawChart
+);
+
+
+/* =========================
+   BUTTONS
+========================= */
+
+$("walletButton")
+.onclick =
+function(){
+
+location.href =
+"admin-wallet.html";
+
+};
+
+
+$("settingsButton")
+.onclick =
+function(){
+
+location.href =
+"admin-settings.html";
+
+};
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+$("logout")
+.onclick =
+async function(){
+
+if(sb){
+
+await sb.auth.signOut();
+
+}
+
+
+adminPage.style.display =
+"none";
+
+loginPage.classList.remove(
+"hidden"
+);
+
+
+$("email").value = "";
+
+$("password").value = "";
+
+
+loginButton.disabled =
+false;
+
+loginButton.textContent =
+"Konekte";
+
+
+message(
+"Ou dekonekte."
+);
+
+};
+
+
+/* =========================
+   AUTO LOGIN
+========================= */
+
+(async function(){
+
+if(!sb){
+
+return;
+
+}
+
+
+const ok =
+await verifyAdmin();
+
+
+if(ok){
+
+await loadDashboard();
+
+}
 
 })();
 
 </script>
 
 </body>
-</html>
+    </html>
