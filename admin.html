@@ -555,12 +555,8 @@ class="action gray"
 </main>
 
 </div>
-
-
 <script>
-
 "use strict";
-
 
 /* =========================
    SUPABASE
@@ -583,130 +579,65 @@ let withdrawalData = [];
    HELPERS
 ========================= */
 
-function money(value){
-
-return new Intl.NumberFormat("fr-FR")
-.format(Number(value || 0)) + " HTG";
-
+function money(value) {
+    return new Intl.NumberFormat("fr-FR").format(
+        Number(value || 0)
+    ) + " HTG";
 }
 
-
-function message(text){
-
-msg.textContent = text;
-
-}
-
-
-function setStat(id,value){
-
-const element = $(id);
-
-if(element){
-
-element.textContent = value;
-
-}
-
+function message(text) {
+    msg.textContent = text;
 }
 
 
 /* =========================
-   VERIFY ADMIN
+   VERIFY SUPER ADMIN
 ========================= */
 
-async function verifyAdmin(){
+async function verifyAdmin() {
 
-try{
+    if (!sb) {
+        message("Supabase pa konekte.");
+        return false;
+    }
 
-if(!sb){
+    const {
+        data,
+        error
+    } = await sb.auth.getUser();
 
-message("Supabase pa konekte.");
+    if (error || !data.user) {
+        return false;
+    }
 
-return false;
+    const {
+        data: admin,
+        error: adminError
+    } = await sb
+        .from("super_admins")
+        .select("user_id")
+        .eq("user_id", data.user.id)
+        .maybeSingle();
 
-}
+    if (adminError) {
+        console.error(adminError);
+        message("Erè verifikasyon Super Admin.");
+        return false;
+    }
 
+    if (!admin) {
 
-const {
-data,
-error
-} = await sb.auth.getUser();
+        await sb.auth.signOut();
 
+        message("Kont sa a pa Super Admin.");
 
-if(error){
+        return false;
+    }
 
-console.error("Auth error:",error);
+    loginPage.classList.add("hidden");
+    adminPage.style.display = "block";
 
-return false;
-
-}
-
-
-if(!data || !data.user){
-
-return false;
-
-}
-
-
-const {
-data:admin,
-error:adminError
-} = await sb
-.from("super_admins")
-.select("user_id")
-.eq("user_id",data.user.id)
-.maybeSingle();
-
-
-if(adminError){
-
-console.error(
-"Super admin error:",
-adminError
-);
-
-message(
-"Erè verifikasyon Super Admin."
-);
-
-return false;
-
-}
-
-
-if(!admin){
-
-await sb.auth.signOut();
-
-message(
-"Kont sa a pa Super Admin."
-);
-
-return false;
-
-}
-
-
-loginPage.classList.add("hidden");
-
-adminPage.style.display = "block";
-
-return true;
-
-}catch(error){
-
-console.error(error);
-
-message(
-"Yon erè rive pandan verifikasyon an."
-);
-
-return false;
-
-}
-
+    return true;
 }
 
 
@@ -714,129 +645,52 @@ return false;
    LOGIN
 ========================= */
 
-form.addEventListener(
-"submit",
-async function(e){
+form.addEventListener("submit", async function(e) {
 
-e.preventDefault();
+    e.preventDefault();
 
-if(!sb){
+    if (!sb) {
+        message("Supabase pa disponib.");
+        return;
+    }
 
-message(
-"Supabase pa disponib."
-);
+    loginButton.disabled = true;
+    loginButton.textContent = "Koneksyon...";
+    message("");
 
-return;
+    const email = $("email").value.trim();
+    const password = $("password").value;
 
-}
+    const {
+        error
+    } = await sb.auth.signInWithPassword({
+        email,
+        password
+    });
 
+    if (error) {
 
-loginButton.disabled = true;
+        console.error(error);
 
-loginButton.textContent =
-"Koneksyon...";
+        message("Email oswa modpas la pa kòrèk.");
 
-message("");
+        loginButton.disabled = false;
+        loginButton.textContent = "Konekte";
 
+        return;
+    }
 
-const email =
-$("email").value.trim();
+    const ok = await verifyAdmin();
 
-const password =
-$("password").value;
+    if (!ok) {
 
+        loginButton.disabled = false;
+        loginButton.textContent = "Konekte";
 
-try{
+        return;
+    }
 
-const {
-data,
-error
-} = await sb.auth.signInWithPassword({
-
-email:email,
-
-password:password
-
-});
-
-
-if(error){
-
-console.error(
-"Login error:",
-error
-);
-
-message(
-error.message ||
-"Email oswa modpas la pa kòrèk."
-);
-
-loginButton.disabled = false;
-
-loginButton.textContent =
-"Konekte";
-
-return;
-
-}
-
-
-if(!data || !data.user){
-
-message(
-"Koneksyon an pa t kapab konfime."
-);
-
-loginButton.disabled = false;
-
-loginButton.textContent =
-"Konekte";
-
-return;
-
-}
-
-
-const ok =
-await verifyAdmin();
-
-
-if(!ok){
-
-loginButton.disabled = false;
-
-loginButton.textContent =
-"Konekte";
-
-return;
-
-}
-
-
-await loadDashboard();
-
-
-loginButton.disabled = false;
-
-loginButton.textContent =
-"Konekte";
-
-
-}catch(error){
-
-console.error(error);
-
-message(
-"Yon erè rive pandan koneksyon an."
-);
-
-loginButton.disabled = false;
-
-loginButton.textContent =
-"Konekte";
-
-}
+    await loadDashboard();
 
 });
 
@@ -845,22 +699,164 @@ loginButton.textContent =
    LOAD DASHBOARD
 ========================= */
 
-async function loadDashboard(){
+async function loadDashboard() {
 
-await Promise.all([
+    await Promise.all([
+        loadGeneralStats(),
+        loadWithdrawals()
+    ]);
 
-loadWithdrawals(),
+    drawChart();
+}
 
-loadUsers(),
 
-loadOrders(),
+/* =========================
+   GENERAL STATS
+========================= */
 
-loadWalletStats()
+async function loadGeneralStats() {
 
-]);
+    /*
+       USERS / BUYERS / SELLERS
+       Nou itilize profiles an premye.
+       Si profiles pa disponib,
+       nou eseye users.
+    */
 
-drawChart();
+    let profiles = null;
 
+    let {
+        data,
+        error
+    } = await sb
+        .from("profiles")
+        .select("id, role");
+
+    if (!error && data) {
+
+        profiles = data;
+
+    } else {
+
+        const fallback = await sb
+            .from("users")
+            .select("id, role");
+
+        if (!fallback.error && fallback.data) {
+            profiles = fallback.data;
+        }
+    }
+
+
+    /* =========================
+       USER COUNTS
+    ========================= */
+
+    if (profiles) {
+
+        const totalUsers = profiles.length;
+
+        const buyers = profiles.filter(user =>
+            String(user.role || "").toLowerCase() === "buyer"
+        ).length;
+
+        const sellers = profiles.filter(user =>
+            String(user.role || "").toLowerCase() === "seller"
+        ).length;
+
+        $("users").textContent = totalUsers;
+
+        $("buyers").textContent = buyers;
+
+        $("sellers").textContent = sellers;
+
+    } else {
+
+        $("users").textContent = "—";
+        $("buyers").textContent = "—";
+        $("sellers").textContent = "—";
+    }
+
+
+    /* =========================
+       ORDERS
+    ========================= */
+
+    let ordersCount = null;
+
+    const ordersResult = await sb
+        .from("orders")
+        .select("*", {
+            count: "exact",
+            head: true
+        });
+
+    if (!ordersResult.error) {
+
+        ordersCount = ordersResult.count || 0;
+
+    }
+
+    $("orders").textContent =
+        ordersCount !== null
+            ? ordersCount
+            : "—";
+
+
+    /* =========================
+       DEPOSITS
+    ========================= */
+
+    let depositsTotal = 0;
+
+    const depositsResult = await sb
+        .from("deposits")
+        .select("amount");
+
+    if (!depositsResult.error && depositsResult.data) {
+
+        depositsResult.data.forEach(row => {
+
+            depositsTotal += Number(
+                row.amount || 0
+            );
+
+        });
+
+        $("deposits").textContent =
+            money(depositsTotal);
+
+    } else {
+
+        $("deposits").textContent = "—";
+    }
+
+
+    /* =========================
+       PRODUCTS / SELLER FALLBACK
+    ========================= */
+
+    /*
+       Si profiles pa gen role seller,
+       nou pa ranplase vrè seller count la.
+       Men nou verify products pou nou ka wè
+       si marketplace la deja gen pwodwi.
+    */
+
+    const productsResult = await sb
+        .from("products")
+        .select("id", {
+            count: "exact",
+            head: true
+        });
+
+    if (
+        $("sellers").textContent === "—" &&
+        !productsResult.error
+    ) {
+
+        $("sellers").textContent = "0";
+    }
 }
 
 
@@ -868,63 +864,48 @@ drawChart();
    WITHDRAWALS
 ========================= */
 
-async function loadWithdrawals(){
+async function loadWithdrawals() {
 
-const container =
-$("requests");
+    const container = $("requests");
 
+    container.innerHTML =
+        '<div class="empty">Ap chèche demann...</div>';
 
-container.innerHTML =
-'<div class="empty">Ap chèche demann retrè...</div>';
+    const {
+        data,
+        error
+    } = await sb
+        .from("withdrawal_requests")
+        .select("*")
+        .order("created_at", {
+            ascending: false
+        });
 
+    if (error) {
 
-const {
-data,
-error
-} = await sb
-.from("withdrawal_requests")
-.select("*")
-.order("created_at",{
-ascending:false
-});
+        console.error(
+            "Withdrawal error:",
+            error
+        );
 
+        container.innerHTML = `
+            <div class="empty">
+                Pa kapab chaje demann retrè yo.
+                <br><br>
+                ${error.message}
+            </div>
+        `;
 
-if(error){
+        return;
+    }
 
-console.error(
-"Withdrawal error:",
-error
-);
+    withdrawalData = data || [];
 
-container.innerHTML = `
-<div class="empty">
-Pa kapab chaje demann retrè yo.
-<br><br>
-${error.message}
-</div>
-`;
+    renderWithdrawals(withdrawalData);
 
-return;
+    updateWithdrawalStats(withdrawalData);
 
-}
-
-
-withdrawalData =
-data || [];
-
-
-renderWithdrawals(
-withdrawalData
-);
-
-
-updateWithdrawalStats(
-withdrawalData
-);
-
-
-drawChart();
-
+    drawChart();
 }
 
 
@@ -932,275 +913,226 @@ drawChart();
    RENDER WITHDRAWALS
 ========================= */
 
-function renderWithdrawals(data){
+function renderWithdrawals(data) {
 
-const container =
-$("requests");
+    const container = $("requests");
 
+    if (!data.length) {
 
-if(!data.length){
+        container.innerHTML = `
+            <div class="empty">
+                Pa gen okenn demann retrè pou kounye a.
+            </div>
+        `;
 
-container.innerHTML = `
-<div class="empty">
-Pa gen okenn demann retrè pou kounye a.
-</div>
-`;
+        return;
+    }
 
-return;
+    container.innerHTML = "";
 
-}
+    data.forEach(request => {
 
+        const amount =
+            Number(request.total_deducted || 0);
 
-container.innerHTML = "";
+        const status =
+            String(
+                request.status || "pending"
+            ).toLowerCase();
 
+        const date =
+            request.created_at
+                ? new Date(
+                    request.created_at
+                ).toLocaleString("fr-FR")
+                : "—";
 
-data.forEach(request => {
+        let statusText = status;
 
-const amount =
-Number(
-request.total_deducted || 0
-);
+        if (status === "pending") {
+            statusText = "AN ATANT";
+        }
 
+        if (status === "approved") {
+            statusText = "APWOUVE";
+        }
 
-const status =
-String(
-request.status || "pending"
-).toLowerCase();
+        if (status === "rejected") {
+            statusText = "REJETE";
+        }
 
+        const statusClass =
+            status === "approved"
+                ? "approved"
+                : status === "rejected"
+                    ? "rejected"
+                    : "";
 
-const date =
-request.created_at
-?
-new Date(
-request.created_at
-).toLocaleString(
-"fr-FR"
-)
-:
-"—";
+        const buttons =
+            status === "pending"
+                ? `
+                    <div class="request-buttons">
 
+                        <button
+                            class="approve"
+                            data-id="${request.id}"
+                        >
+                            ✓ Apwouve
+                        </button>
 
-let statusText =
-status;
+                        <button
+                            class="reject"
+                            data-id="${request.id}"
+                        >
+                            ✕ Rejte
+                        </button>
 
+                    </div>
+                `
+                : "";
 
-if(status === "pending")
-statusText = "AN ATANT";
+        const div =
+            document.createElement("div");
 
-if(status === "approved")
-statusText = "APWOUVE";
+        div.className = "request";
 
-if(status === "rejected")
-statusText = "REJETE";
+        div.innerHTML = `
+            <div class="request-top">
 
+                <strong>
+                    💸 ${money(amount)}
+                </strong>
 
-const statusClass =
-status === "approved"
-?
-"approved"
-:
-status === "rejected"
-?
-"rejected"
-:
-"";
+                <span class="status ${statusClass}">
+                    ${statusText}
+                </span>
 
+            </div>
 
-const buttons =
-status === "pending"
-?
-`
-<div class="request-buttons">
+            <div class="request-info">
 
-<button
-class="approve"
-data-id="${request.id}"
->
-✓ Apwouve
-</button>
+                📅 ${date}
 
-<button
-class="reject"
-data-id="${request.id}"
->
-✕ Rejte
-</button>
+                <br>
 
-</div>
-`
-:
-"";
+                💳 Metòd:
+                ${request.method || "—"}
 
+                <br>
 
-const div =
-document.createElement("div");
+                📱 Destinasyon:
+                ${request.destination_account || "—"}
 
+                <br>
 
-div.className =
-"request";
+                📝 Nòt:
+                ${request.note || "—"}
 
+            </div>
 
-div.innerHTML = `
+            ${buttons}
+        `;
 
-<div class="request-top">
+        container.appendChild(div);
+    });
 
-<strong>
-💸 ${money(amount)}
-</strong>
 
-<span class="status ${statusClass}">
-${statusText}
-</span>
+    document
+        .querySelectorAll(".approve")
+        .forEach(button => {
 
-</div>
+            button.addEventListener(
+                "click",
+                () =>
+                    reviewWithdrawal(
+                        button.dataset.id,
+                        "approved"
+                    )
+            );
 
-<div class="request-info">
+        });
 
-📅 ${date}
 
-<br>
+    document
+        .querySelectorAll(".reject")
+        .forEach(button => {
 
-💳 Metòd:
-${request.method || "—"}
+            button.addEventListener(
+                "click",
+                () =>
+                    reviewWithdrawal(
+                        button.dataset.id,
+                        "rejected"
+                    )
+            );
 
-<br>
-
-📱 Destinasyon:
-${request.destination_account || "—"}
-
-<br>
-
-📝 Nòt:
-${request.note || "—"}
-
-</div>
-
-${buttons}
-
-`;
-
-
-container.appendChild(div);
-
-});
-
-
-container
-.querySelectorAll(".approve")
-.forEach(button => {
-
-button.addEventListener(
-"click",
-function(){
-
-reviewWithdrawal(
-this.dataset.id,
-"approved"
-);
-
-});
-
-});
-
-
-container
-.querySelectorAll(".reject")
-.forEach(button => {
-
-button.addEventListener(
-"click",
-function(){
-
-reviewWithdrawal(
-this.dataset.id,
-"rejected"
-);
-
-});
-
-});
-
+        });
 }
 
 
 /* =========================
-   REVIEW WITHDRAWAL
+   APPROVE / REJECT
 ========================= */
 
 async function reviewWithdrawal(
-id,
-newStatus
-){
+    id,
+    newStatus
+) {
 
-const confirmText =
-newStatus === "approved"
-?
-"Èske ou vle APWOUVE demann retrè sa a?"
-:
-"Èske ou vle REJETE demann retrè sa a?";
+    const confirmText =
+        newStatus === "approved"
+            ? "Èske ou vle APWOUVE demann retrè sa a?"
+            : "Èske ou vle REJETE demann retrè sa a?";
 
+    if (!confirm(confirmText)) {
+        return;
+    }
 
-if(!confirm(confirmText)){
+    const {
+        data: {
+            user
+        }
+    } = await sb.auth.getUser();
 
-return;
+    const updateData = {
 
-}
+        status: newStatus,
 
+        reviewed_by:
+            user
+                ? user.id
+                : null,
 
-const {
-data:{
-user
-}
-} =
-await sb.auth.getUser();
+        reviewed_at:
+            new Date().toISOString(),
 
+        updated_at:
+            new Date().toISOString()
 
-const updateData = {
-
-status:newStatus,
-
-reviewed_by:
-user
-?
-user.id
-:
-null,
-
-reviewed_at:
-new Date().toISOString(),
-
-updated_at:
-new Date().toISOString()
-
-};
+    };
 
 
-const {
-error
-} =
-await sb
-.from("withdrawal_requests")
-.update(updateData)
-.eq("id",id);
+    const {
+        error
+    } = await sb
+        .from("withdrawal_requests")
+        .update(updateData)
+        .eq("id", id);
 
 
-if(error){
+    if (error) {
 
-console.error(error);
+        console.error(error);
 
-alert(
-"Pa kapab modifye demann lan:\n\n"
-+
-error.message
-);
+        alert(
+            "Pa kapab modifye demann lan:\n" +
+            error.message
+        );
 
-return;
+        return;
+    }
 
-}
-
-
-await loadWithdrawals();
-
+    await loadWithdrawals();
 }
 
 
@@ -1208,265 +1140,43 @@ await loadWithdrawals();
    WITHDRAWAL STATS
 ========================= */
 
-function updateWithdrawalStats(data){
+function updateWithdrawalStats(data) {
 
-let approvedTotal = 0;
+    let total = 0;
 
-let pendingTotal = 0;
+    data.forEach(row => {
 
+        const amount =
+            Number(
+                row.total_deducted || 0
+            );
 
-data.forEach(row => {
+        if (
+            String(row.status || "")
+                .toLowerCase() === "approved"
+        ) {
 
-const amount =
-Number(
-row.total_deducted || 0
-);
+            total += amount;
+        }
 
+    });
 
-const status =
-String(
-row.status || "pending"
-).toLowerCase();
 
+    $("withdrawals").textContent =
+        money(total);
 
-if(status === "approved"){
 
-approvedTotal += amount;
+    /*
+       Pa mete buyers/sellers/users/orders
+       isit la ankò.
+       loadGeneralStats() okipe yo.
+    */
 
-}
+    $("fees").textContent =
+        money(0);
 
-
-if(status === "pending"){
-
-pendingTotal += amount;
-
-}
-
-});
-
-
-setStat(
-"withdrawals",
-money(approvedTotal)
-);
-
-}
-
-
-/* =========================
-   USERS
-========================= */
-
-async function loadUsers(){
-
-try{
-
-const {
-count,
-error
-} =
-await sb
-.from("profiles")
-.select("id",{
-count:"exact",
-head:true
-});
-
-
-if(error){
-
-console.error(
-"Profiles error:",
-error
-);
-
-return;
-
-}
-
-
-setStat(
-"users",
-count ?? 0
-);
-
-
-}catch(error){
-
-console.error(error);
-
-}
-
-}
-
-
-/* =========================
-   BUYERS / SELLERS
-========================= */
-
-async function loadUserRoles(){
-
-try{
-
-const {
-data,
-error
-} =
-await sb
-.from("profiles")
-.select("role");
-
-
-if(error){
-
-console.error(
-"Roles error:",
-error
-);
-
-return;
-
-}
-
-
-let buyers = 0;
-let sellers = 0;
-
-
-(data || []).forEach(row => {
-
-const role =
-String(
-row.role || ""
-).toLowerCase();
-
-
-if(
-role === "buyer" ||
-role === "acheteur"
-){
-
-buyers++;
-
-}
-
-
-if(
-role === "seller" ||
-role === "vandè" ||
-role === "vande"
-){
-
-sellers++;
-
-}
-
-});
-
-
-setStat(
-"buyers",
-buyers
-);
-
-setStat(
-"sellers",
-sellers
-);
-
-}catch(error){
-
-console.error(error);
-
-}
-
-}
-
-
-/* =========================
-   ORDERS
-========================= */
-
-async function loadOrders(){
-
-try{
-
-const {
-count,
-error
-} =
-await sb
-.from("orders")
-.select("id",{
-count:"exact",
-head:true
-});
-
-
-if(error){
-
-console.error(
-"Orders error:",
-error
-);
-
-return;
-
-}
-
-
-setStat(
-"orders",
-count ?? 0
-);
-
-}catch(error){
-
-console.error(error);
-
-}
-
-}
-
-
-/* =========================
-   WALLET / DEPOSITS
-========================= */
-
-async function loadWalletStats(){
-
-/*
-   Nou pa sipoze envante non kolòn
-   oswa estrikti lòt tables yo.
-
-   Nou eseye jwenn done wallet yo
-   sèlman si tables yo egziste.
-*/
-
-await loadUserRoles();
-
-
-/*
-   Si sistèm wallet la poko gen
-   yon table depo ki konfime,
-   nou kite valè a kòm —.
-*/
-
-setStat(
-"deposits",
-"—"
-);
-
-setStat(
-"fees",
-money(0)
-);
-
-setStat(
-"circulation",
-money(0)
-);
-
+    $("circulation").textContent =
+        money(0);
 }
 
 
@@ -1474,374 +1184,353 @@ money(0)
    GRAPH
 ========================= */
 
-function drawChart(){
+function drawChart() {
 
-const canvas =
-$("chart");
+    const canvas = $("chart");
 
+    if (!canvas) {
+        return;
+    }
 
-if(!canvas){
+    const ctx =
+        canvas.getContext("2d");
 
-return;
+    const rect =
+        canvas.getBoundingClientRect();
 
-}
+    const width =
+        Math.max(rect.width, 300);
 
+    const height = 260;
 
-const ctx =
-canvas.getContext("2d");
+    const dpr =
+        window.devicePixelRatio || 1;
 
+    canvas.width =
+        width * dpr;
 
-const rect =
-canvas.getBoundingClientRect();
+    canvas.height =
+        height * dpr;
 
+    canvas.style.width =
+        width + "px";
 
-const width =
-Math.max(
-rect.width,
-300
-);
+    canvas.style.height =
+        height + "px";
 
+    ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
 
-const height = 260;
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
 
 
-const dpr =
-window.devicePixelRatio || 1;
+    const days =
+        Number(
+            $("period").value || 30
+        );
 
 
-canvas.width =
-width * dpr;
+    const now =
+        new Date();
 
-canvas.height =
-height * dpr;
+    const values = [];
 
 
-canvas.style.width =
-width + "px";
+    for (
+        let i = days - 1;
+        i >= 0;
+        i--
+    ) {
 
-canvas.style.height =
-height + "px";
+        const date =
+            new Date(now);
 
+        date.setHours(
+            0,
+            0,
+            0,
+            0
+        );
 
-ctx.setTransform(
-dpr,
-0,
-0,
-dpr,
-0,
-0
-);
+        date.setDate(
+            date.getDate() - i
+        );
 
 
-ctx.clearRect(
-0,
-0,
-width,
-height
-);
+        const key =
+            date.toISOString()
+                .slice(0, 10);
 
 
-const days =
-Number(
-$("period").value || 30
-);
+        let total = 0;
 
 
-const now =
-new Date();
+        withdrawalData.forEach(row => {
 
+            if (!row.created_at) {
+                return;
+            }
 
-const values = [];
 
+            const rowDate =
+                new Date(
+                    row.created_at
+                )
+                    .toISOString()
+                    .slice(0, 10);
 
-for(
-let i = days - 1;
-i >= 0;
-i--
-){
 
-const date =
-new Date(now);
+            if (rowDate === key) {
 
+                total += Number(
+                    row.total_deducted || 0
+                );
 
-date.setHours(
-0,
-0,
-0,
-0
-);
+            }
 
+        });
 
-date.setDate(
-date.getDate() - i
-);
 
+        values.push({
+            date: key,
+            value: total
+        });
 
-const key =
-date.toISOString()
-.slice(0,10);
+    }
 
 
-let total = 0;
+    const max =
+        Math.max(
+            ...values.map(
+                x => x.value
+            ),
+            1
+        );
 
 
-withdrawalData.forEach(row => {
+    const left = 42;
+    const right = 12;
+    const top = 20;
+    const bottom = 35;
 
-if(!row.created_at){
 
-return;
+    const graphWidth =
+        width - left - right;
 
-}
+    const graphHeight =
+        height - top - bottom;
 
 
-const rowDate =
-new Date(
-row.created_at
-)
-.toISOString()
-.slice(0,10);
+    /* GRID */
 
+    ctx.strokeStyle =
+        "#eeeeee";
 
-if(rowDate === key){
+    ctx.lineWidth = 1;
 
-total += Number(
-row.total_deducted || 0
-);
 
-}
+    for (
+        let i = 0;
+        i <= 4;
+        i++
+    ) {
 
-});
+        const y =
+            top +
+            (
+                graphHeight / 4
+            ) * i;
 
 
-values.push({
+        ctx.beginPath();
 
-date:key,
+        ctx.moveTo(
+            left,
+            y
+        );
 
-value:total
+        ctx.lineTo(
+            width - right,
+            y
+        );
 
-});
+        ctx.stroke();
+    }
 
-}
 
+    /* LINE */
 
-const max =
-Math.max(
-...values.map(
-x => x.value
-),
-1
-);
+    ctx.beginPath();
 
 
-const left = 42;
-const right = 12;
-const top = 20;
-const bottom = 35;
+    values.forEach(
+        (point, index) => {
 
+            const x =
+                left +
+                (
+                    index /
+                    Math.max(
+                        values.length - 1,
+                        1
+                    )
+                ) *
+                graphWidth;
 
-const graphWidth =
-width - left - right;
 
+            const y =
+                top +
+                graphHeight -
+                (
+                    point.value /
+                    max
+                ) *
+                graphHeight;
 
-const graphHeight =
-height - top - bottom;
 
+            if (index === 0) {
 
-/* GRID */
+                ctx.moveTo(
+                    x,
+                    y
+                );
 
-ctx.strokeStyle =
-"#eeeeee";
+            } else {
 
-ctx.lineWidth = 1;
+                ctx.lineTo(
+                    x,
+                    y
+                );
 
+            }
 
-for(
-let i = 0;
-i <= 4;
-i++
-){
+        }
+    );
 
-const y =
-top +
-(graphHeight / 4) * i;
 
+    ctx.strokeStyle =
+        "#f97316";
 
-ctx.beginPath();
+    ctx.lineWidth = 3;
 
-ctx.moveTo(
-left,
-y
-);
+    ctx.stroke();
 
-ctx.lineTo(
-width - right,
-y
-);
 
-ctx.stroke();
+    /* POINTS */
 
-}
+    values.forEach(
+        (point, index) => {
 
+            const x =
+                left +
+                (
+                    index /
+                    Math.max(
+                        values.length - 1,
+                        1
+                    )
+                ) *
+                graphWidth;
 
-/* LINE */
 
-ctx.beginPath();
+            const y =
+                top +
+                graphHeight -
+                (
+                    point.value /
+                    max
+                ) *
+                graphHeight;
 
 
-values.forEach(
-(point,index) => {
+            ctx.beginPath();
 
-const x =
-left +
-(
-index /
-Math.max(
-values.length - 1,
-1
-)
-) *
-graphWidth;
+            ctx.arc(
+                x,
+                y,
+                3,
+                0,
+                Math.PI * 2
+            );
 
+            ctx.fillStyle =
+                "#f97316";
 
-const y =
-top +
-graphHeight -
-(
-point.value /
-max
-) *
-graphHeight;
+            ctx.fill();
 
+        }
+    );
 
-if(index === 0){
 
-ctx.moveTo(
-x,
-y
-);
+    /* LABELS */
 
-}else{
+    ctx.fillStyle =
+        "#888";
 
-ctx.lineTo(
-x,
-y
-);
+    ctx.font =
+        "10px Arial";
 
-}
 
-});
+    ctx.fillText(
+        "0",
+        8,
+        height - bottom + 3
+    );
 
 
-ctx.strokeStyle =
-"#f97316";
+    ctx.fillText(
+        money(max)
+            .replace(" HTG", ""),
+        8,
+        top + 4
+    );
 
-ctx.lineWidth = 3;
 
-ctx.stroke();
+    if (values.length) {
 
+        const first =
+            values[0]
+                .date
+                .split("-")
+                .reverse()
+                .join("/");
 
-/* POINTS */
 
-values.forEach(
-(point,index) => {
+        const last =
+            values[
+                values.length - 1
+            ]
+                .date
+                .split("-")
+                .reverse()
+                .join("/");
 
-const x =
-left +
-(
-index /
-Math.max(
-values.length - 1,
-1
-)
-) *
-graphWidth;
 
+        ctx.fillText(
+            first,
+            left,
+            height - 10
+        );
 
-const y =
-top +
-graphHeight -
-(
-point.value /
-max
-) *
-graphHeight;
 
+        ctx.fillText(
+            last,
+            width - 55,
+            height - 10
+        );
 
-ctx.beginPath();
-
-ctx.arc(
-x,
-y,
-3,
-0,
-Math.PI * 2
-);
-
-ctx.fillStyle =
-"#f97316";
-
-ctx.fill();
-
-});
-
-
-/* LABELS */
-
-ctx.fillStyle =
-"#888";
-
-ctx.font =
-"10px Arial";
-
-
-ctx.fillText(
-"0",
-8,
-height - bottom + 3
-);
-
-
-ctx.fillText(
-money(max)
-.replace(" HTG",""),
-8,
-top + 4
-);
-
-
-if(values.length){
-
-const first =
-values[0].date
-.split("-")
-.reverse()
-.join("/");
-
-
-const last =
-values[
-values.length - 1
-].date
-.split("-")
-.reverse()
-.join("/");
-
-
-ctx.fillText(
-first,
-left,
-height - 10
-);
-
-
-ctx.fillText(
-last,
-width - 55,
-height - 10
-);
-
-}
-
+    }
 }
 
 
@@ -1850,10 +1539,10 @@ height - 10
 ========================= */
 
 $("period")
-.addEventListener(
-"change",
-drawChart
-);
+    .addEventListener(
+        "change",
+        drawChart
+    );
 
 
 /* =========================
@@ -1861,8 +1550,8 @@ drawChart
 ========================= */
 
 window.addEventListener(
-"resize",
-drawChart
+    "resize",
+    drawChart
 );
 
 
@@ -1871,21 +1560,21 @@ drawChart
 ========================= */
 
 $("walletButton").onclick =
-function(){
+    function() {
 
-location.href =
-"admin-wallet.html";
+        location.href =
+            "admin-wallet.html";
 
-};
+    };
 
 
 $("settingsButton").onclick =
-function(){
+    function() {
 
-location.href =
-"admin-settings.html";
+        location.href =
+            "admin-settings.html";
 
-};
+    };
 
 
 /* =========================
@@ -1893,72 +1582,67 @@ location.href =
 ========================= */
 
 $("logout").onclick =
-async function(){
+    async function() {
 
-if(sb){
+        if (sb) {
+            await sb.auth.signOut();
+        }
 
-await sb.auth.signOut();
+        adminPage.style.display =
+            "none";
 
-}
+        loginPage.classList.remove(
+            "hidden"
+        );
 
+        $("email").value = "";
+        $("password").value = "";
 
-adminPage.style.display =
-"none";
+        loginButton.disabled =
+            false;
 
-loginPage.classList.remove(
-"hidden"
-);
+        loginButton.textContent =
+            "Konekte";
 
+        message(
+            "Ou dekonekte."
+        );
 
-$("email").value = "";
-
-$("password").value = "";
-
-
-loginButton.disabled =
-false;
-
-loginButton.textContent =
-"Konekte";
-
-
-message(
-"Ou dekonekte."
-);
-
-};
+    };
 
 
 /* =========================
    AUTO LOGIN
 ========================= */
 
-(async function(){
+(async function() {
 
-if(!sb){
+    if (!sb) {
+        return;
+    }
 
-message(
-"Supabase pa konekte."
-);
+    const ok =
+        await verifyAdmin();
 
-return;
-
-}
-
-
-const ok =
-await verifyAdmin();
-
-
-if(ok){
-
-await loadDashboard();
-
-}
+    if (ok) {
+        await loadDashboard();
+    }
 
 })();
+   </script>
 
-</script>
+
+
+
+
+
+ 
+
+
+
+
+
+
 
 </body>
    </html>
