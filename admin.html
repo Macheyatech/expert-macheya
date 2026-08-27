@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+
 <title>Super Admin | macheya</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -25,6 +26,10 @@ button,input,select{
 font:inherit
 }
 
+button{
+cursor:pointer
+}
+
 .hidden{
 display:none!important
 }
@@ -36,24 +41,24 @@ place-items:center;
 padding:20px
 }
 
-.card{
+.login-card{
 width:min(400px,100%);
 background:#fff;
-padding:25px;
+padding:26px;
 border-radius:20px;
 box-shadow:0 8px 30px #0001
 }
 
 .logo{
-width:55px;
-height:55px;
-margin:auto auto 14px;
+width:58px;
+height:58px;
+margin:0 auto 15px;
 border-radius:50%;
 background:#f97316;
 color:#fff;
 display:grid;
 place-items:center;
-font-size:24px;
+font-size:25px;
 font-weight:bold
 }
 
@@ -62,7 +67,7 @@ text-align:center;
 font-size:24px
 }
 
-.sub{
+.login-sub{
 text-align:center;
 color:#777;
 font-size:13px;
@@ -76,19 +81,21 @@ font-weight:bold;
 margin:12px 0 6px
 }
 
-input{
+input,select{
 width:100%;
 padding:12px;
 border:1px solid #ddd;
 border-radius:10px;
-outline:0
+outline:0;
+background:#fff
 }
 
-input:focus{
+input:focus,
+select:focus{
 border-color:#f97316
 }
 
-.btn{
+.login-btn{
 width:100%;
 border:0;
 padding:13px;
@@ -96,15 +103,14 @@ margin-top:17px;
 border-radius:10px;
 background:#f97316;
 color:#fff;
-font-weight:bold;
-cursor:pointer
+font-weight:bold
 }
 
-.btn:disabled{
+.login-btn:disabled{
 opacity:.6
 }
 
-.msg{
+.login-msg{
 text-align:center;
 font-size:12px;
 color:#d00;
@@ -121,7 +127,8 @@ padding:14px 5%;
 border-bottom:1px solid #eee;
 display:flex;
 justify-content:space-between;
-align-items:center
+align-items:center;
+gap:10px
 }
 
 .brand{
@@ -194,27 +201,6 @@ font-size:17px;
 margin-bottom:14px
 }
 
-.actions{
-display:grid;
-gap:9px
-}
-
-.action{
-border:0;
-padding:12px;
-border-radius:10px;
-background:#f97316;
-color:#fff;
-font-weight:bold;
-text-align:left;
-cursor:pointer
-}
-
-.gray{
-background:#f5f5f5;
-color:#333
-}
-
 .requests{
 display:grid;
 gap:10px
@@ -257,11 +243,16 @@ background:#fee2e2;
 color:#b91c1c
 }
 
+.status.pending{
+background:#fff7ed;
+color:#c2410c
+}
+
 .request-info{
 font-size:11px;
 color:#777;
 margin-top:7px;
-line-height:1.7
+line-height:1.8
 }
 
 .request-buttons{
@@ -276,8 +267,7 @@ border:0;
 padding:8px 11px;
 border-radius:8px;
 font-size:11px;
-font-weight:bold;
-cursor:pointer
+font-weight:bold
 }
 
 .approve{
@@ -302,6 +292,58 @@ color:#888;
 font-size:13px
 }
 
+.settings-grid{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:12px
+}
+
+.setting-box{
+background:#fafafa;
+border:1px solid #eee;
+padding:14px;
+border-radius:12px
+}
+
+.setting-box label{
+margin-top:0
+}
+
+.save-settings{
+margin-top:14px;
+border:0;
+background:#f97316;
+color:#fff;
+padding:12px 18px;
+border-radius:10px;
+font-weight:bold
+}
+
+.settings-msg{
+font-size:12px;
+margin-top:10px
+}
+
+.actions{
+display:grid;
+gap:9px
+}
+
+.action{
+border:0;
+padding:12px;
+border-radius:10px;
+background:#f97316;
+color:#fff;
+font-weight:bold;
+text-align:left
+}
+
+.gray{
+background:#f5f5f5;
+color:#333
+}
+
 .chart-wrap{
 width:100%;
 height:260px;
@@ -316,12 +358,10 @@ display:block
 
 .chart-select{
 float:right;
-padding:7px;
-border:1px solid #ddd;
-border-radius:8px;
-font-size:11px;
+width:auto;
+padding:7px 10px;
 margin-top:-8px;
-background:#fff
+font-size:11px
 }
 
 .graph-note{
@@ -330,26 +370,47 @@ color:#888;
 margin-top:8px
 }
 
-@media(max-width:700px){
+@media(max-width:800px){
 
 .grid{
 grid-template-columns:1fr 1fr
 }
 
+.settings-grid{
+grid-template-columns:1fr
 }
 
-@media(max-width:400px){
+}
 
-.card{
-padding:21px
+@media(max-width:450px){
+
+.container{
+width:94%
+}
+
+.grid{
+grid-template-columns:1fr 1fr;
+gap:8px
 }
 
 .stat{
-padding:14px
+padding:13px
 }
 
 .stat strong{
 font-size:16px
+}
+
+.panel{
+padding:14px
+}
+
+.brand{
+font-size:17px
+}
+
+.badge{
+font-size:9px
 }
 
 }
@@ -360,13 +421,13 @@ font-size:16px
 
 <div id="loginPage" class="login">
 
-<div class="card">
+<div class="login-card">
 
 <div class="logo">M</div>
 
 <h1>Super Admin</h1>
 
-<p class="sub">
+<p class="login-sub">
 Konekte pou antre nan zòn administrasyon macheya.
 </p>
 
@@ -392,7 +453,7 @@ required
 
 <button
 id="loginButton"
-class="btn"
+class="login-btn"
 type="submit"
 >
 Konekte
@@ -400,7 +461,7 @@ Konekte
 
 </form>
 
-<div id="message" class="msg"></div>
+<div id="loginMessage" class="login-msg"></div>
 
 </div>
 
@@ -413,9 +474,12 @@ Konekte
 
 <div class="brand">Ⓜ macheya</div>
 
-<div class="badge">🔐 SUPER ADMIN</div>
+<div class="badge">
+🔐 SUPER ADMIN
+</div>
 
 </header>
+
 
 <main class="container">
 
@@ -424,7 +488,7 @@ Konekte
 <h2>Dashboard Super Admin</h2>
 
 <p>
-Kontwòl ak siveyans macheya.
+Kontwòl ak siveyans tout aktivite macheya.
 </p>
 
 </div>
@@ -439,22 +503,27 @@ Kontwòl ak siveyans macheya.
 
 <div class="stat">
 <span>👤 Achtè</span>
-<strong id="buyers">—</strong>
+<strong id="buyers">0</strong>
 </div>
 
 <div class="stat">
 <span>🏪 Vandè</span>
-<strong id="sellers">—</strong>
+<strong id="sellers">0</strong>
 </div>
 
 <div class="stat">
-<span>💸 Frè Macheya</span>
-<strong id="fees">0 HTG</strong>
+<span>👥 Itilizatè</span>
+<strong id="users">0</strong>
 </div>
 
 <div class="stat">
-<span>➕ Depo</span>
-<strong id="deposits">—</strong>
+<span>📦 Kòmand</span>
+<strong id="orders">0</strong>
+</div>
+
+<div class="stat">
+<span>➕ Depo / Rechaj</span>
+<strong id="deposits">0 HTG</strong>
 </div>
 
 <div class="stat">
@@ -463,13 +532,8 @@ Kontwòl ak siveyans macheya.
 </div>
 
 <div class="stat">
-<span>👥 Itilizatè</span>
-<strong id="users">—</strong>
-</div>
-
-<div class="stat">
-<span>📦 Kòmand</span>
-<strong id="orders">—</strong>
+<span>💸 Frè Macheya</span>
+<strong id="fees">0 HTG</strong>
 </div>
 
 </section>
@@ -477,12 +541,31 @@ Kontwòl ak siveyans macheya.
 
 <section class="panel">
 
-<h3>🧾 Demann retrè</h3>
+<h3>
+🧾 Demann retrè
+</h3>
 
-<div id="requests" class="requests">
+<div id="withdrawalRequests" class="requests">
 
 <div class="empty">
-Ap chèche demann...
+Ap chèche demann retrè...
+</div>
+
+</div>
+
+</section>
+
+
+<section class="panel">
+
+<h3>
+💳 Demann rechaj
+</h3>
+
+<div id="rechargeRequests" class="requests">
+
+<div class="empty">
+Ap chèche demann rechaj...
 </div>
 
 </div>
@@ -494,7 +577,9 @@ Ap chèche demann...
 
 <select id="period" class="chart-select">
 
-<option value="7">7 jou</option>
+<option value="7">
+7 jou
+</option>
 
 <option value="30" selected>
 30 jou
@@ -506,7 +591,9 @@ Ap chèche demann...
 
 </select>
 
-<h3>📈 Evolisyon retrè</h3>
+<h3>
+📈 Evolisyon retrè
+</h3>
 
 <div class="chart-wrap">
 
@@ -515,7 +602,7 @@ Ap chèche demann...
 </div>
 
 <p class="graph-note">
-Graf la montre kantite retrè yo dapre dat demann yo.
+Done graf la soti dirèkteman nan demann retrè yo.
 </p>
 
 </section>
@@ -523,22 +610,96 @@ Graf la montre kantite retrè yo dapre dat demann yo.
 
 <section class="panel">
 
-<h3>⚡ Aksyon rapid</h3>
+<h3>
+⚙️ Paramèt Macheya
+</h3>
+
+<div class="settings-grid">
+
+<div class="setting-box">
+
+<label>
+Pousantaj frè Macheya (%)
+</label>
+
+<input
+id="feePercent"
+type="number"
+min="0"
+max="100"
+step="0.01"
+placeholder="5"
+>
+
+</div>
+
+
+<div class="setting-box">
+
+<label>
+📱 Nimewo NatCash pou rechaj
+</label>
+
+<input
+id="natcashNumber"
+type="text"
+placeholder="Nimewo NatCash"
+>
+
+</div>
+
+
+<div class="setting-box">
+
+<label>
+📱 Nimewo MonCash pou rechaj
+</label>
+
+<input
+id="moncashNumber"
+type="text"
+placeholder="Nimewo MonCash"
+>
+
+</div>
+
+</div>
+
+<button
+id="saveSettings"
+class="save-settings"
+>
+💾 Sove paramèt
+</button>
+
+<div
+id="settingsMessage"
+class="settings-msg"
+></div>
+
+</section>
+
+
+<section class="panel">
+
+<h3>
+⚡ Aksyon rapid
+</h3>
 
 <div class="actions">
 
 <button
-class="action"
 id="walletButton"
+class="action"
 >
 💳 Jesyon Wallet
 </button>
 
 <button
-class="action gray"
 id="settingsButton"
+class="action gray"
 >
-⚙️ Paramèt Macheya
+⚙️ Paramèt detaye
 </button>
 
 <button
@@ -556,451 +717,317 @@ class="action gray"
 
 </div>
 <script>
-"use strict";
 
 /* =========================
-   SUPABASE
+   LOAD REAL STATS
 ========================= */
 
-const sb = window.supabaseClient;
+async function loadRealStats(){
 
-const $ = id => document.getElementById(id);
+    try{
 
-const loginPage = $("loginPage");
-const adminPage = $("adminPage");
-const form = $("loginForm");
-const msg = $("message");
-const loginButton = $("loginButton");
+        /* USERS */
 
-let withdrawalData = [];
+        const { count:usersCount } =
+            await sb
+            .from("profiles")
+            .select("*",{count:"exact",head:true});
 
+        $("users").textContent =
+            usersCount ?? 0;
 
-/* =========================
-   HELPERS
-========================= */
 
-function money(value) {
-    return new Intl.NumberFormat("fr-FR").format(
-        Number(value || 0)
-    ) + " HTG";
-}
+        /* BUYERS */
 
-function message(text) {
-    msg.textContent = text;
-}
+        const { count:buyersCount } =
+            await sb
+            .from("profiles")
+            .select("*",{count:"exact",head:true})
+            .eq("role","buyer");
 
+        $("buyers").textContent =
+            buyersCount ?? 0;
 
-/* =========================
-   VERIFY SUPER ADMIN
-========================= */
 
-async function verifyAdmin() {
+        /* SELLERS */
 
-    if (!sb) {
-        message("Supabase pa konekte.");
-        return false;
-    }
+        const { count:sellersCount } =
+            await sb
+            .from("profiles")
+            .select("*",{count:"exact",head:true})
+            .eq("role","seller");
 
-    const {
-        data,
-        error
-    } = await sb.auth.getUser();
+        $("sellers").textContent =
+            sellersCount ?? 0;
 
-    if (error || !data.user) {
-        return false;
-    }
 
-    const {
-        data: admin,
-        error: adminError
-    } = await sb
-        .from("super_admins")
-        .select("user_id")
-        .eq("user_id", data.user.id)
-        .maybeSingle();
+        /* ORDERS */
 
-    if (adminError) {
-        console.error(adminError);
-        message("Erè verifikasyon Super Admin.");
-        return false;
-    }
+        const { count:ordersCount } =
+            await sb
+            .from("orders")
+            .select("*",{count:"exact",head:true});
 
-    if (!admin) {
+        $("orders").textContent =
+            ordersCount ?? 0;
 
-        await sb.auth.signOut();
 
-        message("Kont sa a pa Super Admin.");
+        /* DEPOSITS / RECHARGE */
 
-        return false;
-    }
+        const { data:depositRows } =
+            await sb
+            .from("deposit_requests")
+            .select("*");
 
-    loginPage.classList.add("hidden");
-    adminPage.style.display = "block";
+        let depositsTotal = 0;
 
-    return true;
-}
+        (depositRows || []).forEach(row => {
 
+            if(
+                String(row.status || "")
+                .toLowerCase() === "approved"
+            ){
 
-/* =========================
-   LOGIN
-========================= */
+                depositsTotal += Number(
+                    row.amount ||
+                    row.total_amount ||
+                    row.amount_htg ||
+                    0
+                );
 
-form.addEventListener("submit", async function(e) {
-
-    e.preventDefault();
-
-    if (!sb) {
-        message("Supabase pa disponib.");
-        return;
-    }
-
-    loginButton.disabled = true;
-    loginButton.textContent = "Koneksyon...";
-    message("");
-
-    const email = $("email").value.trim();
-    const password = $("password").value;
-
-    const {
-        error
-    } = await sb.auth.signInWithPassword({
-        email,
-        password
-    });
-
-    if (error) {
-
-        console.error(error);
-
-        message("Email oswa modpas la pa kòrèk.");
-
-        loginButton.disabled = false;
-        loginButton.textContent = "Konekte";
-
-        return;
-    }
-
-    const ok = await verifyAdmin();
-
-    if (!ok) {
-
-        loginButton.disabled = false;
-        loginButton.textContent = "Konekte";
-
-        return;
-    }
-
-    await loadDashboard();
-
-});
-
-
-/* =========================
-   LOAD DASHBOARD
-========================= */
-
-async function loadDashboard() {
-
-    await Promise.all([
-        loadGeneralStats(),
-        loadWithdrawals()
-    ]);
-
-    drawChart();
-}
-
-
-/* =========================
-   GENERAL STATS
-========================= */
-
-async function loadGeneralStats() {
-
-    /*
-       USERS / BUYERS / SELLERS
-       Nou itilize profiles an premye.
-       Si profiles pa disponib,
-       nou eseye users.
-    */
-
-    let profiles = null;
-
-    let {
-        data,
-        error
-    } = await sb
-        .from("profiles")
-        .select("id, role");
-
-    if (!error && data) {
-
-        profiles = data;
-
-    } else {
-
-        const fallback = await sb
-            .from("users")
-            .select("id, role");
-
-        if (!fallback.error && fallback.data) {
-            profiles = fallback.data;
-        }
-    }
-
-
-    /* =========================
-       USER COUNTS
-    ========================= */
-
-    if (profiles) {
-
-        const totalUsers = profiles.length;
-
-        const buyers = profiles.filter(user =>
-            String(user.role || "").toLowerCase() === "buyer"
-        ).length;
-
-        const sellers = profiles.filter(user =>
-            String(user.role || "").toLowerCase() === "seller"
-        ).length;
-
-        $("users").textContent = totalUsers;
-
-        $("buyers").textContent = buyers;
-
-        $("sellers").textContent = sellers;
-
-    } else {
-
-        $("users").textContent = "—";
-        $("buyers").textContent = "—";
-        $("sellers").textContent = "—";
-    }
-
-
-    /* =========================
-       ORDERS
-    ========================= */
-
-    let ordersCount = null;
-
-    const ordersResult = await sb
-        .from("orders")
-        .select("*", {
-            count: "exact",
-            head: true
-        });
-
-    if (!ordersResult.error) {
-
-        ordersCount = ordersResult.count || 0;
-
-    }
-
-    $("orders").textContent =
-        ordersCount !== null
-            ? ordersCount
-            : "—";
-
-
-    /* =========================
-       DEPOSITS
-    ========================= */
-
-    let depositsTotal = 0;
-
-    const depositsResult = await sb
-        .from("deposits")
-        .select("amount");
-
-    if (!depositsResult.error && depositsResult.data) {
-
-        depositsResult.data.forEach(row => {
-
-            depositsTotal += Number(
-                row.amount || 0
-            );
+            }
 
         });
 
         $("deposits").textContent =
             money(depositsTotal);
 
-    } else {
 
-        $("deposits").textContent = "—";
-    }
+        /* WITHDRAWALS */
 
+        const { data:withdrawRows } =
+            await sb
+            .from("withdrawal_requests")
+            .select("*");
 
-    /* =========================
-       PRODUCTS / SELLER FALLBACK
-    ========================= */
+        let withdrawalsTotal = 0;
 
-    /*
-       Si profiles pa gen role seller,
-       nou pa ranplase vrè seller count la.
-       Men nou verify products pou nou ka wè
-       si marketplace la deja gen pwodwi.
-    */
+        (withdrawRows || []).forEach(row => {
 
-    const productsResult = await sb
-        .from("products")
-        .select("id", {
-            count: "exact",
-            head: true
+            if(
+                String(row.status || "")
+                .toLowerCase() === "approved"
+            ){
+
+                withdrawalsTotal += Number(
+                    row.total_deducted ||
+                    row.amount ||
+                    0
+                );
+
+            }
+
         });
 
-    if (
-        $("sellers").textContent === "—" &&
-        !productsResult.error
-    ) {
+        $("withdrawals").textContent =
+            money(withdrawalsTotal);
 
-        $("sellers").textContent = "0";
+
+        /* CIRCULATION */
+
+        const circulation =
+            depositsTotal -
+            withdrawalsTotal;
+
+        $("circulation").textContent =
+            money(
+                circulation > 0
+                ? circulation
+                : 0
+            );
+
+
+        /* MACHEYA FEES */
+
+        let feesTotal = 0;
+
+        const { data:feeRows } =
+            await sb
+            .from("withdrawal_requests")
+            .select("*");
+
+        (feeRows || []).forEach(row => {
+
+            if(
+                String(row.status || "")
+                .toLowerCase() === "approved"
+            ){
+
+                feesTotal += Number(
+                    row.fee ||
+                    row.fees ||
+                    row.macheya_fee ||
+                    row.commission ||
+                    0
+                );
+
+            }
+
+        });
+
+        $("fees").textContent =
+            money(feesTotal);
+
+
+    }catch(error){
+
+        console.error(
+            "Erreur statistiques:",
+            error
+        );
+
     }
+
 }
 
 
 /* =========================
-   WITHDRAWALS
+   REAL RECHARGE REQUESTS
 ========================= */
 
-async function loadWithdrawals() {
+async function loadDepositRequests(){
 
-    const container = $("requests");
+    const panel =
+        document.getElementById(
+            "depositRequests"
+        );
 
-    container.innerHTML =
-        '<div class="empty">Ap chèche demann...</div>';
+    if(!panel){
+
+        return;
+
+    }
+
+    panel.innerHTML =
+        '<div class="empty">Ap chèche demann rechaj...</div>';
+
 
     const {
         data,
         error
-    } = await sb
-        .from("withdrawal_requests")
+    } =
+        await sb
+        .from("deposit_requests")
         .select("*")
-        .order("created_at", {
-            ascending: false
-        });
-
-    if (error) {
-
-        console.error(
-            "Withdrawal error:",
-            error
+        .order(
+            "created_at",
+            {ascending:false}
         );
 
-        container.innerHTML = `
+
+    if(error){
+
+        console.error(error);
+
+        panel.innerHTML = `
             <div class="empty">
-                Pa kapab chaje demann retrè yo.
+                Pa kapab chaje demann rechaj yo.
                 <br><br>
                 ${error.message}
             </div>
         `;
 
         return;
+
     }
 
-    withdrawalData = data || [];
 
-    renderWithdrawals(withdrawalData);
+    if(!data || !data.length){
 
-    updateWithdrawalStats(withdrawalData);
-
-    drawChart();
-}
-
-
-/* =========================
-   RENDER WITHDRAWALS
-========================= */
-
-function renderWithdrawals(data) {
-
-    const container = $("requests");
-
-    if (!data.length) {
-
-        container.innerHTML = `
+        panel.innerHTML = `
             <div class="empty">
-                Pa gen okenn demann retrè pou kounye a.
+                Pa gen demann rechaj pou kounye a.
             </div>
         `;
 
         return;
+
     }
 
-    container.innerHTML = "";
+
+    panel.innerHTML = "";
+
 
     data.forEach(request => {
 
         const amount =
-            Number(request.total_deducted || 0);
+            Number(
+                request.amount ||
+                request.total_amount ||
+                request.amount_htg ||
+                0
+            );
+
 
         const status =
             String(
-                request.status || "pending"
+                request.status ||
+                "pending"
             ).toLowerCase();
+
+
+        let statusText =
+            "AN ATANT";
+
+        let statusClass = "";
+
+
+        if(status === "approved"){
+
+            statusText =
+                "APWOUVE";
+
+            statusClass =
+                "approved";
+
+        }
+
+
+        if(status === "rejected"){
+
+            statusText =
+                "REJETE";
+
+            statusClass =
+                "rejected";
+
+        }
+
 
         const date =
             request.created_at
-                ? new Date(
-                    request.created_at
-                ).toLocaleString("fr-FR")
-                : "—";
+            ?
+            new Date(
+                request.created_at
+            ).toLocaleString("fr-FR")
+            :
+            "—";
 
-        let statusText = status;
-
-        if (status === "pending") {
-            statusText = "AN ATANT";
-        }
-
-        if (status === "approved") {
-            statusText = "APWOUVE";
-        }
-
-        if (status === "rejected") {
-            statusText = "REJETE";
-        }
-
-        const statusClass =
-            status === "approved"
-                ? "approved"
-                : status === "rejected"
-                    ? "rejected"
-                    : "";
-
-        const buttons =
-            status === "pending"
-                ? `
-                    <div class="request-buttons">
-
-                        <button
-                            class="approve"
-                            data-id="${request.id}"
-                        >
-                            ✓ Apwouve
-                        </button>
-
-                        <button
-                            class="reject"
-                            data-id="${request.id}"
-                        >
-                            ✕ Rejte
-                        </button>
-
-                    </div>
-                `
-                : "";
 
         const div =
             document.createElement("div");
 
-        div.className = "request";
+
+        div.className =
+            "request";
+
 
         div.innerHTML = `
+
             <div class="request-top">
 
                 <strong>
-                    💸 ${money(amount)}
+                    ➕ ${money(amount)}
                 </strong>
 
                 <span class="status ${statusClass}">
@@ -1020,8 +1047,13 @@ function renderWithdrawals(data) {
 
                 <br>
 
-                📱 Destinasyon:
-                ${request.destination_account || "—"}
+                📱 Kont:
+                ${request.destination_account || request.account_number || "—"}
+
+                <br>
+
+                🧾 Referans:
+                ${request.reference || request.transaction_id || "—"}
 
                 <br>
 
@@ -1030,81 +1062,351 @@ function renderWithdrawals(data) {
 
             </div>
 
-            ${buttons}
+            ${
+                status === "pending"
+                ?
+                `
+                <div class="request-buttons">
+
+                    <button
+                        class="approve"
+                        onclick="reviewDeposit('${request.id}','approved')"
+                    >
+                        ✓ Apwouve
+                    </button>
+
+                    <button
+                        class="reject"
+                        onclick="reviewDeposit('${request.id}','rejected')"
+                    >
+                        ✕ Rejte
+                    </button>
+
+                </div>
+                `
+                :
+                ""
+            }
+
         `;
 
-        container.appendChild(div);
+
+        panel.appendChild(div);
+
     });
 
-
-    document
-        .querySelectorAll(".approve")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () =>
-                    reviewWithdrawal(
-                        button.dataset.id,
-                        "approved"
-                    )
-            );
-
-        });
-
-
-    document
-        .querySelectorAll(".reject")
-        .forEach(button => {
-
-            button.addEventListener(
-                "click",
-                () =>
-                    reviewWithdrawal(
-                        button.dataset.id,
-                        "rejected"
-                    )
-            );
-
-        });
 }
 
 
 /* =========================
-   APPROVE / REJECT
+   APPROVE / REJECT RECHARGE
 ========================= */
 
-async function reviewWithdrawal(
+async function reviewDeposit(
     id,
     newStatus
-) {
+){
 
-    const confirmText =
+    const question =
         newStatus === "approved"
-            ? "Èske ou vle APWOUVE demann retrè sa a?"
-            : "Èske ou vle REJETE demann retrè sa a?";
+        ?
+        "Èske ou vle APWOUVE rechaj sa a?"
+        :
+        "Èske ou vle REJETE rechaj sa a?";
 
-    if (!confirm(confirmText)) {
+
+    if(!confirm(question)){
+
         return;
+
     }
 
+
     const {
-        data: {
+        data:{
             user
         }
-    } = await sb.auth.getUser();
+    } =
+        await sb.auth.getUser();
 
-    const updateData = {
 
-        status: newStatus,
+    const {
+        data:request,
+        error:fetchError
+    } =
+        await sb
+        .from("deposit_requests")
+        .select("*")
+        .eq("id",id)
+        .maybeSingle();
 
-        reviewed_by:
-            user
-                ? user.id
-                : null,
 
-        reviewed_at:
-            new Date().toISOString(),
+    if(fetchError){
+
+        alert(
+            "Pa kapab jwenn demann rechaj la:\n"
+            +
+            fetchError.message
+        );
+
+        return;
+
+    }
+
+
+    if(!request){
+
+        alert(
+            "Demann rechaj la pa egziste."
+        );
+
+        return;
+
+    }
+
+
+    /*
+       IMPORTANT:
+       Nou pa ajoute lajan isit la dirèkteman
+       si sistèm wallet ou deja gen trigger/RPC
+       pou kredite kont lan.
+
+       Nou sèlman valide demann lan.
+    */
+
+
+    const {
+        error
+    } =
+        await sb
+        .from("deposit_requests")
+        .update({
+
+            status:newStatus,
+
+            reviewed_by:
+                user
+                ?
+                user.id
+                :
+                null,
+
+            reviewed_at:
+                new Date().toISOString(),
+
+            updated_at:
+                new Date().toISOString()
+
+        })
+        .eq("id",id);
+
+
+    if(error){
+
+        console.error(error);
+
+        alert(
+            "Pa kapab modifye demann rechaj la:\n"
+            +
+            error.message
+        );
+
+        return;
+
+    }
+
+
+    await loadDepositRequests();
+
+    await loadRealStats();
+
+}
+
+
+/* =========================
+   SETTINGS
+========================= */
+
+async function loadAdminSettings(){
+
+    const {
+        data,
+        error
+    } =
+        await sb
+        .from("macheya_settings")
+        .select("*")
+        .limit(1)
+        .maybeSingle();
+
+
+    if(error){
+
+        console.error(
+            "Settings:",
+            error
+        );
+
+        return;
+
+    }
+
+
+    if(!data){
+
+        return;
+
+    }
+
+
+    const fee =
+        data.withdrawal_fee_percent ??
+        data.fee_percent ??
+        data.commission_percent ??
+        0;
+
+
+    const moncash =
+        data.moncash_number ??
+        data.moncash ??
+        "";
+
+
+    const natcash =
+        data.natcash_number ??
+        data.natcash ??
+        "";
+
+
+    const feeInput =
+        document.getElementById(
+            "feePercent"
+        );
+
+
+    const moncashInput =
+        document.getElementById(
+            "moncashNumber"
+        );
+
+
+    const natcashInput =
+        document.getElementById(
+            "natcashNumber"
+        );
+
+
+    if(feeInput){
+
+        feeInput.value =
+            fee;
+
+    }
+
+
+    if(moncashInput){
+
+        moncashInput.value =
+            moncash;
+
+    }
+
+
+    if(natcashInput){
+
+        natcashInput.value =
+            natcash;
+
+    }
+
+}
+
+
+/* =========================
+   SAVE SETTINGS
+========================= */
+
+async function saveAdminSettings(){
+
+    const feeInput =
+        document.getElementById(
+            "feePercent"
+        );
+
+
+    const moncashInput =
+        document.getElementById(
+            "moncashNumber"
+        );
+
+
+    const natcashInput =
+        document.getElementById(
+            "natcashNumber"
+        );
+
+
+    if(!feeInput ||
+       !moncashInput ||
+       !natcashInput){
+
+        alert(
+            "Chan paramèt yo pa jwenn."
+        );
+
+        return;
+
+    }
+
+
+    const fee =
+        Number(
+            feeInput.value || 0
+        );
+
+
+    const moncash =
+        moncashInput.value.trim();
+
+
+    const natcash =
+        natcashInput.value.trim();
+
+
+    if(
+        fee < 0 ||
+        fee > 100
+    ){
+
+        alert(
+            "Pousantaj la dwe ant 0% ak 100%."
+        );
+
+        return;
+
+    }
+
+
+    const {
+        data:existing
+    } =
+        await sb
+        .from("macheya_settings")
+        .select("id")
+        .limit(1)
+        .maybeSingle();
+
+
+    const payload = {
+
+        withdrawal_fee_percent:
+            fee,
+
+        moncash_number:
+            moncash,
+
+        natcash_number:
+            natcash,
 
         updated_at:
             new Date().toISOString()
@@ -1112,537 +1414,311 @@ async function reviewWithdrawal(
     };
 
 
-    const {
-        error
-    } = await sb
-        .from("withdrawal_requests")
-        .update(updateData)
-        .eq("id", id);
+    let result;
 
 
-    if (error) {
+    if(existing){
 
-        console.error(error);
+        result =
+            await sb
+            .from("macheya_settings")
+            .update(payload)
+            .eq("id",existing.id);
+
+    }else{
+
+        result =
+            await sb
+            .from("macheya_settings")
+            .insert(payload);
+
+    }
+
+
+    if(result.error){
+
+        console.error(
+            result.error
+        );
 
         alert(
-            "Pa kapab modifye demann lan:\n" +
-            error.message
+            "Pa kapab sove paramèt yo:\n"
+            +
+            result.error.message
         );
 
         return;
+
     }
 
-    await loadWithdrawals();
+
+    alert(
+        "Paramèt Macheya yo sove avèk siksè."
+    );
+
 }
 
 
 /* =========================
-   WITHDRAWAL STATS
+   CREATE SETTINGS PANEL
 ========================= */
 
-function updateWithdrawalStats(data) {
+function createSettingsPanel(){
 
-    let total = 0;
+    if(
+        document.getElementById(
+            "macheyaSettingsPanel"
+        )
+    ){
 
-    data.forEach(row => {
-
-        const amount =
-            Number(
-                row.total_deducted || 0
-            );
-
-        if (
-            String(row.status || "")
-                .toLowerCase() === "approved"
-        ) {
-
-            total += amount;
-        }
-
-    });
-
-
-    $("withdrawals").textContent =
-        money(total);
-
-
-    /*
-       Pa mete buyers/sellers/users/orders
-       isit la ankò.
-       loadGeneralStats() okipe yo.
-    */
-
-    $("fees").textContent =
-        money(0);
-
-    $("circulation").textContent =
-        money(0);
-}
-
-
-/* =========================
-   GRAPH
-========================= */
-
-function drawChart() {
-
-    const canvas = $("chart");
-
-    if (!canvas) {
         return;
-    }
-
-    const ctx =
-        canvas.getContext("2d");
-
-    const rect =
-        canvas.getBoundingClientRect();
-
-    const width =
-        Math.max(rect.width, 300);
-
-    const height = 260;
-
-    const dpr =
-        window.devicePixelRatio || 1;
-
-    canvas.width =
-        width * dpr;
-
-    canvas.height =
-        height * dpr;
-
-    canvas.style.width =
-        width + "px";
-
-    canvas.style.height =
-        height + "px";
-
-    ctx.setTransform(
-        dpr,
-        0,
-        0,
-        dpr,
-        0,
-        0
-    );
-
-    ctx.clearRect(
-        0,
-        0,
-        width,
-        height
-    );
-
-
-    const days =
-        Number(
-            $("period").value || 30
-        );
-
-
-    const now =
-        new Date();
-
-    const values = [];
-
-
-    for (
-        let i = days - 1;
-        i >= 0;
-        i--
-    ) {
-
-        const date =
-            new Date(now);
-
-        date.setHours(
-            0,
-            0,
-            0,
-            0
-        );
-
-        date.setDate(
-            date.getDate() - i
-        );
-
-
-        const key =
-            date.toISOString()
-                .slice(0, 10);
-
-
-        let total = 0;
-
-
-        withdrawalData.forEach(row => {
-
-            if (!row.created_at) {
-                return;
-            }
-
-
-            const rowDate =
-                new Date(
-                    row.created_at
-                )
-                    .toISOString()
-                    .slice(0, 10);
-
-
-            if (rowDate === key) {
-
-                total += Number(
-                    row.total_deducted || 0
-                );
-
-            }
-
-        });
-
-
-        values.push({
-            date: key,
-            value: total
-        });
 
     }
 
 
-    const max =
-        Math.max(
-            ...values.map(
-                x => x.value
-            ),
-            1
+    const panel =
+        document.createElement("section");
+
+
+    panel.id =
+        "macheyaSettingsPanel";
+
+
+    panel.className =
+        "panel";
+
+
+    panel.innerHTML = `
+
+        <h3>
+            ⚙️ Paramèt Macheya
+        </h3>
+
+        <label>
+            Frè retrè (%)
+        </label>
+
+        <input
+            id="feePercent"
+            type="number"
+            min="0"
+            max="100"
+            step="0.01"
+            placeholder="Egzanp: 5"
+        >
+
+        <label>
+            📱 Numéro MonCash
+        </label>
+
+        <input
+            id="moncashNumber"
+            type="text"
+            placeholder="Egzanp: 37XXXXXXXX"
+        >
+
+        <label>
+            📱 Numéro NatCash
+        </label>
+
+        <input
+            id="natcashNumber"
+            type="text"
+            placeholder="Egzanp: 38XXXXXXXX"
+        >
+
+        <button
+            class="btn"
+            type="button"
+            id="saveSettingsButton"
+        >
+            💾 Sove paramèt yo
+        </button>
+
+    `;
+
+
+    document
+        .querySelector(".container")
+        .appendChild(panel);
+
+
+    document
+        .getElementById(
+            "saveSettingsButton"
+        )
+        .addEventListener(
+            "click",
+            saveAdminSettings
         );
 
 
-    const left = 42;
-    const right = 12;
-    const top = 20;
-    const bottom = 35;
+    loadAdminSettings();
 
-
-    const graphWidth =
-        width - left - right;
-
-    const graphHeight =
-        height - top - bottom;
-
-
-    /* GRID */
-
-    ctx.strokeStyle =
-        "#eeeeee";
-
-    ctx.lineWidth = 1;
-
-
-    for (
-        let i = 0;
-        i <= 4;
-        i++
-    ) {
-
-        const y =
-            top +
-            (
-                graphHeight / 4
-            ) * i;
-
-
-        ctx.beginPath();
-
-        ctx.moveTo(
-            left,
-            y
-        );
-
-        ctx.lineTo(
-            width - right,
-            y
-        );
-
-        ctx.stroke();
-    }
-
-
-    /* LINE */
-
-    ctx.beginPath();
-
-
-    values.forEach(
-        (point, index) => {
-
-            const x =
-                left +
-                (
-                    index /
-                    Math.max(
-                        values.length - 1,
-                        1
-                    )
-                ) *
-                graphWidth;
-
-
-            const y =
-                top +
-                graphHeight -
-                (
-                    point.value /
-                    max
-                ) *
-                graphHeight;
-
-
-            if (index === 0) {
-
-                ctx.moveTo(
-                    x,
-                    y
-                );
-
-            } else {
-
-                ctx.lineTo(
-                    x,
-                    y
-                );
-
-            }
-
-        }
-    );
-
-
-    ctx.strokeStyle =
-        "#f97316";
-
-    ctx.lineWidth = 3;
-
-    ctx.stroke();
-
-
-    /* POINTS */
-
-    values.forEach(
-        (point, index) => {
-
-            const x =
-                left +
-                (
-                    index /
-                    Math.max(
-                        values.length - 1,
-                        1
-                    )
-                ) *
-                graphWidth;
-
-
-            const y =
-                top +
-                graphHeight -
-                (
-                    point.value /
-                    max
-                ) *
-                graphHeight;
-
-
-            ctx.beginPath();
-
-            ctx.arc(
-                x,
-                y,
-                3,
-                0,
-                Math.PI * 2
-            );
-
-            ctx.fillStyle =
-                "#f97316";
-
-            ctx.fill();
-
-        }
-    );
-
-
-    /* LABELS */
-
-    ctx.fillStyle =
-        "#888";
-
-    ctx.font =
-        "10px Arial";
-
-
-    ctx.fillText(
-        "0",
-        8,
-        height - bottom + 3
-    );
-
-
-    ctx.fillText(
-        money(max)
-            .replace(" HTG", ""),
-        8,
-        top + 4
-    );
-
-
-    if (values.length) {
-
-        const first =
-            values[0]
-                .date
-                .split("-")
-                .reverse()
-                .join("/");
-
-
-        const last =
-            values[
-                values.length - 1
-            ]
-                .date
-                .split("-")
-                .reverse()
-                .join("/");
-
-
-        ctx.fillText(
-            first,
-            left,
-            height - 10
-        );
-
-
-        ctx.fillText(
-            last,
-            width - 55,
-            height - 10
-        );
-
-    }
 }
 
 
 /* =========================
-   PERIOD
+   CREATE DEPOSIT PANEL
 ========================= */
 
-$("period")
-    .addEventListener(
-        "change",
-        drawChart
-    );
+function createDepositPanel(){
+
+    if(
+        document.getElementById(
+            "depositRequests"
+        )
+    ){
+
+        return;
+
+    }
+
+
+    const panel =
+        document.createElement("section");
+
+
+    panel.className =
+        "panel";
+
+
+    panel.innerHTML = `
+
+        <h3>
+            ➕ Demann rechaj
+        </h3>
+
+        <div
+            id="depositRequests"
+            class="requests"
+        >
+
+            <div class="empty">
+                Ap chèche demann rechaj...
+            </div>
+
+        </div>
+
+    `;
+
+
+    panel.id =
+        "depositPanel";
+
+
+    const requestsPanel =
+        document
+        .getElementById(
+            "requests"
+        )
+        .closest(".panel");
+
+
+    requestsPanel
+        .parentNode
+        .insertBefore(
+            panel,
+            requestsPanel
+        );
+
+
+    loadDepositRequests();
+
+}
 
 
 /* =========================
-   RESIZE
+   START DASHBOARD
 ========================= */
 
-window.addEventListener(
-    "resize",
-    drawChart
+async function startAdminDashboard(){
+
+    try{
+
+        createDepositPanel();
+
+        createSettingsPanel();
+
+        await loadRealStats();
+
+        await loadWithdrawals();
+
+        drawChart();
+
+    }catch(error){
+
+        console.error(
+            "Dashboard error:",
+            error
+        );
+
+    }
+
+}
+
+
+/* =========================
+   OVERRIDE DASHBOARD LOAD
+========================= */
+
+const oldLoadDashboard =
+    window.loadDashboard;
+
+
+window.loadDashboard =
+    async function(){
+
+        await startAdminDashboard();
+
+    };
+
+
+/* =========================
+   AUTH STATE
+========================= */
+
+sb.auth.onAuthStateChange(
+    async (event,session) => {
+
+        if(
+            event === "SIGNED_IN" &&
+            session
+        ){
+
+            const ok =
+                await verifyAdmin();
+
+            if(ok){
+
+                await startAdminDashboard();
+
+            }
+
+        }
+
+    }
 );
 
 
 /* =========================
-   BUTTONS
+   INITIALIZATION
 ========================= */
 
-$("walletButton").onclick =
-    function() {
+setTimeout(
+    async function(){
 
-        location.href =
-            "admin-wallet.html";
+        if(
+            adminPage.style.display ===
+            "block"
+        ){
 
-    };
+            await startAdminDashboard();
 
-
-$("settingsButton").onclick =
-    function() {
-
-        location.href =
-            "admin-settings.html";
-
-    };
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-$("logout").onclick =
-    async function() {
-
-        if (sb) {
-            await sb.auth.signOut();
         }
 
-        adminPage.style.display =
-            "none";
+    },
+    500
+);
 
-        loginPage.classList.remove(
-            "hidden"
-        );
-
-        $("email").value = "";
-        $("password").value = "";
-
-        loginButton.disabled =
-            false;
-
-        loginButton.textContent =
-            "Konekte";
-
-        message(
-            "Ou dekonekte."
-        );
-
-    };
-
-
-/* =========================
-   AUTO LOGIN
-========================= */
-
-(async function() {
-
-    if (!sb) {
-        return;
-    }
-
-    const ok =
-        await verifyAdmin();
-
-    if (ok) {
-        await loadDashboard();
-    }
-
-})();
    </script>
-
-
-
-
-
-
- 
-
-
-
-
-
-
-
-</body>
-   </html>
