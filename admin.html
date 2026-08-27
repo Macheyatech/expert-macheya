@@ -17,12 +17,16 @@ padding:0
 
 body{
 font-family:Arial,Poppins,sans-serif;
-background:#f6f7f9;
+background:#f5f6f8;
 color:#171717
 }
 
 button,input,select{
 font:inherit
+}
+
+button{
+cursor:pointer
 }
 
 .hidden{
@@ -36,81 +40,80 @@ place-items:center;
 padding:20px
 }
 
-.card{
-width:min(400px,100%);
+.login-card{
+width:min(410px,100%);
 background:#fff;
-padding:25px;
-border-radius:20px;
-box-shadow:0 8px 30px #0001
+padding:28px;
+border-radius:22px;
+box-shadow:0 10px 35px #00000012
 }
 
 .logo{
-width:55px;
-height:55px;
-margin:auto auto 14px;
+width:58px;
+height:58px;
+margin:0 auto 15px;
 border-radius:50%;
 background:#f97316;
 color:#fff;
 display:grid;
 place-items:center;
-font-size:24px;
-font-weight:bold
+font-size:25px;
+font-weight:800
 }
 
-h1{
+.login-title{
 text-align:center;
-font-size:24px
+font-size:25px
 }
 
-.sub{
+.login-sub{
 text-align:center;
-color:#777;
 font-size:13px;
+color:#777;
 margin:7px 0 22px
 }
 
 label{
 display:block;
 font-size:12px;
-font-weight:bold;
-margin:12px 0 6px
+font-weight:700;
+margin:13px 0 6px
 }
 
-input,select{
+input{
 width:100%;
-padding:12px;
 border:1px solid #ddd;
-border-radius:10px;
-outline:0;
+border-radius:12px;
+padding:13px;
+outline:none;
 background:#fff
 }
 
-input:focus,
-select:focus{
+input:focus{
 border-color:#f97316
 }
 
-.btn{
+.login-btn{
 width:100%;
 border:0;
-padding:13px;
-margin-top:17px;
-border-radius:10px;
+border-radius:12px;
+padding:14px;
+margin-top:18px;
 background:#f97316;
 color:#fff;
-font-weight:bold;
-cursor:pointer
+font-weight:700
 }
 
-.btn:disabled{
+.login-btn:disabled{
 opacity:.6
 }
 
-.msg{
-text-align:center;
+.login-message{
 font-size:12px;
-color:#d00;
-margin-top:12px
+text-align:center;
+margin-top:12px;
+color:#d00000;
+min-height:18px
 }
 
 .admin{
@@ -119,26 +122,26 @@ display:none
 
 header{
 background:#fff;
-padding:14px 5%;
 border-bottom:1px solid #eee;
+padding:15px 5%;
 display:flex;
 justify-content:space-between;
 align-items:center;
-gap:10px
+gap:12px
 }
 
 .brand{
-font-size:20px;
-font-weight:bold
+font-size:21px;
+font-weight:800
 }
 
-.badge{
+.admin-badge{
 background:#fff7ed;
 color:#f97316;
-padding:7px 11px;
+padding:8px 12px;
 border-radius:20px;
 font-size:10px;
-font-weight:bold
+font-weight:800
 }
 
 .container{
@@ -146,55 +149,75 @@ width:min(1100px,92%);
 margin:25px auto 60px
 }
 
-.title{
+.page-title{
 margin-bottom:20px
 }
 
-.title h2{
-font-size:25px
+.page-title h1{
+font-size:26px
 }
 
-.title p{
-color:#777;
+.page-title p{
 font-size:13px;
+color:#777;
 margin-top:5px
 }
 
-.grid{
+.stats{
 display:grid;
 grid-template-columns:repeat(4,1fr);
-gap:12px
+gap:13px
 }
 
 .stat{
 background:#fff;
-padding:17px;
-border-radius:16px;
-box-shadow:0 5px 20px #0000000a
+border-radius:18px;
+padding:18px;
+box-shadow:0 5px 20px #00000008
 }
 
-.stat span{
-font-size:11px;
-color:#777
+.stat-label{
+font-size:12px;
+color:#777;
+display:flex;
+align-items:center;
+gap:6px
 }
 
-.stat strong{
-display:block;
-font-size:19px;
-margin-top:6px
+.stat-value{
+font-size:21px;
+font-weight:800;
+margin-top:8px
 }
 
 .panel{
 background:#fff;
-padding:18px;
-border-radius:16px;
+border-radius:18px;
+padding:19px;
 margin-top:18px;
-box-shadow:0 5px 20px #0000000a
+box-shadow:0 5px 20px #00000008
 }
 
-.panel h3{
-font-size:17px;
+.panel-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
 margin-bottom:14px
+}
+
+.panel-title{
+font-size:18px;
+font-weight:800
+}
+
+.refresh-btn{
+border:0;
+background:#f5f5f5;
+padding:9px 12px;
+border-radius:10px;
+font-size:11px;
+font-weight:700
 }
 
 .requests{
@@ -204,9 +227,9 @@ gap:10px
 
 .request{
 border:1px solid #eee;
-border-radius:12px;
-padding:13px;
-background:#fafafa
+background:#fafafa;
+border-radius:13px;
+padding:14px
 }
 
 .request-top{
@@ -216,14 +239,15 @@ align-items:center;
 gap:10px
 }
 
-.request strong{
-font-size:14px
+.request-amount{
+font-size:15px;
+font-weight:800
 }
 
 .status{
 font-size:10px;
-font-weight:bold;
-padding:5px 8px;
+font-weight:800;
+padding:6px 9px;
 border-radius:20px;
 background:#fff7ed;
 color:#f97316
@@ -241,25 +265,24 @@ color:#b91c1c
 
 .request-info{
 font-size:11px;
+line-height:1.8;
 color:#777;
-margin-top:7px;
-line-height:1.7
+margin-top:8px
 }
 
-.request-buttons{
+.request-actions{
 display:flex;
-gap:7px;
-margin-top:10px
+gap:8px;
+margin-top:11px
 }
 
 .approve,
 .reject{
 border:0;
-padding:8px 11px;
-border-radius:8px;
+padding:9px 12px;
+border-radius:9px;
 font-size:11px;
-font-weight:bold;
-cursor:pointer
+font-weight:800
 }
 
 .approve{
@@ -278,62 +301,70 @@ opacity:.5
 }
 
 .empty{
-padding:20px;
+padding:22px;
 text-align:center;
-color:#888;
-font-size:13px
-}
-
-.actions{
-display:grid;
-gap:9px
-}
-
-.action{
-border:0;
-padding:12px;
-border-radius:10px;
-background:#f97316;
-color:#fff;
-font-weight:bold;
-text-align:left;
-cursor:pointer
-}
-
-.gray{
-background:#f5f5f5;
-color:#333
+font-size:13px;
+color:#888
 }
 
 .settings-grid{
 display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:12px
+gap:13px
 }
 
 .setting-box{
 background:#fafafa;
 border:1px solid #eee;
-padding:14px;
-border-radius:12px
+border-radius:15px;
+padding:15px
 }
 
 .setting-box label{
-margin-top:0
-}
-
-.setting-full{
-grid-column:1/-1
+margin:0 0 7px;
+font-size:12px
 }
 
 .save-settings{
-margin-top:14px
+width:100%;
+border:0;
+background:#f97316;
+color:#fff;
+padding:14px;
+border-radius:12px;
+font-weight:800;
+margin-top:4px
+}
+
+.save-settings:disabled{
+opacity:.6
+}
+
+.settings-message{
+font-size:12px;
+text-align:center;
+margin-top:10px;
+min-height:18px
+}
+
+.chart-head{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px
+}
+
+.period{
+border:1px solid #ddd;
+background:#fff;
+border-radius:9px;
+padding:8px 10px;
+font-size:11px
 }
 
 .chart-wrap{
-width:100%;
 height:260px;
-position:relative
+width:100%;
+margin-top:12px
 }
 
 #chart{
@@ -342,64 +373,88 @@ height:260px;
 display:block
 }
 
-.chart-select{
-float:right;
-width:auto;
-padding:7px 10px;
-font-size:11px;
-margin-top:-8px
-}
-
-.graph-note{
+.chart-note{
 font-size:11px;
 color:#888;
 margin-top:8px
 }
 
-.section-title{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:10px
+.actions{
+display:grid;
+gap:9px
 }
 
-.refresh{
+.action-btn{
 border:0;
-background:#f5f5f5;
-padding:7px 10px;
-border-radius:8px;
-font-size:11px;
-cursor:pointer
+padding:13px;
+border-radius:11px;
+background:#f97316;
+color:#fff;
+font-weight:800;
+text-align:left
 }
 
-@media(max-width:700px){
+.action-btn.gray{
+background:#f3f3f3;
+color:#333
+}
 
-.grid{
+.loading{
+color:#888!important
+}
+
+@media(max-width:850px){
+
+.stats{
 grid-template-columns:1fr 1fr
 }
 
-.settings-grid{
-grid-template-columns:1fr
 }
 
-}
+@media(max-width:500px){
 
-@media(max-width:400px){
-
-.card{
-padding:21px
-}
-
-.stat{
-padding:14px
-}
-
-.stat strong{
-font-size:16px
+header{
+padding:14px 4%
 }
 
 .brand{
-font-size:17px
+font-size:19px
+}
+
+.container{
+width:92%;
+margin-top:20px
+}
+
+.stats{
+grid-template-columns:1fr 1fr;
+gap:10px
+}
+
+.stat{
+padding:15px;
+border-radius:16px
+}
+
+.stat-value{
+font-size:18px
+}
+
+.panel{
+padding:16px;
+border-radius:17px
+}
+
+.page-title h1{
+font-size:24px
+}
+
+}
+
+@media(max-width:350px){
+
+.stats{
+grid-template-columns:1fr
 }
 
 }
@@ -408,23 +463,25 @@ font-size:17px
 
 <body>
 
-<!-- LOGIN -->
-
 <div id="loginPage" class="login">
 
-<div class="card">
+<div class="login-card">
 
 <div class="logo">M</div>
 
-<h1>Super Admin</h1>
+<h1 class="login-title">
+Super Admin
+</h1>
 
-<p class="sub">
+<p class="login-sub">
 Konekte pou antre nan zòn administrasyon macheya.
 </p>
 
 <form id="loginForm">
 
-<label>Email Super Admin</label>
+<label for="email">
+Email Super Admin
+</label>
 
 <input
 id="email"
@@ -434,7 +491,9 @@ autocomplete="email"
 required
 >
 
-<label>Modpas</label>
+<label for="password">
+Modpas
+</label>
 
 <input
 id="password"
@@ -446,7 +505,7 @@ required
 
 <button
 id="loginButton"
-class="btn"
+class="login-btn"
 type="submit"
 >
 Konekte
@@ -454,14 +513,12 @@ Konekte
 
 </form>
 
-<div id="message" class="msg"></div>
+<div id="loginMessage" class="login-message"></div>
 
 </div>
 
 </div>
 
-
-<!-- ADMIN -->
 
 <div id="adminPage" class="admin">
 
@@ -471,7 +528,7 @@ Konekte
 Ⓜ macheya
 </div>
 
-<div class="badge">
+<div class="admin-badge">
 🔐 SUPER ADMIN
 </div>
 
@@ -480,11 +537,11 @@ Konekte
 
 <main class="container">
 
-<div class="title">
+<div class="page-title">
 
-<h2>
+<h1>
 Dashboard Super Admin
-</h2>
+</h1>
 
 <p>
 Kontwòl ak siveyans macheya.
@@ -493,66 +550,149 @@ Kontwòl ak siveyans macheya.
 </div>
 
 
-<!-- STATS -->
-
-<section class="grid">
+<section class="stats">
 
 <div class="stat">
-<span>💰 Lajan ki sikile</span>
-<strong id="circulation">0 HTG</strong>
+
+<div class="stat-label">
+💰 Lajan ki sikile
 </div>
 
-<div class="stat">
-<span>👤 Achtè</span>
-<strong id="buyers">0</strong>
+<div
+id="circulation"
+class="stat-value"
+>
+0 HTG
 </div>
 
-<div class="stat">
-<span>🏪 Vandè</span>
-<strong id="sellers">0</strong>
 </div>
 
-<div class="stat">
-<span>💸 Frè Macheya</span>
-<strong id="fees">0 HTG</strong>
-</div>
 
 <div class="stat">
-<span>➕ Depo</span>
-<strong id="deposits">0 HTG</strong>
+
+<div class="stat-label">
+👤 Achtè
 </div>
 
-<div class="stat">
-<span>➖ Retrè</span>
-<strong id="withdrawals">0 HTG</strong>
+<div
+id="buyers"
+class="stat-value loading"
+>
+...
 </div>
 
-<div class="stat">
-<span>👥 Itilizatè</span>
-<strong id="users">0</strong>
 </div>
 
+
 <div class="stat">
-<span>📦 Kòmand</span>
-<strong id="orders">0</strong>
+
+<div class="stat-label">
+🏪 Vandè
+</div>
+
+<div
+id="sellers"
+class="stat-value loading"
+>
+...
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-label">
+💸 Frè Macheya
+</div>
+
+<div
+id="fees"
+class="stat-value"
+>
+0 HTG
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-label">
+➕ Depo
+</div>
+
+<div
+id="deposits"
+class="stat-value"
+>
+0 HTG
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-label">
+➖ Retrè
+</div>
+
+<div
+id="withdrawals"
+class="stat-value"
+>
+0 HTG
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-label">
+👥 Itilizatè
+</div>
+
+<div
+id="users"
+class="stat-value loading"
+>
+...
+</div>
+
+</div>
+
+
+<div class="stat">
+
+<div class="stat-label">
+📦 Kòmand
+</div>
+
+<div
+id="orders"
+class="stat-value loading"
+>
+...
+</div>
+
 </div>
 
 </section>
 
 
-<!-- DEMANN RECHAJE -->
-
 <section class="panel">
 
-<div class="section-title">
+<div class="panel-head">
 
-<h3>
+<h2 class="panel-title">
 ➕ Demann rechaj
-</h3>
+</h2>
 
 <button
-class="refresh"
-id="refreshDeposits"
+id="refreshRecharge"
+class="refresh-btn"
 type="button"
 >
 ↻ Rafrechi
@@ -561,32 +701,28 @@ type="button"
 </div>
 
 <div
-id="depositRequests"
+id="rechargeRequests"
 class="requests"
 >
-
 <div class="empty">
 Ap chèche demann rechaj...
 </div>
-
 </div>
 
 </section>
 
 
-<!-- DEMANN RETRE -->
-
 <section class="panel">
 
-<div class="section-title">
+<div class="panel-head">
 
-<h3>
+<h2 class="panel-title">
 🧾 Demann retrè
-</h3>
+</h2>
 
 <button
-class="refresh"
-id="refreshWithdrawals"
+id="refreshWithdrawal"
+class="refresh-btn"
 type="button"
 >
 ↻ Rafrechi
@@ -598,25 +734,26 @@ type="button"
 id="withdrawalRequests"
 class="requests"
 >
-
 <div class="empty">
 Ap chèche demann retrè...
 </div>
-
 </div>
 
 </section>
 
 
-<!-- GRAPH -->
-
 <section class="panel">
+
+<div class="chart-head">
+
+<h2 class="panel-title">
+📈 Evolisyon retrè
+</h2>
 
 <select
 id="period"
-class="chart-select"
+class="period"
 >
-
 <option value="7">
 7 jou
 </option>
@@ -631,12 +768,9 @@ selected
 <option value="90">
 90 jou
 </option>
-
 </select>
 
-<h3>
-📈 Evolisyon retrè
-</h3>
+</div>
 
 <div class="chart-wrap">
 
@@ -644,31 +778,32 @@ selected
 
 </div>
 
-<p class="graph-note">
+<p class="chart-note">
 Graf la montre kantite retrè yo dapre dat demann yo.
 </p>
 
 </section>
 
 
-<!-- PARAMET -->
-
 <section class="panel">
 
-<h3>
+<h2 class="panel-title">
 ⚙️ Paramèt Macheya
-</h3>
+</h2>
 
-<div class="settings-grid">
+<div
+class="settings-grid"
+style="margin-top:15px"
+>
 
 <div class="setting-box">
 
-<label for="feePercent">
+<label for="feePercentage">
 💸 Pousantaj frè retrè (%)
 </label>
 
 <input
-id="feePercent"
+id="feePercentage"
 type="number"
 min="0"
 max="100"
@@ -687,7 +822,7 @@ placeholder="Egzanp: 5"
 
 <input
 id="moncashNumber"
-type="text"
+type="tel"
 placeholder="Numéro MonCash"
 >
 
@@ -702,17 +837,16 @@ placeholder="Numéro MonCash"
 
 <input
 id="natcashNumber"
-type="text"
+type="tel"
 placeholder="Numéro NatCash"
 >
 
 </div>
 
-</div>
 
 <button
 id="saveSettings"
-class="btn save-settings"
+class="save-settings"
 type="button"
 >
 💾 Sove paramèt yo
@@ -720,33 +854,36 @@ type="button"
 
 <div
 id="settingsMessage"
-class="msg"
+class="settings-message"
 ></div>
+
+</div>
 
 </section>
 
 
-<!-- ACTIONS -->
-
 <section class="panel">
 
-<h3>
+<h2 class="panel-title">
 ⚡ Aksyon rapid
-</h3>
+</h2>
 
-<div class="actions">
+<div
+class="actions"
+style="margin-top:14px"
+>
 
 <button
-class="action"
 id="walletButton"
+class="action-btn"
 type="button"
 >
 💳 Jesyon Wallet
 </button>
 
 <button
-id="settingsButton"
-class="action gray"
+id="settingsWalletButton"
+class="action-btn gray"
 type="button"
 >
 ⚙️ Paramèt Wallet
@@ -754,7 +891,7 @@ type="button"
 
 <button
 id="logout"
-class="action gray"
+class="action-btn gray"
 type="button"
 >
 🚪 Dekonekte
@@ -766,780 +903,476 @@ type="button"
 
 </main>
 
-</div>
-
-
+   </div>
 <script>
+const state = {
+  settings: null,
+  rechargeRequests: [],
+  withdrawalRequests: [],
+  profiles: [],
+  orders: []
+};
 
-"use strict";
+async function loadSettings() {
+  try {
+    const { data, error } = await supabase
+      .from("macheya_settings")
+      .select("*")
+      .eq("id", 1)
+      .maybeSingle();
 
+    if (error) throw error;
 
-/* =========================
-   SUPABASE
-========================= */
+    state.settings = data || {};
 
-const sb =
-window.supabaseClient;
+    const fee = document.getElementById("feePercentage");
+    const moncash = document.getElementById("moncashNumber");
+    const natcash = document.getElementById("natcashNumber");
 
+    if (fee) fee.value = data?.fee_percentage ?? 0;
+    if (moncash) moncash.value = data?.moncash_number ?? "";
+    if (natcash) natcash.value = data?.natcash_number ?? "";
 
-/* =========================
-   ELEMENTS
-========================= */
-
-const $ =
-id => document.getElementById(id);
-
-
-const loginPage =
-$("loginPage");
-
-const adminPage =
-$("adminPage");
-
-const form =
-$("loginForm");
-
-const msg =
-$("message");
-
-const loginButton =
-$("loginButton");
-
-
-let withdrawalData = [];
-
-let depositData = [];
-
-
-/* =========================
-   MONEY
-========================= */
-
-function money(value){
-
-return new Intl.NumberFormat(
-"fr-FR"
-).format(
-Number(value || 0)
-) + " HTG";
-
+  } catch (error) {
+    console.error("Settings error:", error);
+  }
 }
 
+async function saveSettings() {
+  const fee = document.getElementById("feePercentage");
+  const moncash = document.getElementById("moncashNumber");
+  const natcash = document.getElementById("natcashNumber");
+  const message = document.getElementById("settingsMessage");
 
-/* =========================
-   MESSAGE
-========================= */
+  if (!fee || !moncash || !natcash) return;
 
-function message(text){
+  const feeValue = Number(fee.value);
 
-msg.textContent =
-text;
+  if (isNaN(feeValue) || feeValue < 0 || feeValue > 100) {
+    if (message) {
+      message.textContent = "Pousantaj la dwe ant 0 ak 100.";
+    }
+    return;
+  }
 
+  try {
+    const {
+      data: { user }
+    } = await supabase.auth.getUser();
+
+    if (!user) {
+      if (message) message.textContent = "Ou pa konekte kòm admin.";
+      return;
+    }
+
+    const { error } = await supabase
+      .from("macheya_settings")
+      .upsert({
+        id: 1,
+        fee_percentage: feeValue,
+        moncash_number: moncash.value.trim(),
+        natcash_number: natcash.value.trim(),
+        updated_by: user.id,
+        updated_at: new Date().toISOString()
+      });
+
+    if (error) throw error;
+
+    if (message) {
+      message.textContent = "Paramèt yo sove avèk siksè.";
+      message.style.display = "block";
+    }
+
+    state.settings = {
+      id: 1,
+      fee_percentage: feeValue,
+      moncash_number: moncash.value.trim(),
+      natcash_number: natcash.value.trim()
+    };
+
+  } catch (error) {
+    console.error("Save settings error:", error);
+
+    if (message) {
+      message.textContent =
+        error.message || "Pa kapab sove paramèt yo.";
+      message.style.display = "block";
+    }
+  }
 }
 
+async function loadProfiles() {
+  try {
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("*");
 
-/* =========================
-   SETTINGS MESSAGE
-========================= */
+    if (error) throw error;
 
-function settingsMessage(text){
+    state.profiles = data || [];
 
-$("settingsMessage")
-.textContent =
-text;
+    const buyers = state.profiles.filter(
+      p => p.role === "acheteur"
+    ).length;
 
+    const sellers = state.profiles.filter(
+      p => p.role === "vendeur"
+    ).length;
+
+    setText("buyersCount", buyers);
+    setText("sellersCount", sellers);
+
+  } catch (error) {
+    console.error("Profiles error:", error);
+  }
 }
 
+async function loadOrders() {
+  try {
+    const { data, error } = await supabase
+      .from("wallet_transactions")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-/* =========================
-   VERIFY SUPER ADMIN
-========================= */
+    if (error) throw error;
 
-async function verifyAdmin(){
+    state.orders = data || [];
 
-if(!sb){
+    const orders = state.orders.filter(
+      item =>
+        item.type === "purchase" ||
+        item.type === "order" ||
+        item.type === "commande"
+    );
 
-message(
-"Supabase pa konekte."
-);
+    setText("ordersCount", orders.length);
 
-return false;
-
+  } catch (error) {
+    console.error("Orders error:", error);
+  }
 }
 
+async function loadRechargeRequests() {
+  const container =
+    document.getElementById("rechargeRequestsList");
 
-const {
-data,
-error
-} =
-await sb.auth.getUser();
+  if (!container) return;
 
+  container.innerHTML =
+    `<div class="loading">Ap chèche demann rechaj...</div>`;
 
-if(error){
+  try {
+    const { data, error } = await supabase
+      .from("recharge_requests")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-console.error(error);
+    if (error) throw error;
 
-return false;
+    state.rechargeRequests = data || [];
 
+    if (!state.rechargeRequests.length) {
+      container.innerHTML =
+        `<div class="empty">Pa gen demann rechaj pou kounye a.</div>`;
+      return;
+    }
+
+    container.innerHTML = state.rechargeRequests
+      .map(request => {
+
+        const amount =
+          request.amount ??
+          request.montant ??
+          request.value ??
+          0;
+
+        const method =
+          request.method ??
+          request.payment_method ??
+          request.type ??
+          "—";
+
+        const status =
+          request.status ?? "pending";
+
+        const phone =
+          request.phone_number ??
+          request.phone ??
+          request.number ??
+          "—";
+
+        return `
+          <div class="request-card">
+            <div>
+              <strong>💰 ${formatMoney(amount)} HTG</strong>
+              <span>${escapeHTML(method)}</span>
+            </div>
+
+            <div>
+              📱 ${escapeHTML(phone)}
+            </div>
+
+            <div>
+              <small>
+                ${formatDate(request.created_at)}
+              </small>
+            </div>
+
+            <div class="request-status">
+              ${escapeHTML(status)}
+            </div>
+
+            <div class="request-actions">
+              <button
+                class="approve-btn"
+                onclick="updateRechargeStatus('${request.id}','approved')">
+                ✓ Aksepte
+              </button>
+
+              <button
+                class="reject-btn"
+                onclick="updateRechargeStatus('${request.id}','rejected')">
+                ✕ Refize
+              </button>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+  } catch (error) {
+    console.error("Recharge error:", error);
+
+    container.innerHTML =
+      `<div class="error">
+        ${escapeHTML(error.message)}
+      </div>`;
+  }
 }
 
+async function updateRechargeStatus(id, status) {
+  try {
+    const { error } = await supabase
+      .from("recharge_requests")
+      .update({
+        status: status,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", id);
 
-if(!data.user){
+    if (error) throw error;
 
-return false;
+    await loadRechargeRequests();
 
+  } catch (error) {
+    console.error("Recharge update error:", error);
+    alert(error.message || "Pa kapab mete ajou demann lan.");
+  }
 }
 
+async function loadWithdrawalRequests() {
+  const container =
+    document.getElementById("withdrawalRequestsList");
 
-/*
-   Nou kenbe menm verifikasyon
-   ki te deja mache a.
-*/
+  if (!container) return;
 
-const {
-data:admin,
-error:adminError
-} =
-await sb
-.from("super_admins")
-.select("user_id")
-.eq(
-"user_id",
-data.user.id
-)
-.maybeSingle();
+  container.innerHTML =
+    `<div class="loading">Ap chèche demann retrè...</div>`;
 
+  try {
+    const { data, error } = await supabase
+      .from("withdrawal_requests")
+      .select("*")
+      .order("created_at", { ascending: false });
 
-if(adminError){
+    if (error) throw error;
 
-console.error(
-"Super admin error:",
-adminError
-);
+    state.withdrawalRequests = data || [];
 
-message(
-"Erè verifikasyon Super Admin."
-);
+    const pending = state.withdrawalRequests.filter(
+      r => (r.status || "pending") === "pending"
+    );
 
-return false;
+    const totalWithdrawal = state.withdrawalRequests.reduce(
+      (sum, r) => sum + Number(
+        r.amount ?? r.montant ?? 0
+      ),
+      0
+    );
 
+    setText(
+      "withdrawalTotal",
+      `${formatMoney(totalWithdrawal)} HTG`
+    );
+
+    if (!pending.length) {
+      container.innerHTML =
+        `<div class="empty">
+          Pa gen okenn demann retrè pou kounye a.
+        </div>`;
+      return;
+    }
+
+    container.innerHTML = pending
+      .map(request => {
+
+        const amount =
+          request.amount ??
+          request.montant ??
+          0;
+
+        const method =
+          request.method ??
+          request.payment_method ??
+          "—";
+
+        const number =
+          request.phone_number ??
+          request.phone ??
+          request.number ??
+          "—";
+
+        return `
+          <div class="request-card">
+            <div>
+              <strong>💸 ${formatMoney(amount)} HTG</strong>
+            </div>
+
+            <div>
+              📱 ${escapeHTML(number)}
+            </div>
+
+            <div>
+              💳 ${escapeHTML(method)}
+            </div>
+
+            <div>
+              <small>
+                ${formatDate(request.created_at)}
+              </small>
+            </div>
+
+            <div class="request-actions">
+              <button
+                class="approve-btn"
+                onclick="updateWithdrawalStatus('${request.id}','approved')">
+                ✓ Peye
+              </button>
+
+              <button
+                class="reject-btn"
+                onclick="updateWithdrawalStatus('${request.id}','rejected')">
+                ✕ Refize
+              </button>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+  } catch (error) {
+    console.error("Withdrawal error:", error);
+
+    container.innerHTML =
+      `<div class="error">
+        ${escapeHTML(error.message)}
+      </div>`;
+  }
 }
 
+async function updateWithdrawalStatus(id, status) {
+  try {
+    const { error } = await supabase
+      .from("withdrawal_requests")
+      .update({
+        status: status,
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", id);
 
-if(!admin){
+    if (error) throw error;
 
-await sb.auth.signOut();
+    await loadWithdrawalRequests();
 
-message(
-"Kont sa a pa Super Admin."
-);
-
-return false;
-
+  } catch (error) {
+    console.error("Withdrawal update error:", error);
+    alert(error.message || "Pa kapab mete ajou demann retrè a.");
+  }
 }
 
-
-loginPage.classList.add(
-"hidden"
-);
-
-adminPage.style.display =
-"block";
-
-return true;
-
+async function loadDashboard() {
+  await Promise.all([
+    loadSettings(),
+    loadProfiles(),
+    loadOrders(),
+    loadRechargeRequests(),
+    loadWithdrawalRequests()
+  ]);
 }
 
-
-/* =========================
-   LOGIN
-========================= */
-
-form.addEventListener(
-"submit",
-async function(e){
-
-e.preventDefault();
-
-
-if(!sb){
-
-message(
-"Supabase pa disponib."
-);
-
-return;
-
+function setText(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
 }
 
+function formatMoney(value) {
+  return Number(value || 0).toLocaleString("fr-FR");
+}
 
-loginButton.disabled =
-true;
+function formatDate(date) {
+  if (!date) return "—";
 
-loginButton.textContent =
-"Koneksyon...";
+  try {
+    return new Date(date).toLocaleString("fr-FR", {
+      dateStyle: "short",
+      timeStyle: "short"
+    });
+  } catch {
+    return "—";
+  }
+}
 
-message("");
+function escapeHTML(value) {
+  return String(value ?? "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
+document.addEventListener("DOMContentLoaded", () => {
 
-const email =
-$("email").value.trim();
+  const saveButton =
+    document.getElementById("saveSettingsBtn");
 
-const password =
-$("password").value;
+  if (saveButton) {
+    saveButton.addEventListener("click", saveSettings);
+  }
 
+  const refreshRecharge =
+    document.getElementById("refreshRechargeBtn");
 
-const {
-error
-} =
-await sb.auth.signInWithPassword({
+  if (refreshRecharge) {
+    refreshRecharge.addEventListener(
+      "click",
+      loadRechargeRequests
+    );
+  }
 
-email:email,
+  const refreshWithdrawal =
+    document.getElementById("refreshWithdrawalBtn");
 
-password:password
+  if (refreshWithdrawal) {
+    refreshWithdrawal.addEventListener(
+      "click",
+      loadWithdrawalRequests
+    );
+  }
 
+  loadDashboard();
 });
-
-
-if(error){
-
-console.error(
-"Login error:",
-error
-);
-
-message(
-error.message ||
-"Email oswa modpas la pa kòrèk."
-);
-
-loginButton.disabled =
-false;
-
-loginButton.textContent =
-"Konekte";
-
-return;
-
-}
-
-
-const ok =
-await verifyAdmin();
-
-
-if(!ok){
-
-loginButton.disabled =
-false;
-
-loginButton.textContent =
-"Konekte";
-
-return;
-
-}
-
-
-await loadDashboard();
-
-
-loginButton.disabled =
-false;
-
-loginButton.textContent =
-"Konekte";
-
-});
-
-
-/* =========================
-   DASHBOARD
-========================= */
-
-async function loadDashboard(){
-
-await loadStats();
-
-await loadWithdrawals();
-
-await loadDeposits();
-
-await loadSettings();
-
-drawChart();
-
-}
-
-
-/* =========================
-   STATS
-========================= */
-
-async function loadStats(){
-
-/*
-   Pati 2 ap chaje done reyèl yo.
-   Pa gen okenn zewo fòse isit la.
-*/
-
-await loadProfilesStats();
-
-await loadOrderStats();
-
-await loadMoneyStats();
-
-}
-
-
-/* =========================
-   PROFILES STATS
-========================= */
-
-async function loadProfilesStats(){
-
-try{
-
-const {
-count:usersCount,
-error:usersError
-} =
-await sb
-.from("profiles")
-.select(
-"id",
-{
-count:"exact",
-head:true
-}
-);
-
-
-if(usersError){
-
-console.error(
-"Users:",
-usersError
-);
-
-}else{
-
-$("users").textContent =
-usersCount ?? 0;
-
-}
-
-
-const {
-count:buyersCount,
-error:buyersError
-} =
-await sb
-.from("profiles")
-.select(
-"id",
-{
-count:"exact",
-head:true
-}
-)
-.eq(
-"role",
-"buyer"
-);
-
-
-if(buyersError){
-
-console.error(
-"Buyers:",
-buyersError
-);
-
-}else{
-
-$("buyers").textContent =
-buyersCount ?? 0;
-
-}
-
-
-const {
-count:sellersCount,
-error:sellersError
-} =
-await sb
-.from("profiles")
-.select(
-"id",
-{
-count:"exact",
-head:true
-}
-)
-.eq(
-"role",
-"seller"
-);
-
-
-if(sellersError){
-
-console.error(
-"Sellers:",
-sellersError
-);
-
-}else{
-
-$("sellers").textContent =
-sellersCount ?? 0;
-
-}
-
-
-}catch(error){
-
-console.error(
-"Profile statistics:",
-error
-);
-
-}
-
-}
-
-
-/* =========================
-   ORDER STATS
-========================= */
-
-async function loadOrderStats(){
-
-try{
-
-const {
-count,
-error
-} =
-await sb
-.from("orders")
-.select(
-"id",
-{
-count:"exact",
-head:true
-}
-);
-
-
-if(error){
-
-console.error(
-"Orders:",
-error
-);
-
-return;
-
-}
-
-
-$("orders").textContent =
-count ?? 0;
-
-
-}catch(error){
-
-console.error(
-"Order statistics:",
-error
-);
-
-}
-
-}
-
-
-/* =========================
-   MONEY STATS
-========================= */
-
-async function loadMoneyStats(){
-
-try{
-
-const {
-data,
-error
-} =
-await sb
-.from("withdrawal_requests")
-.select("*");
-
-
-if(error){
-
-console.error(
-"Money stats:",
-error
-);
-
-return;
-
-}
-
-
-withdrawalData =
-data || [];
-
-
-let approvedWithdrawals =
-0;
-
-let totalFees =
-0;
-
-
-withdrawalData.forEach(row => {
-
-const status =
-String(
-row.status || ""
-).toLowerCase();
-
-
-if(status === "approved"){
-
-approvedWithdrawals +=
-Number(
-row.total_deducted ||
-row.amount ||
-0
-);
-
-
-totalFees +=
-Number(
-row.fee ||
-row.fees ||
-row.macheya_fee ||
-row.commission ||
-0
-);
-
-}
-
-});
-
-
-$("withdrawals")
-.textContent =
-money(
-approvedWithdrawals
-);
-
-
-$("fees")
-.textContent =
-money(
-totalFees
-);
-
-
-const {
-data:deposits,
-error:depositError
-} =
-await sb
-.from("deposit_requests")
-.select("*");
-
-
-if(depositError){
-
-console.error(
-"Deposit stats:",
-depositError
-);
-
-return;
-
-}
-
-
-depositData =
-deposits || [];
-
-
-let approvedDeposits =
-0;
-
-
-depositData.forEach(row => {
-
-if(
-String(
-row.status || ""
-).toLowerCase()
-===
-"approved"
-){
-
-approvedDeposits +=
-Number(
-row.amount ||
-row.total_amount ||
-row.amount_htg ||
-0
-);
-
-}
-
-});
-
-
-$("deposits")
-.textContent =
-money(
-approvedDeposits
-);
-
-
-$("circulation")
-.textContent =
-money(
-Math.max(
-0,
-approvedDeposits -
-approvedWithdrawals
-)
-);
-
-
-}catch(error){
-
-console.error(
-"Money statistics:",
-error
-);
-
-}
-
-}
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-$("logout").onclick =
-async function(){
-
-if(sb){
-
-await sb.auth.signOut();
-
-}
-
-
-adminPage.style.display =
-"none";
-
-loginPage.classList.remove(
-"hidden"
-);
-
-$("email").value =
-"";
-
-$("password").value =
-"";
-
-loginButton.disabled =
-false;
-
-loginButton.textContent =
-"Konekte";
-
-message(
-"Ou dekonekte."
-);
-
-};
-
-
-/* =========================
-   BUTTONS
-========================= */
-
-$("walletButton").onclick =
-function(){
-
-location.href =
-"admin-wallet.html";
-
-};
-
-
-$("settingsButton").onclick =
-function(){
-
-location.href =
-"admin-settings.html";
-
-};
-
-
-$("refreshWithdrawals").onclick =
-async function(){
-
-await loadWithdrawals();
-
-await loadMoneyStats();
-
-drawChart();
-
-};
-
-
-$("refreshDeposits").onclick =
-async function(){
-
-await loadDeposits();
-
-await loadMoneyStats();
-
-};
-
-
-/* =========================
-   AUTO LOGIN
-========================= */
-
-(async function(){
-
-if(!sb){
-
-return;
-
-}
-
-
-const ok =
-await verifyAdmin();
-
-
-if(ok){
-
-await loadDashboard();
-
-}
-
-})();
-
-</script>
+   </script>   
 
 </body>
-   </html>
-   
+</html>
