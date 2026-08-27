@@ -9,29 +9,11 @@
 <script src="supabase-config.js"></script>
 
 <style>
-*{
-box-sizing:border-box;
-margin:0;
-padding:0
-}
-
-body{
-font-family:Arial,Poppins,sans-serif;
-background:#f5f6f8;
-color:#171717
-}
-
-button,input,select{
-font:inherit
-}
-
-button{
-cursor:pointer
-}
-
-.hidden{
-display:none!important
-}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Poppins,sans-serif;background:#f5f6f8;color:#171717}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
 
 .login{
 min-height:100vh;
@@ -61,17 +43,8 @@ font-size:25px;
 font-weight:800
 }
 
-.login-title{
-text-align:center;
-font-size:25px
-}
-
-.login-sub{
-text-align:center;
-font-size:13px;
-color:#777;
-margin:7px 0 22px
-}
+.login-title{text-align:center;font-size:25px}
+.login-sub{text-align:center;font-size:13px;color:#777;margin:7px 0 22px}
 
 label{
 display:block;
@@ -89,9 +62,7 @@ outline:none;
 background:#fff
 }
 
-input:focus{
-border-color:#f97316
-}
+input:focus{border-color:#f97316}
 
 .login-btn{
 width:100%;
@@ -104,9 +75,7 @@ color:#fff;
 font-weight:700
 }
 
-.login-btn:disabled{
-opacity:.6
-}
+.login-btn:disabled{opacity:.6}
 
 .login-message{
 font-size:12px;
@@ -116,9 +85,7 @@ color:#d00000;
 min-height:18px
 }
 
-.admin{
-display:none
-}
+.admin{display:none}
 
 header{
 background:#fff;
@@ -130,10 +97,7 @@ align-items:center;
 gap:12px
 }
 
-.brand{
-font-size:21px;
-font-weight:800
-}
+.brand{font-size:21px;font-weight:800}
 
 .admin-badge{
 background:#fff7ed;
@@ -149,19 +113,9 @@ width:min(1100px,92%);
 margin:25px auto 60px
 }
 
-.page-title{
-margin-bottom:20px
-}
-
-.page-title h1{
-font-size:26px
-}
-
-.page-title p{
-font-size:13px;
-color:#777;
-margin-top:5px
-}
+.page-title{margin-bottom:20px}
+.page-title h1{font-size:26px}
+.page-title p{font-size:13px;color:#777;margin-top:5px}
 
 .stats{
 display:grid;
@@ -206,10 +160,7 @@ gap:10px;
 margin-bottom:14px
 }
 
-.panel-title{
-font-size:18px;
-font-weight:800
-}
+.panel-title{font-size:18px;font-weight:800}
 
 .refresh-btn{
 border:0;
@@ -220,54 +171,30 @@ font-size:11px;
 font-weight:700
 }
 
-.requests{
-display:grid;
-gap:10px
-}
+.requests{display:grid;gap:10px}
 
-.request{
+.request-card{
 border:1px solid #eee;
 background:#fafafa;
 border-radius:13px;
-padding:14px
+padding:14px;
+font-size:12px;
+line-height:1.8
 }
 
-.request-top{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:10px
-}
-
-.request-amount{
+.request-card strong{
 font-size:15px;
-font-weight:800
+display:block
 }
 
-.status{
-font-size:10px;
-font-weight:800;
-padding:6px 9px;
-border-radius:20px;
+.request-status{
+display:inline-block;
 background:#fff7ed;
-color:#f97316
-}
-
-.status.approved{
-background:#dcfce7;
-color:#15803d
-}
-
-.status.rejected{
-background:#fee2e2;
-color:#b91c1c
-}
-
-.request-info{
-font-size:11px;
-line-height:1.8;
-color:#777;
-margin-top:8px
+color:#f97316;
+padding:4px 8px;
+border-radius:15px;
+font-weight:700;
+margin-top:5px
 }
 
 .request-actions{
@@ -276,8 +203,8 @@ gap:8px;
 margin-top:11px
 }
 
-.approve,
-.reject{
+.approve-btn,
+.reject-btn{
 border:0;
 padding:9px 12px;
 border-radius:9px;
@@ -285,20 +212,8 @@ font-size:11px;
 font-weight:800
 }
 
-.approve{
-background:#16a34a;
-color:#fff
-}
-
-.reject{
-background:#fee2e2;
-color:#b91c1c
-}
-
-.approve:disabled,
-.reject:disabled{
-opacity:.5
-}
+.approve-btn{background:#16a34a;color:#fff}
+.reject-btn{background:#fee2e2;color:#b91c1c}
 
 .empty{
 padding:22px;
@@ -307,10 +222,13 @@ font-size:13px;
 color:#888
 }
 
-.settings-grid{
-display:grid;
-gap:13px
+.error{
+padding:15px;
+color:#b91c1c;
+font-size:12px
 }
+
+.settings-grid{display:grid;gap:13px}
 
 .setting-box{
 background:#fafafa;
@@ -319,10 +237,7 @@ border-radius:15px;
 padding:15px
 }
 
-.setting-box label{
-margin:0 0 7px;
-font-size:12px
-}
+.setting-box label{margin:0 0 7px;font-size:12px}
 
 .save-settings{
 width:100%;
@@ -333,10 +248,6 @@ padding:14px;
 border-radius:12px;
 font-weight:800;
 margin-top:4px
-}
-
-.save-settings:disabled{
-opacity:.6
 }
 
 .settings-message{
@@ -361,11 +272,7 @@ padding:8px 10px;
 font-size:11px
 }
 
-.chart-wrap{
-height:260px;
-width:100%;
-margin-top:12px
-}
+.chart-wrap{height:260px;width:100%;margin-top:12px}
 
 #chart{
 width:100%;
@@ -379,10 +286,7 @@ color:#888;
 margin-top:8px
 }
 
-.actions{
-display:grid;
-gap:9px
-}
+.actions{display:grid;gap:9px}
 
 .action-btn{
 border:0;
@@ -399,64 +303,25 @@ background:#f3f3f3;
 color:#333
 }
 
-.loading{
-color:#888!important
-}
+.loading{color:#888!important}
 
 @media(max-width:850px){
-
-.stats{
-grid-template-columns:1fr 1fr
-}
-
+.stats{grid-template-columns:1fr 1fr}
 }
 
 @media(max-width:500px){
-
-header{
-padding:14px 4%
-}
-
-.brand{
-font-size:19px
-}
-
-.container{
-width:92%;
-margin-top:20px
-}
-
-.stats{
-grid-template-columns:1fr 1fr;
-gap:10px
-}
-
-.stat{
-padding:15px;
-border-radius:16px
-}
-
-.stat-value{
-font-size:18px
-}
-
-.panel{
-padding:16px;
-border-radius:17px
-}
-
-.page-title h1{
-font-size:24px
-}
-
+header{padding:14px 4%}
+.brand{font-size:19px}
+.container{width:92%;margin-top:20px}
+.stats{grid-template-columns:1fr 1fr;gap:10px}
+.stat{padding:15px;border-radius:16px}
+.stat-value{font-size:18px}
+.panel{padding:16px;border-radius:17px}
+.page-title h1{font-size:24px}
 }
 
 @media(max-width:350px){
-
-.stats{
-grid-template-columns:1fr
-}
-
+.stats{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -464,14 +329,11 @@ grid-template-columns:1fr
 <body>
 
 <div id="loginPage" class="login">
-
 <div class="login-card">
 
 <div class="logo">M</div>
 
-<h1 class="login-title">
-Super Admin
-</h1>
+<h1 class="login-title">Super Admin</h1>
 
 <p class="login-sub">
 Konekte pou antre nan zòn administrasyon macheya.
@@ -479,10 +341,7 @@ Konekte pou antre nan zòn administrasyon macheya.
 
 <form id="loginForm">
 
-<label for="email">
-Email Super Admin
-</label>
-
+<label for="email">Email Super Admin</label>
 <input
 id="email"
 type="email"
@@ -491,10 +350,7 @@ autocomplete="email"
 required
 >
 
-<label for="password">
-Modpas
-</label>
-
+<label for="password">Modpas</label>
 <input
 id="password"
 type="password"
@@ -516,17 +372,13 @@ Konekte
 <div id="loginMessage" class="login-message"></div>
 
 </div>
-
 </div>
-
 
 <div id="adminPage" class="admin">
 
 <header>
 
-<div class="brand">
-Ⓜ macheya
-</div>
+<div class="brand">Ⓜ macheya</div>
 
 <div class="admin-badge">
 🔐 SUPER ADMIN
@@ -534,161 +386,61 @@ Konekte
 
 </header>
 
-
 <main class="container">
 
 <div class="page-title">
-
-<h1>
-Dashboard Super Admin
-</h1>
-
-<p>
-Kontwòl ak siveyans macheya.
-</p>
-
+<h1>Dashboard Super Admin</h1>
+<p>Kontwòl ak siveyans macheya.</p>
 </div>
-
 
 <section class="stats">
 
 <div class="stat">
-
-<div class="stat-label">
-💰 Lajan ki sikile
+<div class="stat-label">💰 Lajan ki sikile</div>
+<div id="circulation" class="stat-value">0 HTG</div>
 </div>
-
-<div
-id="circulation"
-class="stat-value"
->
-0 HTG
-</div>
-
-</div>
-
 
 <div class="stat">
-
-<div class="stat-label">
-👤 Achtè
+<div class="stat-label">👤 Achtè</div>
+<div id="buyers" class="stat-value loading">...</div>
 </div>
-
-<div
-id="buyers"
-class="stat-value loading"
->
-...
-</div>
-
-</div>
-
 
 <div class="stat">
-
-<div class="stat-label">
-🏪 Vandè
+<div class="stat-label">🏪 Vandè</div>
+<div id="sellers" class="stat-value loading">...</div>
 </div>
-
-<div
-id="sellers"
-class="stat-value loading"
->
-...
-</div>
-
-</div>
-
 
 <div class="stat">
-
-<div class="stat-label">
-💸 Frè Macheya
+<div class="stat-label">💸 Frè Macheya</div>
+<div id="fees" class="stat-value">0 HTG</div>
 </div>
-
-<div
-id="fees"
-class="stat-value"
->
-0 HTG
-</div>
-
-</div>
-
 
 <div class="stat">
-
-<div class="stat-label">
-➕ Depo
+<div class="stat-label">➕ Depo</div>
+<div id="deposits" class="stat-value">0 HTG</div>
 </div>
-
-<div
-id="deposits"
-class="stat-value"
->
-0 HTG
-</div>
-
-</div>
-
 
 <div class="stat">
-
-<div class="stat-label">
-➖ Retrè
+<div class="stat-label">➖ Retrè</div>
+<div id="withdrawals" class="stat-value">0 HTG</div>
 </div>
-
-<div
-id="withdrawals"
-class="stat-value"
->
-0 HTG
-</div>
-
-</div>
-
 
 <div class="stat">
-
-<div class="stat-label">
-👥 Itilizatè
+<div class="stat-label">👥 Itilizatè</div>
+<div id="users" class="stat-value loading">...</div>
 </div>
-
-<div
-id="users"
-class="stat-value loading"
->
-...
-</div>
-
-</div>
-
 
 <div class="stat">
-
-<div class="stat-label">
-📦 Kòmand
-</div>
-
-<div
-id="orders"
-class="stat-value loading"
->
-...
-</div>
-
+<div class="stat-label">📦 Kòmand</div>
+<div id="orders" class="stat-value loading">...</div>
 </div>
 
 </section>
 
-
 <section class="panel">
 
 <div class="panel-head">
-
-<h2 class="panel-title">
-➕ Demann rechaj
-</h2>
+<h2 class="panel-title">➕ Demann rechaj</h2>
 
 <button
 id="refreshRecharge"
@@ -697,28 +449,18 @@ type="button"
 >
 ↻ Rafrechi
 </button>
-
 </div>
 
-<div
-id="rechargeRequests"
-class="requests"
->
-<div class="empty">
-Ap chèche demann rechaj...
-</div>
+<div id="rechargeRequests" class="requests">
+<div class="empty">Ap chèche demann rechaj...</div>
 </div>
 
 </section>
 
-
 <section class="panel">
 
 <div class="panel-head">
-
-<h2 class="panel-title">
-🧾 Demann retrè
-</h2>
+<h2 class="panel-title">🧾 Demann retrè</h2>
 
 <button
 id="refreshWithdrawal"
@@ -727,652 +469,837 @@ type="button"
 >
 ↻ Rafrechi
 </button>
-
 </div>
 
-<div
-id="withdrawalRequests"
-class="requests"
->
-<div class="empty">
-Ap chèche demann retrè...
-</div>
+<div id="withdrawalRequests" class="requests">
+<div class="empty">Ap chèche demann retrè...</div>
 </div>
 
-</section>
+   </section>
+   <script>
+"use strict";
 
+const sb = window.supabaseClient;
 
-<section class="panel">
+const $ = id => document.getElementById(id);
 
-<div class="chart-head">
-
-<h2 class="panel-title">
-📈 Evolisyon retrè
-</h2>
-
-<select
-id="period"
-class="period"
->
-<option value="7">
-7 jou
-</option>
-
-<option
-value="30"
-selected
->
-30 jou
-</option>
-
-<option value="90">
-90 jou
-</option>
-</select>
-
-</div>
-
-<div class="chart-wrap">
-
-<canvas id="chart"></canvas>
-
-</div>
-
-<p class="chart-note">
-Graf la montre kantite retrè yo dapre dat demann yo.
-</p>
-
-</section>
-
-
-<section class="panel">
-
-<h2 class="panel-title">
-⚙️ Paramèt Macheya
-</h2>
-
-<div
-class="settings-grid"
-style="margin-top:15px"
->
-
-<div class="setting-box">
-
-<label for="feePercentage">
-💸 Pousantaj frè retrè (%)
-</label>
-
-<input
-id="feePercentage"
-type="number"
-min="0"
-max="100"
-step="0.01"
-placeholder="Egzanp: 5"
->
-
-</div>
-
-
-<div class="setting-box">
-
-<label for="moncashNumber">
-📱 Numéro MonCash
-</label>
-
-<input
-id="moncashNumber"
-type="tel"
-placeholder="Numéro MonCash"
->
-
-</div>
-
-
-<div class="setting-box">
-
-<label for="natcashNumber">
-📱 Numéro NatCash
-</label>
-
-<input
-id="natcashNumber"
-type="tel"
-placeholder="Numéro NatCash"
->
-
-</div>
-
-
-<button
-id="saveSettings"
-class="save-settings"
-type="button"
->
-💾 Sove paramèt yo
-</button>
-
-<div
-id="settingsMessage"
-class="settings-message"
-></div>
-
-</div>
-
-</section>
-
-
-<section class="panel">
-
-<h2 class="panel-title">
-⚡ Aksyon rapid
-</h2>
-
-<div
-class="actions"
-style="margin-top:14px"
->
-
-<button
-id="walletButton"
-class="action-btn"
-type="button"
->
-💳 Jesyon Wallet
-</button>
-
-<button
-id="settingsWalletButton"
-class="action-btn gray"
-type="button"
->
-⚙️ Paramèt Wallet
-</button>
-
-<button
-id="logout"
-class="action-btn gray"
-type="button"
->
-🚪 Dekonekte
-</button>
-
-</div>
-
-</section>
-
-</main>
-
-   </div>
-<script>
 const state = {
-  settings: null,
-  rechargeRequests: [],
-  withdrawalRequests: [],
+  recharge: [],
+  withdrawals: [],
   profiles: [],
   orders: []
 };
 
-async function loadSettings() {
-  try {
-    const { data, error } = await supabase
-      .from("macheya_settings")
-      .select("*")
-      .eq("id", 1)
-      .maybeSingle();
-
-    if (error) throw error;
-
-    state.settings = data || {};
-
-    const fee = document.getElementById("feePercentage");
-    const moncash = document.getElementById("moncashNumber");
-    const natcash = document.getElementById("natcashNumber");
-
-    if (fee) fee.value = data?.fee_percentage ?? 0;
-    if (moncash) moncash.value = data?.moncash_number ?? "";
-    if (natcash) natcash.value = data?.natcash_number ?? "";
-
-  } catch (error) {
-    console.error("Settings error:", error);
-  }
+function money(value) {
+  return Number(value || 0).toLocaleString("fr-FR") + " HTG";
 }
 
-async function saveSettings() {
-  const fee = document.getElementById("feePercentage");
-  const moncash = document.getElementById("moncashNumber");
-  const natcash = document.getElementById("natcashNumber");
-  const message = document.getElementById("settingsMessage");
-
-  if (!fee || !moncash || !natcash) return;
-
-  const feeValue = Number(fee.value);
-
-  if (isNaN(feeValue) || feeValue < 0 || feeValue > 100) {
-    if (message) {
-      message.textContent = "Pousantaj la dwe ant 0 ak 100.";
-    }
-    return;
-  }
-
-  try {
-    const {
-      data: { user }
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      if (message) message.textContent = "Ou pa konekte kòm admin.";
-      return;
-    }
-
-    const { error } = await supabase
-      .from("macheya_settings")
-      .upsert({
-        id: 1,
-        fee_percentage: feeValue,
-        moncash_number: moncash.value.trim(),
-        natcash_number: natcash.value.trim(),
-        updated_by: user.id,
-        updated_at: new Date().toISOString()
-      });
-
-    if (error) throw error;
-
-    if (message) {
-      message.textContent = "Paramèt yo sove avèk siksè.";
-      message.style.display = "block";
-    }
-
-    state.settings = {
-      id: 1,
-      fee_percentage: feeValue,
-      moncash_number: moncash.value.trim(),
-      natcash_number: natcash.value.trim()
-    };
-
-  } catch (error) {
-    console.error("Save settings error:", error);
-
-    if (message) {
-      message.textContent =
-        error.message || "Pa kapab sove paramèt yo.";
-      message.style.display = "block";
-    }
-  }
-}
-
-async function loadProfiles() {
-  try {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*");
-
-    if (error) throw error;
-
-    state.profiles = data || [];
-
-    const buyers = state.profiles.filter(
-      p => p.role === "acheteur"
-    ).length;
-
-    const sellers = state.profiles.filter(
-      p => p.role === "vendeur"
-    ).length;
-
-    setText("buyersCount", buyers);
-    setText("sellersCount", sellers);
-
-  } catch (error) {
-    console.error("Profiles error:", error);
-  }
-}
-
-async function loadOrders() {
-  try {
-    const { data, error } = await supabase
-      .from("wallet_transactions")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    state.orders = data || [];
-
-    const orders = state.orders.filter(
-      item =>
-        item.type === "purchase" ||
-        item.type === "order" ||
-        item.type === "commande"
-    );
-
-    setText("ordersCount", orders.length);
-
-  } catch (error) {
-    console.error("Orders error:", error);
-  }
-}
-
-async function loadRechargeRequests() {
-  const container =
-    document.getElementById("rechargeRequestsList");
-
-  if (!container) return;
-
-  container.innerHTML =
-    `<div class="loading">Ap chèche demann rechaj...</div>`;
-
-  try {
-    const { data, error } = await supabase
-      .from("recharge_requests")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    state.rechargeRequests = data || [];
-
-    if (!state.rechargeRequests.length) {
-      container.innerHTML =
-        `<div class="empty">Pa gen demann rechaj pou kounye a.</div>`;
-      return;
-    }
-
-    container.innerHTML = state.rechargeRequests
-      .map(request => {
-
-        const amount =
-          request.amount ??
-          request.montant ??
-          request.value ??
-          0;
-
-        const method =
-          request.method ??
-          request.payment_method ??
-          request.type ??
-          "—";
-
-        const status =
-          request.status ?? "pending";
-
-        const phone =
-          request.phone_number ??
-          request.phone ??
-          request.number ??
-          "—";
-
-        return `
-          <div class="request-card">
-            <div>
-              <strong>💰 ${formatMoney(amount)} HTG</strong>
-              <span>${escapeHTML(method)}</span>
-            </div>
-
-            <div>
-              📱 ${escapeHTML(phone)}
-            </div>
-
-            <div>
-              <small>
-                ${formatDate(request.created_at)}
-              </small>
-            </div>
-
-            <div class="request-status">
-              ${escapeHTML(status)}
-            </div>
-
-            <div class="request-actions">
-              <button
-                class="approve-btn"
-                onclick="updateRechargeStatus('${request.id}','approved')">
-                ✓ Aksepte
-              </button>
-
-              <button
-                class="reject-btn"
-                onclick="updateRechargeStatus('${request.id}','rejected')">
-                ✕ Refize
-              </button>
-            </div>
-          </div>
-        `;
-      })
-      .join("");
-
-  } catch (error) {
-    console.error("Recharge error:", error);
-
-    container.innerHTML =
-      `<div class="error">
-        ${escapeHTML(error.message)}
-      </div>`;
-  }
-}
-
-async function updateRechargeStatus(id, status) {
-  try {
-    const { error } = await supabase
-      .from("recharge_requests")
-      .update({
-        status: status,
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", id);
-
-    if (error) throw error;
-
-    await loadRechargeRequests();
-
-  } catch (error) {
-    console.error("Recharge update error:", error);
-    alert(error.message || "Pa kapab mete ajou demann lan.");
-  }
-}
-
-async function loadWithdrawalRequests() {
-  const container =
-    document.getElementById("withdrawalRequestsList");
-
-  if (!container) return;
-
-  container.innerHTML =
-    `<div class="loading">Ap chèche demann retrè...</div>`;
-
-  try {
-    const { data, error } = await supabase
-      .from("withdrawal_requests")
-      .select("*")
-      .order("created_at", { ascending: false });
-
-    if (error) throw error;
-
-    state.withdrawalRequests = data || [];
-
-    const pending = state.withdrawalRequests.filter(
-      r => (r.status || "pending") === "pending"
-    );
-
-    const totalWithdrawal = state.withdrawalRequests.reduce(
-      (sum, r) => sum + Number(
-        r.amount ?? r.montant ?? 0
-      ),
-      0
-    );
-
-    setText(
-      "withdrawalTotal",
-      `${formatMoney(totalWithdrawal)} HTG`
-    );
-
-    if (!pending.length) {
-      container.innerHTML =
-        `<div class="empty">
-          Pa gen okenn demann retrè pou kounye a.
-        </div>`;
-      return;
-    }
-
-    container.innerHTML = pending
-      .map(request => {
-
-        const amount =
-          request.amount ??
-          request.montant ??
-          0;
-
-        const method =
-          request.method ??
-          request.payment_method ??
-          "—";
-
-        const number =
-          request.phone_number ??
-          request.phone ??
-          request.number ??
-          "—";
-
-        return `
-          <div class="request-card">
-            <div>
-              <strong>💸 ${formatMoney(amount)} HTG</strong>
-            </div>
-
-            <div>
-              📱 ${escapeHTML(number)}
-            </div>
-
-            <div>
-              💳 ${escapeHTML(method)}
-            </div>
-
-            <div>
-              <small>
-                ${formatDate(request.created_at)}
-              </small>
-            </div>
-
-            <div class="request-actions">
-              <button
-                class="approve-btn"
-                onclick="updateWithdrawalStatus('${request.id}','approved')">
-                ✓ Peye
-              </button>
-
-              <button
-                class="reject-btn"
-                onclick="updateWithdrawalStatus('${request.id}','rejected')">
-                ✕ Refize
-              </button>
-            </div>
-          </div>
-        `;
-      })
-      .join("");
-
-  } catch (error) {
-    console.error("Withdrawal error:", error);
-
-    container.innerHTML =
-      `<div class="error">
-        ${escapeHTML(error.message)}
-      </div>`;
-  }
-}
-
-async function updateWithdrawalStatus(id, status) {
-  try {
-    const { error } = await supabase
-      .from("withdrawal_requests")
-      .update({
-        status: status,
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", id);
-
-    if (error) throw error;
-
-    await loadWithdrawalRequests();
-
-  } catch (error) {
-    console.error("Withdrawal update error:", error);
-    alert(error.message || "Pa kapab mete ajou demann retrè a.");
-  }
-}
-
-async function loadDashboard() {
-  await Promise.all([
-    loadSettings(),
-    loadProfiles(),
-    loadOrders(),
-    loadRechargeRequests(),
-    loadWithdrawalRequests()
-  ]);
-}
-
-function setText(id, value) {
-  const element = document.getElementById(id);
-  if (element) element.textContent = value;
-}
-
-function formatMoney(value) {
-  return Number(value || 0).toLocaleString("fr-FR");
-}
-
-function formatDate(date) {
-  if (!date) return "—";
-
-  try {
-    return new Date(date).toLocaleString("fr-FR", {
-      dateStyle: "short",
-      timeStyle: "short"
-    });
-  } catch {
-    return "—";
-  }
+function text(id, value) {
+  const el = $(id);
+  if (el) el.textContent = value;
 }
 
 function escapeHTML(value) {
   return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function dateFormat(value) {
+  if (!value) return "—";
 
-  const saveButton =
-    document.getElementById("saveSettingsBtn");
+  return new Date(value).toLocaleString("fr-FR", {
+    dateStyle:"short",
+    timeStyle:"short"
+  });
+}
 
-  if (saveButton) {
-    saveButton.addEventListener("click", saveSettings);
+
+/* =========================
+   ADMIN LOGIN
+========================= */
+
+async function checkAdmin() {
+
+  if (!sb) {
+    $("loginMessage").textContent =
+      "Supabase pa konekte.";
+    return false;
   }
 
-  const refreshRecharge =
-    document.getElementById("refreshRechargeBtn");
+  const {
+    data:{user}
+  } = await sb.auth.getUser();
 
-  if (refreshRecharge) {
-    refreshRecharge.addEventListener(
-      "click",
-      loadRechargeRequests
+  if (!user) return false;
+
+  const {data,error} = await sb
+    .from("super_admins")
+    .select("user_id")
+    .eq("user_id",user.id)
+    .maybeSingle();
+
+  if (error || !data) {
+    await sb.auth.signOut();
+
+    $("loginMessage").textContent =
+      "Kont sa a pa Super Admin.";
+
+    return false;
+  }
+
+  $("loginPage").classList.add("hidden");
+  $("adminPage").style.display = "block";
+
+  return true;
+}
+
+
+/* =========================
+   LOGIN FORM
+========================= */
+
+$("loginForm").addEventListener(
+  "submit",
+  async e => {
+
+    e.preventDefault();
+
+    const button = $("loginButton");
+    const message = $("loginMessage");
+
+    button.disabled = true;
+    button.textContent = "Koneksyon...";
+    message.textContent = "";
+
+    const email = $("email").value.trim();
+    const password = $("password").value;
+
+    const {error} =
+      await sb.auth.signInWithPassword({
+        email,
+        password
+      });
+
+    if (error) {
+
+      message.textContent =
+        "Email oswa modpas la pa kòrèk.";
+
+      button.disabled = false;
+      button.textContent = "Konekte";
+
+      return;
+    }
+
+    const ok = await checkAdmin();
+
+    if (!ok) {
+
+      button.disabled = false;
+      button.textContent = "Konekte";
+
+      return;
+    }
+
+    await loadDashboard();
+
+    button.disabled = false;
+    button.textContent = "Konekte";
+  }
+);
+
+
+/* =========================
+   PROFILES
+========================= */
+
+async function loadProfiles() {
+
+  const {data,error} =
+    await sb
+      .from("profiles")
+      .select("*");
+
+  if (error) {
+
+    console.error("Profiles:",error);
+
+    text("buyers","—");
+    text("sellers","—");
+    text("users","—");
+
+    return;
+  }
+
+  state.profiles = data || [];
+
+  const buyers =
+    state.profiles.filter(
+      p =>
+        p.role === "acheteur" ||
+        p.role === "buyer"
+    ).length;
+
+  const sellers =
+    state.profiles.filter(
+      p =>
+        p.role === "vendeur" ||
+        p.role === "seller"
+    ).length;
+
+  text("buyers",buyers);
+  text("sellers",sellers);
+  text("users",state.profiles.length);
+}
+
+
+/* =========================
+   ORDERS
+========================= */
+
+async function loadOrders() {
+
+  const {data,error} =
+    await sb
+      .from("orders")
+      .select("*");
+
+  if (!error) {
+
+    state.orders = data || [];
+
+    text(
+      "orders",
+      state.orders.length
     );
+
+    return;
   }
 
-  const refreshWithdrawal =
-    document.getElementById("refreshWithdrawalBtn");
+  console.error("Orders:",error);
 
-  if (refreshWithdrawal) {
-    refreshWithdrawal.addEventListener(
-      "click",
-      loadWithdrawalRequests
+  text("orders","—");
+}
+
+
+/* =========================
+   RECHARGE REQUESTS
+========================= */
+
+async function loadRechargeRequests() {
+
+  const box = $("rechargeRequests");
+
+  box.innerHTML =
+    '<div class="empty">Ap chèche demann rechaj...</div>';
+
+  const {data,error} =
+    await sb
+      .from("recharge_requests")
+      .select("*")
+      .order("created_at",{
+        ascending:false
+      });
+
+  if (error) {
+
+    console.error(error);
+
+    box.innerHTML =
+      `<div class="empty">
+        Pa kapab chaje demann rechaj yo.
+        <br><br>
+        ${escapeHTML(error.message)}
+      </div>`;
+
+    return;
+  }
+
+  state.recharge = data || [];
+
+  if (!state.recharge.length) {
+
+    box.innerHTML =
+      '<div class="empty">Pa gen demann rechaj.</div>';
+
+    return;
+  }
+
+  box.innerHTML = "";
+
+  state.recharge.forEach(request => {
+
+    const amount =
+      request.amount ??
+      request.montant ??
+      request.value ??
+      0;
+
+    const method =
+      request.method ??
+      request.payment_method ??
+      "—";
+
+    const phone =
+      request.phone_number ??
+      request.phone ??
+      request.number ??
+      "—";
+
+    const status =
+      request.status || "pending";
+
+    const card =
+      document.createElement("div");
+
+    card.className = "request";
+
+    card.innerHTML = `
+
+      <div class="request-top">
+
+        <strong class="request-amount">
+          💰 ${money(amount)}
+        </strong>
+
+        <span class="status">
+          ${escapeHTML(status)}
+        </span>
+
+      </div>
+
+      <div class="request-info">
+
+        📱 ${escapeHTML(phone)}
+
+        <br>
+
+        💳 ${escapeHTML(method)}
+
+        <br>
+
+        📅 ${dateFormat(request.created_at)}
+
+      </div>
+
+      ${
+        status === "pending"
+        ?
+        `
+        <div class="request-actions">
+
+          <button
+            class="approve"
+            data-recharge="${request.id}">
+            ✓ Aksepte
+          </button>
+
+          <button
+            class="reject"
+            data-recharge="${request.id}">
+            ✕ Refize
+          </button>
+
+        </div>
+        `
+        :
+        ""
+      }
+
+    `;
+
+    box.appendChild(card);
+  });
+
+  document
+    .querySelectorAll("[data-recharge]")
+    .forEach(button => {
+
+      button.onclick = () => {
+
+        const id =
+          button.dataset.recharge;
+
+        const status =
+          button.classList.contains("approve")
+          ? "approved"
+          : "rejected";
+
+        updateRecharge(id,status);
+      };
+    });
+}
+
+
+async function updateRecharge(id,status) {
+
+  if (!confirm(
+    status === "approved"
+    ? "Aksepte demann rechaj sa a?"
+    : "Refize demann rechaj sa a?"
+  )) return;
+
+  const {error} =
+    await sb
+      .from("recharge_requests")
+      .update({
+        status,
+        updated_at:
+          new Date().toISOString()
+      })
+      .eq("id",id);
+
+  if (error) {
+
+    alert(error.message);
+    return;
+  }
+
+  await loadRechargeRequests();
+  await loadDashboard();
+}
+      /* =========================
+   DASHBOARD STATS
+========================= */
+
+async function loadRealStats(){
+
+  try{
+
+    const [
+      usersResult,
+      ordersResult,
+      transactionsResult
+    ] = await Promise.all([
+
+      supabase
+        .from("profiles")
+        .select("role"),
+
+      supabase
+        .from("orders")
+        .select("id"),
+
+      supabase
+        .from("wallet_transactions")
+        .select("*")
+
+    ]);
+
+    if(usersResult.error) throw usersResult.error;
+    if(ordersResult.error) throw ordersResult.error;
+    if(transactionsResult.error) throw transactionsResult.error;
+
+    const profiles =
+      usersResult.data || [];
+
+    const orders =
+      ordersResult.data || [];
+
+    const transactions =
+      transactionsResult.data || [];
+
+    const buyers =
+      profiles.filter(
+        p =>
+          p.role === "acheteur" ||
+          p.role === "buyer"
+      ).length;
+
+    const sellers =
+      profiles.filter(
+        p =>
+          p.role === "vendeur" ||
+          p.role === "seller"
+      ).length;
+
+    setText("buyers", buyers);
+    setText("sellers", sellers);
+    setText("users", profiles.length);
+    setText("orders", orders.length);
+
+    let deposits = 0;
+    let withdrawals = 0;
+    let fees = 0;
+
+    transactions.forEach(t => {
+
+      const type =
+        String(
+          t.type ||
+          t.transaction_type ||
+          ""
+        ).toLowerCase();
+
+      const amount =
+        Number(
+          t.amount ||
+          t.montant ||
+          0
+        );
+
+      if(
+        type.includes("deposit") ||
+        type.includes("recharge") ||
+        type.includes("depo")
+      ){
+
+        deposits += amount;
+
+      }
+
+      if(
+        type.includes("withdraw") ||
+        type.includes("retrait")
+      ){
+
+        withdrawals += amount;
+
+      }
+
+      if(
+        type.includes("fee") ||
+        type.includes("frais")
+      ){
+
+        fees += amount;
+
+      }
+
+    });
+
+    setText(
+      "deposits",
+      formatMoney(deposits) + " HTG"
     );
+
+    setText(
+      "withdrawals",
+      formatMoney(withdrawals) + " HTG"
+    );
+
+    setText(
+      "fees",
+      formatMoney(fees) + " HTG"
+    );
+
+    setText(
+      "circulation",
+      formatMoney(
+        deposits - withdrawals
+      ) + " HTG"
+    );
+
+  }catch(error){
+
+    console.error(
+      "Stats error:",
+      error
+    );
+
+    setText("buyers","—");
+    setText("sellers","—");
+    setText("users","—");
+    setText("orders","—");
+
   }
 
-  loadDashboard();
-});
-   </script>   
+}
+
+
+/* =========================
+   EVENTS
+========================= */
+
+document
+  .getElementById("saveSettings")
+  ?.addEventListener(
+    "click",
+    saveSettings
+  );
+
+
+document
+  .getElementById("refreshRecharge")
+  ?.addEventListener(
+    "click",
+    loadRechargeRequests
+  );
+
+
+document
+  .getElementById("refreshWithdrawal")
+  ?.addEventListener(
+    "click",
+    loadWithdrawalRequests
+  );
+
+
+document
+  .getElementById("period")
+  ?.addEventListener(
+    "change",
+    drawChart
+  );
+
+
+document
+  .getElementById("walletButton")
+  ?.addEventListener(
+    "click",
+    () => {
+
+      location.href =
+        "wallet.html";
+
+    }
+  );
+
+
+document
+  .getElementById("settingsWalletButton")
+  ?.addEventListener(
+    "click",
+    () => {
+
+      document
+        .getElementById(
+          "feePercentage"
+        )
+        ?.focus();
+
+    }
+  );
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+document
+  .getElementById("logout")
+  ?.addEventListener(
+    "click",
+    async () => {
+
+      await supabase.auth.signOut();
+
+      document
+        .getElementById("adminPage")
+        .style.display = "none";
+
+      document
+        .getElementById("loginPage")
+        .classList.remove("hidden");
+
+      document
+        .getElementById("email")
+        .value = "";
+
+      document
+        .getElementById("password")
+        .value = "";
+
+      document
+        .getElementById("loginMessage")
+        .textContent = "";
+
+    }
+  );
+
+
+/* =========================
+   ADMIN LOGIN
+========================= */
+
+document
+  .getElementById("loginForm")
+  ?.addEventListener(
+    "submit",
+    async e => {
+
+      e.preventDefault();
+
+      const email =
+        document
+          .getElementById("email")
+          .value
+          .trim();
+
+      const password =
+        document
+          .getElementById("password")
+          .value;
+
+      const button =
+        document
+          .getElementById("loginButton");
+
+      const message =
+        document
+          .getElementById("loginMessage");
+
+      button.disabled = true;
+
+      button.textContent =
+        "Koneksyon...";
+
+      message.textContent = "";
+
+      try{
+
+        const {
+          data,
+          error
+        } =
+          await supabase.auth
+            .signInWithPassword({
+              email,
+              password
+            });
+
+        if(error)
+          throw error;
+
+        const user =
+          data.user;
+
+        if(!user)
+          throw new Error(
+            "Pa gen itilizatè."
+          );
+
+        const {
+          data:admin,
+          error:adminError
+        } =
+          await supabase
+            .from("super_admins")
+            .select("user_id")
+            .eq(
+              "user_id",
+              user.id
+            )
+            .maybeSingle();
+
+        if(adminError)
+          throw adminError;
+
+        if(!admin){
+
+          await supabase.auth.signOut();
+
+          throw new Error(
+            "Kont sa a pa Super Admin."
+          );
+
+        }
+
+        document
+          .getElementById("loginPage")
+          .classList.add("hidden");
+
+        document
+          .getElementById("adminPage")
+          .style.display = "block";
+
+        await loadDashboard();
+
+        await loadRealStats();
+
+        drawChart();
+
+      }catch(error){
+
+        console.error(
+          "Login error:",
+          error
+        );
+
+        message.textContent =
+          error.message ||
+          "Email oswa modpas la pa kòrèk.";
+
+      }finally{
+
+        button.disabled = false;
+
+        button.textContent =
+          "Konekte";
+
+      }
+
+    }
+  );
+
+
+/* =========================
+   AUTO LOGIN
+========================= */
+
+(async function(){
+
+  try{
+
+    const {
+      data
+    } =
+      await supabase.auth
+        .getUser();
+
+    if(!data.user)
+      return;
+
+    const {
+      data:admin
+    } =
+      await supabase
+        .from("super_admins")
+        .select("user_id")
+        .eq(
+          "user_id",
+          data.user.id
+        )
+        .maybeSingle();
+
+    if(!admin){
+
+      await supabase.auth.signOut();
+
+      return;
+
+    }
+
+    document
+      .getElementById("loginPage")
+      .classList.add("hidden");
+
+    document
+      .getElementById("adminPage")
+      .style.display = "block";
+
+    await loadDashboard();
+
+    await loadRealStats();
+
+    drawChart();
+
+  }catch(error){
+
+    console.error(
+      "Auto login error:",
+      error
+    );
+
+  }
+
+})();
+
+</script>
 
 </body>
 </html>
