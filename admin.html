@@ -1,5 +1,3 @@
-PATI 1/2
-
 <!DOCTYPE html>
 <html lang="ht">
 <head>
@@ -11,7 +9,11 @@ PATI 1/2
 <script src="supabase-config.js"></script>
 
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*{
+box-sizing:border-box;
+margin:0;
+padding:0
+}
 
 body{
 font-family:Arial,Poppins,sans-serif;
@@ -19,9 +21,13 @@ background:#f6f7f9;
 color:#171717
 }
 
-button,input,select{font:inherit}
+button,input,select{
+font:inherit
+}
 
-.hidden{display:none!important}
+.hidden{
+display:none!important
+}
 
 .login{
 min-height:100vh;
@@ -78,7 +84,9 @@ border-radius:10px;
 outline:0
 }
 
-input:focus{border-color:#f97316}
+input:focus{
+border-color:#f97316
+}
 
 .btn{
 width:100%;
@@ -92,7 +100,9 @@ font-weight:bold;
 cursor:pointer
 }
 
-.btn:disabled{opacity:.6}
+.btn:disabled{
+opacity:.6
+}
 
 .msg{
 text-align:center;
@@ -101,7 +111,9 @@ color:#d00;
 margin-top:12px
 }
 
-.admin{display:none}
+.admin{
+display:none
+}
 
 header{
 background:#fff;
@@ -131,9 +143,13 @@ width:min(1100px,92%);
 margin:25px auto 60px
 }
 
-.title{margin-bottom:20px}
+.title{
+margin-bottom:20px
+}
 
-.title h2{font-size:25px}
+.title h2{
+font-size:25px
+}
 
 .title p{
 color:#777;
@@ -218,7 +234,9 @@ align-items:center;
 gap:10px
 }
 
-.request strong{font-size:14px}
+.request strong{
+font-size:14px
+}
 
 .status{
 font-size:10px;
@@ -313,13 +331,27 @@ margin-top:8px
 }
 
 @media(max-width:700px){
-.grid{grid-template-columns:1fr 1fr}
+
+.grid{
+grid-template-columns:1fr 1fr
+}
+
 }
 
 @media(max-width:400px){
-.card{padding:21px}
-.stat{padding:14px}
-.stat strong{font-size:16px}
+
+.card{
+padding:21px
+}
+
+.stat{
+padding:14px
+}
+
+.stat strong{
+font-size:16px
+}
+
 }
 </style>
 </head>
@@ -371,7 +403,9 @@ Konekte
 <div id="message" class="msg"></div>
 
 </div>
+
 </div>
+
 
 <div id="adminPage" class="admin">
 
@@ -394,6 +428,7 @@ Kontwòl ak siveyans macheya.
 </p>
 
 </div>
+
 
 <section class="grid">
 
@@ -439,11 +474,10 @@ Kontwòl ak siveyans macheya.
 
 </section>
 
+
 <section class="panel">
 
-<h3>
-🧾 Demann retrè
-</h3>
+<h3>🧾 Demann retrè</h3>
 
 <div id="requests" class="requests">
 
@@ -454,6 +488,7 @@ Ap chèche demann...
 </div>
 
 </section>
+
 
 <section class="panel">
 
@@ -471,9 +506,7 @@ Ap chèche demann...
 
 </select>
 
-<h3>
-📈 Evolisyon retrè
-</h3>
+<h3>📈 Evolisyon retrè</h3>
 
 <div class="chart-wrap">
 
@@ -487,11 +520,10 @@ Graf la montre kantite retrè yo dapre dat demann yo.
 
 </section>
 
+
 <section class="panel">
 
-<h3>
-⚡ Aksyon rapid
-</h3>
+<h3>⚡ Aksyon rapid</h3>
 
 <div class="actions">
 
@@ -521,11 +553,18 @@ class="action gray"
 </section>
 
 </main>
+
 </div>
+
 
 <script>
 
 "use strict";
+
+
+/* =========================
+   SUPABASE
+========================= */
 
 const sb = window.supabaseClient;
 
@@ -538,24 +577,19 @@ const msg = $("message");
 const loginButton = $("loginButton");
 
 let withdrawalData = [];
-let profileData = [];
-let orderData = [];
-let depositData = [];
+
+
+/* =========================
+   HELPERS
+========================= */
 
 function money(value){
 
 return new Intl.NumberFormat("fr-FR")
-.format(Number(value || 0))
-+ " HTG";
+.format(Number(value || 0)) + " HTG";
 
 }
 
-function number(value){
-
-return new Intl.NumberFormat("fr-FR")
-.format(Number(value || 0));
-
-}
 
 function message(text){
 
@@ -563,43 +597,27 @@ msg.textContent = text;
 
 }
 
+
 function setStat(id,value){
 
 const element = $(id);
 
 if(element){
+
 element.textContent = value;
-}
-
-}
-
-function getNumber(row,fields){
-
-if(!row) return 0;
-
-for(const field of fields){
-
-if(
-row[field] !== undefined &&
-row[field] !== null &&
-row[field] !== ""
-){
-
-const value = Number(row[field]);
-
-if(Number.isFinite(value)){
-return value;
-}
 
 }
 
 }
 
-return 0;
 
-}
+/* =========================
+   VERIFY ADMIN
+========================= */
 
 async function verifyAdmin(){
+
+try{
 
 if(!sb){
 
@@ -609,16 +627,28 @@ return false;
 
 }
 
+
 const {
 data,
 error
 } = await sb.auth.getUser();
 
-if(error || !data.user){
+
+if(error){
+
+console.error("Auth error:",error);
 
 return false;
 
 }
+
+
+if(!data || !data.user){
+
+return false;
+
+}
+
 
 const {
 data:admin,
@@ -629,9 +659,13 @@ error:adminError
 .eq("user_id",data.user.id)
 .maybeSingle();
 
+
 if(adminError){
 
-console.error(adminError);
+console.error(
+"Super admin error:",
+adminError
+);
 
 message(
 "Erè verifikasyon Super Admin."
@@ -640,6 +674,7 @@ message(
 return false;
 
 }
+
 
 if(!admin){
 
@@ -653,13 +688,31 @@ return false;
 
 }
 
+
 loginPage.classList.add("hidden");
 
 adminPage.style.display = "block";
 
 return true;
 
+}catch(error){
+
+console.error(error);
+
+message(
+"Yon erè rive pandan verifikasyon an."
+);
+
+return false;
+
 }
+
+}
+
+
+/* =========================
+   LOGIN
+========================= */
 
 form.addEventListener(
 "submit",
@@ -677,6 +730,7 @@ return;
 
 }
 
+
 loginButton.disabled = true;
 
 loginButton.textContent =
@@ -684,26 +738,37 @@ loginButton.textContent =
 
 message("");
 
+
 const email =
 $("email").value.trim();
 
 const password =
 $("password").value;
 
+
+try{
+
 const {
+data,
 error
 } = await sb.auth.signInWithPassword({
 
-email,
-password
+email:email,
+
+password:password
 
 });
 
+
 if(error){
 
-console.error(error);
+console.error(
+"Login error:",
+error
+);
 
 message(
+error.message ||
 "Email oswa modpas la pa kòrèk."
 );
 
@@ -716,8 +781,26 @@ return;
 
 }
 
+
+if(!data || !data.user){
+
+message(
+"Koneksyon an pa t kapab konfime."
+);
+
+loginButton.disabled = false;
+
+loginButton.textContent =
+"Konekte";
+
+return;
+
+}
+
+
 const ok =
 await verifyAdmin();
+
 
 if(!ok){
 
@@ -730,230 +813,70 @@ return;
 
 }
 
+
 await loadDashboard();
 
+
+loginButton.disabled = false;
+
+loginButton.textContent =
+"Konekte";
+
+
+}catch(error){
+
+console.error(error);
+
+message(
+"Yon erè rive pandan koneksyon an."
+);
+
+loginButton.disabled = false;
+
+loginButton.textContent =
+"Konekte";
+
+}
+
 });
+
+
+/* =========================
+   LOAD DASHBOARD
+========================= */
 
 async function loadDashboard(){
 
 await Promise.all([
 
-loadProfiles(),
+loadWithdrawals(),
+
+loadUsers(),
 
 loadOrders(),
 
-loadDeposits(),
-
-loadWithdrawals()
+loadWalletStats()
 
 ]);
-
-calculateDashboardStats();
 
 drawChart();
 
 }
 
 
-PATI 2/2
-
-async function loadProfiles(){
-
-const {
-data,
-error
-} = await sb
-.from("profiles")
-.select("*");
-
-if(error){
-
-console.error(
-"Profiles error:",
-error
-);
-
-profileData = [];
-
-setStat("buyers","—");
-setStat("sellers","—");
-setStat("users","—");
-
-return;
-
-}
-
-profileData =
-data || [];
-
-let buyers = 0;
-let sellers = 0;
-
-profileData.forEach(profile => {
-
-if(
-profile.est_acheteur === true
-){
-
-buyers++;
-
-}
-
-if(
-profile.est_vendeur === true
-){
-
-sellers++;
-
-}
-
-});
-
-setStat(
-"buyers",
-number(buyers)
-);
-
-setStat(
-"sellers",
-number(sellers)
-);
-
-setStat(
-"users",
-number(profileData.length)
-);
-
-}
-
-async function loadOrders(){
-
-const {
-data,
-error
-} = await sb
-.from("orders")
-.select("*");
-
-if(error){
-
-console.warn(
-"Table orders pa disponib:",
-error.message
-);
-
-orderData = [];
-
-setStat("orders","—");
-
-return;
-
-}
-
-orderData =
-data || [];
-
-setStat(
-"orders",
-number(orderData.length)
-);
-
-}
-
-async function loadDeposits(){
-
-const tables = [
-
-"deposits",
-"deposit_requests",
-"wallet_deposits"
-
-];
-
-depositData = [];
-
-for(const table of tables){
-
-const {
-data,
-error
-} = await sb
-.from(table)
-.select("*");
-
-if(!error){
-
-depositData =
-data || [];
-
-console.log(
-"Table depo itilize:",
-table
-);
-
-break;
-
-}
-
-}
-
-if(!depositData.length){
-
-setStat(
-"deposits",
-"0 HTG"
-);
-
-return;
-
-}
-
-let total = 0;
-
-depositData.forEach(row => {
-
-const status =
-String(
-row.status || "approved"
-).toLowerCase();
-
-if(
-status === "approved" ||
-status === "completed" ||
-status === "success" ||
-status === "successful"
-){
-
-total += getNumber(
-row,
-[
-"amount",
-"total",
-"deposit_amount",
-"amount_htg",
-"montant",
-"value"
-]
-);
-
-}
-
-});
-
-setStat(
-"deposits",
-money(total)
-);
-
-}
+/* =========================
+   WITHDRAWALS
+========================= */
 
 async function loadWithdrawals(){
 
 const container =
 $("requests");
 
+
 container.innerHTML =
-'<div class="empty">Ap chèche demann...</div>';
+'<div class="empty">Ap chèche demann retrè...</div>';
+
 
 const {
 data,
@@ -961,12 +884,10 @@ error
 } = await sb
 .from("withdrawal_requests")
 .select("*")
-.order(
-"created_at",
-{
+.order("created_at",{
 ascending:false
-}
-);
+});
+
 
 if(error){
 
@@ -976,75 +897,76 @@ error
 );
 
 container.innerHTML = `
-
 <div class="empty">
-
 Pa kapab chaje demann retrè yo.
-
 <br><br>
-
 ${error.message}
-
 </div>
-
 `;
-
-withdrawalData = [];
 
 return;
 
 }
 
+
 withdrawalData =
 data || [];
+
 
 renderWithdrawals(
 withdrawalData
 );
 
+
+updateWithdrawalStats(
+withdrawalData
+);
+
+
+drawChart();
+
 }
+
+
+/* =========================
+   RENDER WITHDRAWALS
+========================= */
 
 function renderWithdrawals(data){
 
 const container =
 $("requests");
 
+
 if(!data.length){
 
 container.innerHTML = `
-
 <div class="empty">
-
-Pa gen okenn demann retrè
-pou kounye a.
-
+Pa gen okenn demann retrè pou kounye a.
 </div>
-
 `;
 
 return;
 
 }
 
+
 container.innerHTML = "";
+
 
 data.forEach(request => {
 
 const amount =
-getNumber(
-request,
-[
-"total_deducted",
-"amount",
-"withdrawal_amount",
-"montant"
-]
+Number(
+request.total_deducted || 0
 );
+
 
 const status =
 String(
 request.status || "pending"
 ).toLowerCase();
+
 
 const date =
 request.created_at
@@ -1057,20 +979,20 @@ request.created_at
 :
 "—";
 
+
 let statusText =
 status;
 
-if(status === "pending"){
+
+if(status === "pending")
 statusText = "AN ATANT";
-}
 
-if(status === "approved"){
+if(status === "approved")
 statusText = "APWOUVE";
-}
 
-if(status === "rejected"){
+if(status === "rejected")
 statusText = "REJETE";
-}
+
 
 const statusClass =
 status === "approved"
@@ -1083,11 +1005,11 @@ status === "rejected"
 :
 "";
 
+
 const buttons =
 status === "pending"
 ?
 `
-
 <div class="request-buttons">
 
 <button
@@ -1105,18 +1027,18 @@ data-id="${request.id}"
 </button>
 
 </div>
-
 `
 :
 "";
 
+
 const div =
-document.createElement(
-"div"
-);
+document.createElement("div");
+
 
 div.className =
 "request";
+
 
 div.innerHTML = `
 
@@ -1157,39 +1079,53 @@ ${buttons}
 
 `;
 
+
 container.appendChild(div);
 
 });
 
-document
+
+container
 .querySelectorAll(".approve")
 .forEach(button => {
 
 button.addEventListener(
 "click",
-() => reviewWithdrawal(
-button.dataset.id,
+function(){
+
+reviewWithdrawal(
+this.dataset.id,
 "approved"
-)
 );
 
 });
 
-document
+});
+
+
+container
 .querySelectorAll(".reject")
 .forEach(button => {
 
 button.addEventListener(
 "click",
-() => reviewWithdrawal(
-button.dataset.id,
+function(){
+
+reviewWithdrawal(
+this.dataset.id,
 "rejected"
-)
 );
 
 });
 
+});
+
 }
+
+
+/* =========================
+   REVIEW WITHDRAWAL
+========================= */
 
 async function reviewWithdrawal(
 id,
@@ -1203,9 +1139,13 @@ newStatus === "approved"
 :
 "Èske ou vle REJETE demann retrè sa a?";
 
+
 if(!confirm(confirmText)){
+
 return;
+
 }
+
 
 const {
 data:{
@@ -1214,21 +1154,17 @@ user
 } =
 await sb.auth.getUser();
 
-if(!user){
-
-alert(
-"Sesyon Super Admin lan fini."
-);
-
-return;
-
-}
 
 const updateData = {
 
 status:newStatus,
 
-reviewed_by:user.id,
+reviewed_by:
+user
+?
+user.id
+:
+null,
 
 reviewed_at:
 new Date().toISOString(),
@@ -1238,12 +1174,15 @@ new Date().toISOString()
 
 };
 
+
 const {
 error
-} = await sb
+} =
+await sb
 .from("withdrawal_requests")
 .update(updateData)
 .eq("id",id);
+
 
 if(error){
 
@@ -1259,193 +1198,163 @@ return;
 
 }
 
-await loadDashboard();
+
+await loadWithdrawals();
 
 }
 
-function calculateDashboardStats(){
 
-let approvedWithdrawals = 0;
+/* =========================
+   WITHDRAWAL STATS
+========================= */
 
-let totalFees = 0;
+function updateWithdrawalStats(data){
 
-withdrawalData.forEach(row => {
+let approvedTotal = 0;
+
+let pendingTotal = 0;
+
+
+data.forEach(row => {
 
 const amount =
-getNumber(
-row,
-[
-"total_deducted",
-"amount",
-"withdrawal_amount",
-"montant"
-]
+Number(
+row.total_deducted || 0
 );
+
 
 const status =
 String(
 row.status || "pending"
 ).toLowerCase();
 
+
 if(status === "approved"){
 
-approvedWithdrawals +=
-amount;
+approvedTotal += amount;
 
 }
 
-totalFees +=
-getNumber(
-row,
-[
-"fee",
-"fees",
-"platform_fee",
-"macheya_fee",
-"service_fee",
-"commission"
-]
-);
 
-});
+if(status === "pending"){
 
-let totalDeposits = 0;
-
-depositData.forEach(row => {
-
-const status =
-String(
-row.status || "approved"
-).toLowerCase();
-
-if(
-status === "approved" ||
-status === "completed" ||
-status === "success" ||
-status === "successful"
-){
-
-totalDeposits +=
-getNumber(
-row,
-[
-"amount",
-"total",
-"deposit_amount",
-"amount_htg",
-"montant",
-"value"
-]
-);
+pendingTotal += amount;
 
 }
 
 });
 
-let walletBalance = 0;
-
-let balanceFound = false;
-
-profileData.forEach(profile => {
-
-const fields = [
-
-"balance",
-"wallet_balance",
-"solde",
-"available_balance",
-"current_balance",
-"wallet"
-
-];
-
-for(const field of fields){
-
-if(
-profile[field] !== undefined &&
-profile[field] !== null
-){
-
-const value =
-Number(profile[field]);
-
-if(Number.isFinite(value)){
-
-walletBalance += value;
-
-balanceFound = true;
-
-break;
-
-}
-
-}
-
-}
-
-});
-
-const circulation =
-balanceFound
-?
-walletBalance
-:
-Math.max(
-totalDeposits -
-approvedWithdrawals,
-0
-);
 
 setStat(
 "withdrawals",
-money(
-approvedWithdrawals
-)
+money(approvedTotal)
 );
 
-setStat(
-"deposits",
-money(
-totalDeposits
-)
+}
+
+
+/* =========================
+   USERS
+========================= */
+
+async function loadUsers(){
+
+try{
+
+const {
+count,
+error
+} =
+await sb
+.from("profiles")
+.select("id",{
+count:"exact",
+head:true
+});
+
+
+if(error){
+
+console.error(
+"Profiles error:",
+error
 );
 
-setStat(
-"fees",
-money(
-totalFees
-)
-);
+return;
 
-setStat(
-"circulation",
-money(
-circulation
-)
-);
+}
+
 
 setStat(
 "users",
-number(
-profileData.length
-)
+count ?? 0
 );
+
+
+}catch(error){
+
+console.error(error);
+
+}
+
+}
+
+
+/* =========================
+   BUYERS / SELLERS
+========================= */
+
+async function loadUserRoles(){
+
+try{
+
+const {
+data,
+error
+} =
+await sb
+.from("profiles")
+.select("role");
+
+
+if(error){
+
+console.error(
+"Roles error:",
+error
+);
+
+return;
+
+}
+
 
 let buyers = 0;
 let sellers = 0;
 
-profileData.forEach(profile => {
+
+(data || []).forEach(row => {
+
+const role =
+String(
+row.role || ""
+).toLowerCase();
+
 
 if(
-profile.est_acheteur === true
+role === "buyer" ||
+role === "acheteur"
 ){
 
 buyers++;
 
 }
 
+
 if(
-profile.est_vendeur === true
+role === "seller" ||
+role === "vandè" ||
+role === "vande"
 ){
 
 sellers++;
@@ -1454,55 +1363,137 @@ sellers++;
 
 });
 
+
 setStat(
 "buyers",
-number(buyers)
+buyers
 );
 
 setStat(
 "sellers",
-number(sellers)
+sellers
 );
+
+}catch(error){
+
+console.error(error);
+
+}
+
+}
+
+
+/* =========================
+   ORDERS
+========================= */
+
+async function loadOrders(){
+
+try{
+
+const {
+count,
+error
+} =
+await sb
+.from("orders")
+.select("id",{
+count:"exact",
+head:true
+});
+
+
+if(error){
+
+console.error(
+"Orders error:",
+error
+);
+
+return;
+
+}
+
 
 setStat(
 "orders",
-orderData.length
-?
-number(orderData.length)
-:
+count ?? 0
+);
+
+}catch(error){
+
+console.error(error);
+
+}
+
+}
+
+
+/* =========================
+   WALLET / DEPOSITS
+========================= */
+
+async function loadWalletStats(){
+
+/*
+   Nou pa sipoze envante non kolòn
+   oswa estrikti lòt tables yo.
+
+   Nou eseye jwenn done wallet yo
+   sèlman si tables yo egziste.
+*/
+
+await loadUserRoles();
+
+
+/*
+   Si sistèm wallet la poko gen
+   yon table depo ki konfime,
+   nou kite valè a kòm —.
+*/
+
+setStat(
+"deposits",
 "—"
 );
 
-console.log(
-"Macheya Dashboard:",
-{
-users:profileData.length,
-buyers,
-sellers,
-orders:orderData.length,
-deposits:totalDeposits,
-withdrawals:approvedWithdrawals,
-fees:totalFees,
-circulation
-}
+setStat(
+"fees",
+money(0)
+);
+
+setStat(
+"circulation",
+money(0)
 );
 
 }
+
+
+/* =========================
+   GRAPH
+========================= */
 
 function drawChart(){
 
 const canvas =
 $("chart");
 
+
 if(!canvas){
+
 return;
+
 }
+
 
 const ctx =
 canvas.getContext("2d");
 
+
 const rect =
 canvas.getBoundingClientRect();
+
 
 const width =
 Math.max(
@@ -1510,10 +1501,13 @@ rect.width,
 300
 );
 
+
 const height = 260;
+
 
 const dpr =
 window.devicePixelRatio || 1;
+
 
 canvas.width =
 width * dpr;
@@ -1521,11 +1515,13 @@ width * dpr;
 canvas.height =
 height * dpr;
 
+
 canvas.style.width =
 width + "px";
 
 canvas.style.height =
 height + "px";
+
 
 ctx.setTransform(
 dpr,
@@ -1536,6 +1532,7 @@ dpr,
 0
 );
 
+
 ctx.clearRect(
 0,
 0,
@@ -1543,15 +1540,19 @@ width,
 height
 );
 
+
 const days =
 Number(
 $("period").value || 30
 );
 
+
 const now =
 new Date();
 
+
 const values = [];
+
 
 for(
 let i = days - 1;
@@ -1562,6 +1563,7 @@ i--
 const date =
 new Date(now);
 
+
 date.setHours(
 0,
 0,
@@ -1569,22 +1571,28 @@ date.setHours(
 0
 );
 
+
 date.setDate(
 date.getDate() - i
 );
 
+
 const key =
-date
-.toISOString()
+date.toISOString()
 .slice(0,10);
 
+
 let total = 0;
+
 
 withdrawalData.forEach(row => {
 
 if(!row.created_at){
+
 return;
+
 }
+
 
 const rowDate =
 new Date(
@@ -1593,31 +1601,28 @@ row.created_at
 .toISOString()
 .slice(0,10);
 
+
 if(rowDate === key){
 
-total +=
-getNumber(
-row,
-[
-"total_deducted",
-"amount",
-"withdrawal_amount",
-"montant"
-]
+total += Number(
+row.total_deducted || 0
 );
 
 }
 
 });
 
+
 values.push({
 
 date:key,
+
 value:total
 
 });
 
 }
+
 
 const max =
 Math.max(
@@ -1627,25 +1632,28 @@ x => x.value
 1
 );
 
+
 const left = 42;
 const right = 12;
 const top = 20;
 const bottom = 35;
 
+
 const graphWidth =
-width -
-left -
-right;
+width - left - right;
+
 
 const graphHeight =
-height -
-top -
-bottom;
+height - top - bottom;
+
+
+/* GRID */
 
 ctx.strokeStyle =
 "#eeeeee";
 
 ctx.lineWidth = 1;
+
 
 for(
 let i = 0;
@@ -1655,10 +1663,8 @@ i++
 
 const y =
 top +
-(
-graphHeight / 4
-) *
-i;
+(graphHeight / 4) * i;
+
 
 ctx.beginPath();
 
@@ -1676,7 +1682,11 @@ ctx.stroke();
 
 }
 
+
+/* LINE */
+
 ctx.beginPath();
+
 
 values.forEach(
 (point,index) => {
@@ -1692,6 +1702,7 @@ values.length - 1,
 ) *
 graphWidth;
 
+
 const y =
 top +
 graphHeight -
@@ -1700,6 +1711,7 @@ point.value /
 max
 ) *
 graphHeight;
+
 
 if(index === 0){
 
@@ -1719,12 +1731,16 @@ y
 
 });
 
+
 ctx.strokeStyle =
 "#f97316";
 
 ctx.lineWidth = 3;
 
 ctx.stroke();
+
+
+/* POINTS */
 
 values.forEach(
 (point,index) => {
@@ -1740,6 +1756,7 @@ values.length - 1,
 ) *
 graphWidth;
 
+
 const y =
 top +
 graphHeight -
@@ -1748,6 +1765,7 @@ point.value /
 max
 ) *
 graphHeight;
+
 
 ctx.beginPath();
 
@@ -1766,17 +1784,22 @@ ctx.fill();
 
 });
 
+
+/* LABELS */
+
 ctx.fillStyle =
 "#888";
 
 ctx.font =
 "10px Arial";
 
+
 ctx.fillText(
 "0",
 8,
 height - bottom + 3
 );
+
 
 ctx.fillText(
 money(max)
@@ -1785,29 +1808,31 @@ money(max)
 top + 4
 );
 
+
 if(values.length){
 
 const first =
-values[0]
-.date
+values[0].date
 .split("-")
 .reverse()
 .join("/");
+
 
 const last =
 values[
 values.length - 1
-]
-.date
+].date
 .split("-")
 .reverse()
 .join("/");
+
 
 ctx.fillText(
 first,
 left,
 height - 10
 );
+
 
 ctx.fillText(
 last,
@@ -1819,19 +1844,33 @@ height - 10
 
 }
 
+
+/* =========================
+   PERIOD
+========================= */
+
 $("period")
 .addEventListener(
 "change",
 drawChart
 );
 
+
+/* =========================
+   RESIZE
+========================= */
+
 window.addEventListener(
 "resize",
 drawChart
 );
 
-$("walletButton")
-.onclick =
+
+/* =========================
+   BUTTONS
+========================= */
+
+$("walletButton").onclick =
 function(){
 
 location.href =
@@ -1839,8 +1878,8 @@ location.href =
 
 };
 
-$("settingsButton")
-.onclick =
+
+$("settingsButton").onclick =
 function(){
 
 location.href =
@@ -1848,8 +1887,12 @@ location.href =
 
 };
 
-$("logout")
-.onclick =
+
+/* =========================
+   LOGOUT
+========================= */
+
+$("logout").onclick =
 async function(){
 
 if(sb){
@@ -1858,6 +1901,7 @@ await sb.auth.signOut();
 
 }
 
+
 adminPage.style.display =
 "none";
 
@@ -1865,9 +1909,11 @@ loginPage.classList.remove(
 "hidden"
 );
 
+
 $("email").value = "";
 
 $("password").value = "";
+
 
 loginButton.disabled =
 false;
@@ -1875,11 +1921,17 @@ false;
 loginButton.textContent =
 "Konekte";
 
+
 message(
 "Ou dekonekte."
 );
 
 };
+
+
+/* =========================
+   AUTO LOGIN
+========================= */
 
 (async function(){
 
@@ -1893,8 +1945,10 @@ return;
 
 }
 
+
 const ok =
 await verifyAdmin();
+
 
 if(ok){
 
