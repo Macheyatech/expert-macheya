@@ -1,14 +1,21 @@
 "use strict";
-console.log("MACHEYA ADMIN.JS CHARGED");
+
+const supabaseClient = window.supabaseClient;
+
 const state = {
   settings: null,
   rechargeRequests: [],
   withdrawalRequests: [],
   profiles: [],
-  orders: []
+  orders: [],
+  transactions: [],
+  financialStats: {
+    deposits: 0,
+    withdrawals: 0,
+    fees: 0,
+    circulation: 0
+  }
 };
-
-const supabase = window.supabaseClient;
 
 function setText(id, value) {
   const element = document.getElementById(id);
@@ -54,50 +61,114 @@ function escapeHTML(value) {
     .replace(/'/g, "&#039;");
 }
 
+function showLoginMessage(message, isError = false) {
+  const element =
+    document.getElementById("loginMessage");
+
+  if (!element) return;
+
+  element.textContent = message;
+  element.style.display = message ? "block" : "none";
+
+  element.classList.toggle("error", isError);
+}
+
+function showAdminPage() {
+  const loginPage =
+    document.getElementById("loginPage");
+
+  const adminPage =
+    document.getElementById("adminPage");
+
+  if (loginPage) {
+    loginPage.style.display = "none";
+  }
+
+  if (adminPage) {
+    adminPage.style.display = "block";
+  }
+}
+
+function showLoginPage() {
+  const loginPage =
+    document.getElementById("loginPage");
+
+  const adminPage =
+    document.getElementById("adminPage");
+
+  if (loginPage) {
+    loginPage.style.display = "flex";
+  }
+
+  if (adminPage) {
+    adminPage.style.display = "none";
+  }
+}
 
 async function loadSettings() {
   try {
-    const { data, error } = await supabase
-      .from("macheya_settings")
-      .select("*")
-      .eq("id", 1)
-      .maybeSingle();
+    const { data, error } =
+      await supabaseClient
+        .from("macheya_settings")
+        .select("*")
+        .eq("id", 1)
+        .maybeSingle();
 
     if (error) throw error;
 
     state.settings = data || {};
 
-    const fee = document.getElementById("feePercentage");
-    const moncash = document.getElementById("moncashNumber");
-    const natcash = document.getElementById("natcashNumber");
+    const fee =
+      document.getElementById("feePercentage");
+
+    const moncash =
+      document.getElementById("moncashNumber");
+
+    const natcash =
+      document.getElementById("natcashNumber");
 
     if (fee) {
-      fee.value = data?.fee_percentage ?? 0;
+      fee.value =
+        data?.fee_percentage ?? 0;
     }
 
     if (moncash) {
-      moncash.value = data?.moncash_number ?? "";
+      moncash.value =
+        data?.moncash_number ?? "";
     }
 
     if (natcash) {
-      natcash.value = data?.natcash_number ?? "";
+      natcash.value =
+        data?.natcash_number ?? "";
     }
 
   } catch (error) {
-    console.error("Settings error:", error);
+    console.error(
+      "Settings error:",
+      error
+    );
   }
 }
 
-
 async function saveSettings() {
-  const fee = document.getElementById("feePercentage");
-  const moncash = document.getElementById("moncashNumber");
-  const natcash = document.getElementById("natcashNumber");
-  const message = document.getElementById("settingsMessage");
+  const fee =
+    document.getElementById("feePercentage");
 
-  if (!fee || !moncash || !natcash) return;
+  const moncash =
+    document.getElementById("moncashNumber");
 
-  const feeValue = Number(fee.value);
+  const natcash =
+    document.getElementById("natcashNumber");
+
+  const message =
+    document.getElementById("settingsMessage");
+
+  if (!fee || !moncash || !natcash) {
+    return;
+  }
+
+  const feeValue =
+    Number(fee.value);
 
   if (
     Number.isNaN(feeValue) ||
@@ -115,37 +186,40 @@ async function saveSettings() {
 
   try {
     const {
-      data: { user }
-    } = await supabase.auth.getUser();
+      data: { user },
+      error: userError
+    } =
+      await supabaseClient.auth.getUser();
+
+    if (userError) throw userError;
 
     if (!user) {
-      if (message) {
-        message.textContent =
-          "Ou pa konekte kòm admin.";
-        message.style.display = "block";
-      }
-
-      return;
+      throw new Error(
+        "Ou pa konekte kòm admin."
+      );
     }
 
-    const { error } = await supabase
-      .from("macheya_settings")
-      .upsert({
-        id: 1,
-        fee_percentage: feeValue,
-        moncash_number: moncash.value.trim(),
-        natcash_number: natcash.value.trim(),
-        updated_by: user.id,
-        updated_at: new Date().toISOString()
-      });
+    const settings = {
+      id: 1,
+      fee_percentage: feeValue,
+      moncash_number:
+        moncash.value.trim(),
+      natcash_number:
+        natcash.value.trim(),
+      updated_by: user.id,
+      updated_at:
+        new Date().toISOString()
+    };
+
+    const { error } =
+      await supabaseClient
+        .from("macheya_settings")
+        .upsert(settings);
 
     if (error) throw error;
 
     state.settings = {
-      id: 1,
-      fee_percentage: feeValue,
-      moncash_number: moncash.value.trim(),
-      natcash_number: natcash.value.trim()
+      ...settings
     };
 
     if (message) {
@@ -155,43 +229,55 @@ async function saveSettings() {
     }
 
   } catch (error) {
-    console.error("Save settings error:", error);
+    console.error(
+      "Save settings error:",
+      error
+    );
 
     if (message) {
       message.textContent =
         error.message ||
         "Pa kapab sove paramèt yo.";
-
       message.style.display = "block";
     }
   }
 }
 
-
 async function loadProfiles() {
   try {
-    const { data, error } = await supabase
-      .from("profiles")
-      .select("*");
+    const { data, error } =
+      await supabaseClient
+        .from("profiles")
+        .select("*");
 
     if (error) throw error;
 
     state.profiles = data || [];
 
-    const buyers = state.profiles.filter(
-      profile => profile.role === "acheteur"
-    ).length;
+    const buyers =
+      state.profiles.filter(
+        profile =>
+          profile.role === "acheteur"
+      ).length;
 
-    const sellers = state.profiles.filter(
-      profile => profile.role === "vendeur"
-    ).length;
+    const sellers =
+      state.profiles.filter(
+        profile =>
+          profile.role === "vendeur"
+      ).length;
 
     setText("buyers", buyers);
     setText("sellers", sellers);
-    setText("users", state.profiles.length);
+    setText(
+      "users",
+      state.profiles.length
+    );
 
   } catch (error) {
-    console.error("Profiles error:", error);
+    console.error(
+      "Profiles error:",
+      error
+    );
 
     setText("buyers", "0");
     setText("sellers", "0");
@@ -199,40 +285,62 @@ async function loadProfiles() {
   }
 }
 
-
 async function loadOrders() {
   try {
-    const { data, error } = await supabase
-      .from("wallet_transactions")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      });
+    const { data, error } =
+      await supabaseClient
+        .from("wallet_transactions")
+        .select("*")
+        .order("created_at", {
+          ascending: false
+        });
 
     if (error) throw error;
 
     state.orders = data || [];
 
-    const orders = state.orders.filter(
-      item =>
-        item.type === "purchase" ||
-        item.type === "order" ||
-        item.type === "commande"
+    const orders =
+      state.orders.filter(
+        item => {
+          const type =
+            String(
+              item.type ??
+              item.transaction_type ??
+              ""
+            )
+              .trim()
+              .toLowerCase();
+
+          return [
+            "purchase",
+            "order",
+            "commande",
+            "payment",
+            "purchase_payment"
+          ].includes(type);
+        }
+      );
+
+    setText(
+      "orders",
+      orders.length
     );
 
-    setText("orders", orders.length);
-
   } catch (error) {
-    console.error("Orders error:", error);
+    console.error(
+      "Orders error:",
+      error
+    );
 
     setText("orders", "0");
   }
 }
 
-
 async function loadRechargeRequests() {
   const container =
-    document.getElementById("rechargeRequests");
+    document.getElementById(
+      "rechargeRequests"
+    );
 
   if (!container) return;
 
@@ -242,16 +350,18 @@ async function loadRechargeRequests() {
     </div>`;
 
   try {
-    const { data, error } = await supabase
-      .from("recharge_requests")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      });
+    const { data, error } =
+      await supabaseClient
+        .from("recharge_requests")
+        .select("*")
+        .order("created_at", {
+          ascending: false
+        });
 
     if (error) throw error;
 
-    state.rechargeRequests = data || [];
+    state.rechargeRequests =
+      data || [];
 
     if (!state.rechargeRequests.length) {
       container.innerHTML =
@@ -354,7 +464,10 @@ async function loadRechargeRequests() {
         .join("");
 
   } catch (error) {
-    console.error("Recharge error:", error);
+    console.error(
+      "Recharge error:",
+      error
+    );
 
     container.innerHTML =
       `<div class="error">
@@ -363,20 +476,57 @@ async function loadRechargeRequests() {
   }
 }
 
-
-async function updateRechargeStatus(id, status) {
+async function updateRechargeStatus(
+  id,
+  status
+) {
   try {
-    const { error } = await supabase
-      .from("recharge_requests")
-      .update({
-        status: status,
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", id);
+    const {
+      data: request,
+      error: fetchError
+    } =
+      await supabaseClient
+        .from("recharge_requests")
+        .select("*")
+        .eq("id", id)
+        .maybeSingle();
+
+    if (fetchError) {
+      throw fetchError;
+    }
+
+    if (!request) {
+      throw new Error(
+        "Demann rechaj la pa egziste."
+      );
+    }
+
+    if (
+      (request.status || "pending") !==
+      "pending"
+    ) {
+      throw new Error(
+        "Demann sa a deja trete."
+      );
+    }
+
+    const { error } =
+      await supabaseClient
+        .from("recharge_requests")
+        .update({
+          status,
+          updated_at:
+            new Date().toISOString()
+        })
+        .eq("id", id)
+        .eq("status", "pending");
 
     if (error) throw error;
 
-    await loadRechargeRequests();
+    await Promise.all([
+      loadRechargeRequests(),
+      loadFinancialStats()
+    ]);
 
   } catch (error) {
     console.error(
@@ -386,15 +536,15 @@ async function updateRechargeStatus(id, status) {
 
     alert(
       error.message ||
-      "Pa kapab mete ajou demann lan."
+      "Pa kapab mete ajou demann rechaj la."
     );
   }
 }
-
-
 async function loadWithdrawalRequests() {
   const container =
-    document.getElementById("withdrawalRequests");
+    document.getElementById(
+      "withdrawalRequests"
+    );
 
   if (!container) return;
 
@@ -404,41 +554,27 @@ async function loadWithdrawalRequests() {
     </div>`;
 
   try {
-    const { data, error } = await supabase
-      .from("withdrawal_requests")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      });
+    const { data, error } =
+      await supabaseClient
+        .from("withdrawal_requests")
+        .select("*")
+        .order("created_at", {
+          ascending: false
+        });
 
     if (error) throw error;
 
-    state.withdrawalRequests = data || [];
+    state.withdrawalRequests =
+      data || [];
 
     const pending =
       state.withdrawalRequests.filter(
         request =>
-          (request.status || "pending") === "pending"
+          (request.status || "pending") ===
+          "pending"
       );
 
-    const totalWithdrawal =
-      state.withdrawalRequests.reduce(
-        (sum, request) =>
-          sum +
-          Number(
-            request.amount ??
-            request.montant ??
-            0
-          ),
-        0
-      );
-
-    setText(
-      "withdrawals",
-      `${formatMoney(totalWithdrawal)} HTG`
-    );
-
-    if (!pending.length) {
+    if (!state.withdrawalRequests.length) {
       container.innerHTML =
         `<div class="empty">
           Pa gen okenn demann retrè pou kounye a.
@@ -448,17 +584,19 @@ async function loadWithdrawalRequests() {
     }
 
     container.innerHTML =
-      pending
+      state.withdrawalRequests
         .map(request => {
 
           const amount =
             request.amount ??
             request.montant ??
+            request.value ??
             0;
 
           const method =
             request.method ??
             request.payment_method ??
+            request.type ??
             "—";
 
           const number =
@@ -466,6 +604,17 @@ async function loadWithdrawalRequests() {
             request.phone ??
             request.number ??
             "—";
+
+          const status =
+            request.status ||
+            "pending";
+
+          const statusClass =
+            status === "approved"
+              ? "approved"
+              : status === "rejected"
+                ? "rejected"
+                : "pending";
 
           return `
             <div class="request-card">
@@ -490,29 +639,35 @@ async function loadWithdrawalRequests() {
                 </small>
               </div>
 
-              <div class="request-status pending">
-                pending
+              <div class="request-status ${statusClass}">
+                ${escapeHTML(status)}
               </div>
 
-              <div class="request-actions">
+              ${
+                status === "pending"
+                  ? `
+                    <div class="request-actions">
 
-                <button
-                  class="approve-btn"
-                  onclick="updateWithdrawalStatus('${escapeHTML(request.id)}','approved')"
-                  type="button"
-                >
-                  ✓ Peye
-                </button>
+                      <button
+                        class="approve-btn"
+                        onclick="updateWithdrawalStatus('${escapeHTML(request.id)}','approved')"
+                        type="button"
+                      >
+                        ✓ Peye
+                      </button>
 
-                <button
-                  class="reject-btn"
-                  onclick="updateWithdrawalStatus('${escapeHTML(request.id)}','rejected')"
-                  type="button"
-                >
-                  ✕ Refize
-                </button>
+                      <button
+                        class="reject-btn"
+                        onclick="updateWithdrawalStatus('${escapeHTML(request.id)}','rejected')"
+                        type="button"
+                      >
+                        ✕ Refize
+                      </button>
 
-              </div>
+                    </div>
+                  `
+                  : ""
+              }
 
             </div>
           `;
@@ -531,44 +686,59 @@ async function loadWithdrawalRequests() {
       </div>`;
   }
 }
-async function updateWithdrawalStatus(id, status) {
+
+
+async function updateWithdrawalStatus(
+  id,
+  status
+) {
   try {
-    const { data: currentRequest, error: fetchError } =
-      await supabase
+    const {
+      data: request,
+      error: fetchError
+    } =
+      await supabaseClient
         .from("withdrawal_requests")
         .select("*")
         .eq("id", id)
         .maybeSingle();
 
-    if (fetchError) throw fetchError;
-
-    if (!currentRequest) {
-      throw new Error("Demann retrè a pa egziste.");
+    if (fetchError) {
+      throw fetchError;
     }
 
-    const currentStatus =
-      currentRequest.status || "pending";
+    if (!request) {
+      throw new Error(
+        "Demann retrè a pa egziste."
+      );
+    }
 
-    if (currentStatus !== "pending") {
+    if (
+      (request.status || "pending") !==
+      "pending"
+    ) {
       throw new Error(
         "Demann sa a deja trete."
       );
     }
 
-    const { error } = await supabase
-      .from("withdrawal_requests")
-      .update({
-        status: status,
-        updated_at: new Date().toISOString()
-      })
-      .eq("id", id)
-      .eq("status", "pending");
+    const { error } =
+      await supabaseClient
+        .from("withdrawal_requests")
+        .update({
+          status,
+          updated_at:
+            new Date().toISOString()
+        })
+        .eq("id", id)
+        .eq("status", "pending");
 
     if (error) throw error;
 
     await Promise.all([
       loadWithdrawalRequests(),
-      loadFinancialStats()
+      loadFinancialStats(),
+      loadWithdrawalChart()
     ]);
 
   } catch (error) {
@@ -585,164 +755,126 @@ async function updateWithdrawalStatus(id, status) {
 }
 
 
-function getTransactionAmount(transaction) {
-  return Number(
-    transaction?.amount ??
-    transaction?.montant ??
-    transaction?.value ??
-    transaction?.total ??
-    transaction?.price ??
-    0
-  ) || 0;
-}
-
-
-function normalizeTransactionType(transaction) {
-  return String(
-    transaction?.type ??
-    transaction?.transaction_type ??
-    transaction?.category ??
-    ""
-  )
-    .trim()
-    .toLowerCase();
-}
-
-
-function isDepositTransaction(transaction) {
-  const type =
-    normalizeTransactionType(transaction);
-
-  return [
-    "deposit",
-    "depot",
-    "recharge",
-    "topup",
-    "top_up",
-    "credit"
-  ].includes(type);
-}
-
-
-function isWithdrawalTransaction(transaction) {
-  const type =
-    normalizeTransactionType(transaction);
-
-  return [
-    "withdrawal",
-    "withdraw",
-    "retrait",
-    "debit"
-  ].includes(type);
-}
-
-
-function isFeeTransaction(transaction) {
-  const type =
-    normalizeTransactionType(transaction);
-
-  return [
-    "fee",
-    "fees",
-    "frais",
-    "commission",
-    "macheya_fee"
-  ].includes(type);
-}
-
-
-function isPurchaseTransaction(transaction) {
-  const type =
-    normalizeTransactionType(transaction);
-
-  return [
-    "purchase",
-    "order",
-    "commande",
-    "payment",
-    "purchase_payment"
-  ].includes(type);
-}
-
-
 async function loadFinancialStats() {
   try {
-    const {
-      data: transactions,
-      error
-    } = await supabase
-      .from("wallet_transactions")
-      .select("*")
-      .order("created_at", {
-        ascending: false
-      });
-
-    if (error) throw error;
-
-    const list = transactions || [];
-
     let deposits = 0;
     let withdrawals = 0;
     let fees = 0;
 
-    list.forEach(transaction => {
-      const amount =
-        getTransactionAmount(transaction);
+    const {
+      data: rechargeData,
+      error: rechargeError
+    } =
+      await supabaseClient
+        .from("recharge_requests")
+        .select("*");
 
-      if (isDepositTransaction(transaction)) {
-        deposits += amount;
-      }
-
-      if (isWithdrawalTransaction(transaction)) {
-        withdrawals += amount;
-      }
-
-      if (isFeeTransaction(transaction)) {
-        fees += amount;
-      }
-    });
-
-    /*
-     * Si fee yo pa anrejistre kòm yon transaction,
-     * nou kalkile yo apati retrè ki apwouve yo.
-     */
-    if (fees === 0) {
-      const feePercentage =
-        Number(
-          state.settings?.fee_percentage ?? 0
-        );
-
-      if (feePercentage > 0) {
-        const approvedWithdrawals =
-          state.withdrawalRequests.filter(
-            request =>
-              request.status === "approved"
-          );
-
-        withdrawals =
-          approvedWithdrawals.reduce(
-            (sum, request) =>
-              sum +
-              Number(
-                request.amount ??
-                request.montant ??
-                0
-              ),
-            0
-          );
-
-        fees =
-          withdrawals *
-          (feePercentage / 100);
-      }
+    if (rechargeError) {
+      throw rechargeError;
     }
 
-    /*
-     * Lajan ki rete nan sistèm nan:
-     * depo - retrè.
-     */
+    const approvedRecharges =
+      (rechargeData || []).filter(
+        request =>
+          request.status === "approved"
+      );
+
+    deposits =
+      approvedRecharges.reduce(
+        (total, request) =>
+          total +
+          Number(
+            request.amount ??
+            request.montant ??
+            request.value ??
+            0
+          ),
+        0
+      );
+
+
+    const {
+      data: withdrawalData,
+      error: withdrawalError
+    } =
+      await supabaseClient
+        .from("withdrawal_requests")
+        .select("*");
+
+    if (withdrawalError) {
+      throw withdrawalError;
+    }
+
+    const approvedWithdrawals =
+      (withdrawalData || []).filter(
+        request =>
+          request.status === "approved"
+      );
+
+    withdrawals =
+      approvedWithdrawals.reduce(
+        (total, request) =>
+          total +
+          Number(
+            request.amount ??
+            request.montant ??
+            request.value ??
+            0
+          ),
+        0
+      );
+
+
+    const feePercentage =
+      Number(
+        state.settings?.fee_percentage ?? 0
+      );
+
+    fees =
+      approvedWithdrawals.reduce(
+        (total, request) => {
+
+          const amount =
+            Number(
+              request.amount ??
+              request.montant ??
+              request.value ??
+              0
+            );
+
+          const requestFee =
+            request.fee ??
+            request.fee_amount ??
+            request.frais;
+
+          if (
+            requestFee !== undefined &&
+            requestFee !== null
+          ) {
+            return total +
+              Number(requestFee || 0);
+          }
+
+          return total +
+            (amount * feePercentage / 100);
+        },
+        0
+      );
+
+
     const circulation =
-      Math.max(0, deposits - withdrawals);
+      Math.max(
+        0,
+        deposits -
+        withdrawals
+      );
+
+    state.financialStats = {
+      deposits,
+      withdrawals,
+      fees,
+      circulation
+    };
 
     setText(
       "deposits",
@@ -764,514 +896,155 @@ async function loadFinancialStats() {
       `${formatMoney(circulation)} HTG`
     );
 
-    state.financialStats = {
-      deposits,
-      withdrawals,
-      fees,
-      circulation
-    };
-
   } catch (error) {
     console.error(
       "Financial stats error:",
       error
     );
-
-    setText("deposits", "0 HTG");
-    setText("withdrawals", "0 HTG");
-    setText("fees", "0 HTG");
-    setText("circulation", "0 HTG");
   }
 }
 
 
-async function refreshDashboard() {
-  try {
-    await loadSettings();
-    await loadProfiles();
-    await loadOrders();
-    await loadRechargeRequests();
-    await loadWithdrawalRequests();
-    await loadFinancialStats();
-  } catch (error) {
-    console.error(
-      "Dashboard refresh error:",
-      error
-    );
-  }
-}
-
-
-function setupRechargeRefresh() {
-  const button =
-    document.getElementById("refreshRecharge");
-
-  if (!button) return;
-
-  button.addEventListener(
-    "click",
-    async () => {
-      button.disabled = true;
-
-      try {
-        await loadRechargeRequests();
-        await loadFinancialStats();
-      } finally {
-        button.disabled = false;
-      }
-    }
-  );
-}
-
-
-function setupWithdrawalRefresh() {
-  const button =
-    document.getElementById("refreshWithdrawal");
-
-  if (!button) return;
-
-  button.addEventListener(
-    "click",
-    async () => {
-      button.disabled = true;
-
-      try {
-        await loadWithdrawalRequests();
-        await loadFinancialStats();
-      } finally {
-        button.disabled = false;
-      }
-    }
-  );
-}
-
-
-function setupSettings() {
-  const button =
-    document.getElementById("saveSettings");
-
-  if (!button) return;
-
-  button.addEventListener(
-    "click",
-    async () => {
-      button.disabled = true;
-
-      try {
-        await saveSettings();
-      } finally {
-        button.disabled = false;
-      }
-    }
-  );
-}
-
-
-function setupQuickActions() {
-  const walletButton =
-    document.getElementById("walletButton");
-
-  const settingsWalletButton =
-    document.getElementById(
-      "settingsWalletButton"
-    );
-
-  if (walletButton) {
-    walletButton.addEventListener(
-      "click",
-      () => {
-        window.location.href =
-          "wallet.html";
-      }
-    );
-  }
-
-  if (settingsWalletButton) {
-    settingsWalletButton.addEventListener(
-      "click",
-      () => {
-        const settings =
-          document.querySelector(
-            ".settings-grid"
-          );
-
-        if (settings) {
-          settings.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-          });
-        }
-      }
-    );
-  }
-}
-
-
-function setupLogout() {
-  const button =
-    document.getElementById("logout");
-
-  if (!button) return;
-
-  button.addEventListener(
-    "click",
-    async () => {
-      try {
-        const { error } =
-          await supabase.auth.signOut();
-
-        if (error) throw error;
-
-        window.location.reload();
-
-      } catch (error) {
-        console.error(
-          "Logout error:",
-          error
-        );
-
-        alert(
-          error.message ||
-          "Pa kapab dekonekte."
-        );
-      }
-    }
-  );
-                      }
-
-async function isSuperAdmin(userId) {
-  if (!userId) return false;
-
-  try {
-    const { data, error } = await supabase
-      .from("super_admins")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle();
-
-    if (error) throw error;
-
-    return !!data;
-
-  } catch (error) {
-    console.error(
-      "Super admin verification error:",
-      error
-    );
-
-    return false;
-  }
-}
-
-
-async function checkAdminSession() {
-  const loginPage =
-    document.getElementById("loginPage");
-
-  const adminPage =
-    document.getElementById("adminPage");
-
-  try {
-    const {
-      data: { session }
-    } = await supabase.auth.getSession();
-
-    if (!session?.user) {
-      if (loginPage) {
-        loginPage.style.display = "flex";
-      }
-
-      if (adminPage) {
-        adminPage.style.display = "none";
-      }
-
-      return false;
-    }
-
-    const allowed =
-      await isSuperAdmin(session.user.id);
-
-    if (!allowed) {
-      await supabase.auth.signOut();
-
-      if (loginPage) {
-        loginPage.style.display = "flex";
-      }
-
-      if (adminPage) {
-        adminPage.style.display = "none";
-      }
-
-      showLoginMessage(
-        "Aksè refize. Kont sa a pa Super Admin.",
-        true
-      );
-
-      return false;
-    }
-
-    if (loginPage) {
-      loginPage.style.display = "none";
-    }
-
-    if (adminPage) {
-      adminPage.style.display = "block";
-    }
-
-    await refreshDashboard();
-
-    return true;
-
-  } catch (error) {
-    console.error(
-      "Session check error:",
-      error
-    );
-
-    if (loginPage) {
-      loginPage.style.display = "flex";
-    }
-
-    if (adminPage) {
-      adminPage.style.display = "none";
-    }
-
-    return false;
-  }
-}
-
-
-function showLoginMessage(message, isError = false) {
-  const element =
-    document.getElementById("loginMessage");
-
-  if (!element) return;
-
-  element.textContent = message;
-  element.style.display = "block";
-
-  if (isError) {
-    element.classList.add("error");
-  } else {
-    element.classList.remove("error");
-  }
-}
-
-
-function setupLogin() {
-  const form =
-    document.getElementById("loginForm");
-
-  const button =
-    document.getElementById("loginButton");
-
-  if (!form) return;
-
-  form.addEventListener(
-    "submit",
-    async event => {
-      event.preventDefault();
-
-      const email =
-        document.getElementById("email")?.value
-          .trim();
-
-      const password =
-        document.getElementById("password")?.value;
-
-      if (!email || !password) {
-        showLoginMessage(
-          "Tanpri ranpli email ak modpas la.",
-          true
-        );
-
-        return;
-      }
-
-      if (button) {
-        button.disabled = true;
-        button.textContent =
-          "Ap konekte...";
-      }
-
-      showLoginMessage("");
-
-      try {
-        const { data, error } =
-          await supabase.auth.signInWithPassword({
-            email,
-            password
-          });
-
-        if (error) throw error;
-
-        if (!data?.user) {
-          throw new Error(
-            "Pa kapab jwenn kont itilizatè a."
-          );
-        }
-
-        const allowed =
-          await isSuperAdmin(data.user.id);
-
-        if (!allowed) {
-          await supabase.auth.signOut();
-
-          throw new Error(
-            "Aksè refize. Kont sa a pa Super Admin."
-          );
-        }
-
-        showLoginMessage(
-          "Koneksyon reyisi. Byenveni Super Admin."
-        );
-
-        await checkAdminSession();
-
-      } catch (error) {
-        console.error(
-          "Login error:",
-          error
-        );
-
-        showLoginMessage(
-          error.message ||
-          "Email oswa modpas la pa kòrèk.",
-          true
-        );
-
-      } finally {
-        if (button) {
-          button.disabled = false;
-          button.textContent = "Konekte";
-        }
-      }
-    }
-  );
-}
-
-
-function getWithdrawalDateKey(dateValue) {
-  if (!dateValue) return null;
-
-  const date =
-    new Date(dateValue);
-
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  return date.toISOString()
-    .split("T")[0];
-}
-
-
-function formatChartDate(dateValue) {
-  const date =
-    new Date(`${dateValue}T00:00:00`);
-
-  if (Number.isNaN(date.getTime())) {
-    return "";
-  }
-
-  return date.toLocaleDateString(
-    "fr-FR",
-    {
-      day: "2-digit",
-      month: "2-digit"
-    }
-  );
-}
-
-
-function getChartDays(numberOfDays) {
-  const days = [];
-  const today = new Date();
-
-  today.setHours(
-    0,
-    0,
-    0,
-    0
-  );
-
-  for (
-    let index = numberOfDays - 1;
-    index >= 0;
-    index--
-  ) {
-    const date = new Date(today);
-
-    date.setDate(
-      today.getDate() - index
-    );
-
-    days.push(
-      date.toISOString()
-        .split("T")[0]
-    );
-  }
-
-  return days;
-}
-
-
-function drawWithdrawalChart() {
+async function loadWithdrawalChart() {
   const canvas =
     document.getElementById("chart");
 
   if (!canvas) return;
 
+  const periodElement =
+    document.getElementById("period");
+
+  const period =
+    Number(
+      periodElement?.value || 30
+    );
+
+  try {
+    const startDate =
+      new Date();
+
+    startDate.setHours(
+      0,
+      0,
+      0,
+      0
+    );
+
+    startDate.setDate(
+      startDate.getDate() -
+      (period - 1)
+    );
+
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("withdrawal_requests")
+        .select(
+          "amount,montant,value,created_at,status"
+        )
+        .eq("status", "approved")
+        .gte(
+          "created_at",
+          startDate.toISOString()
+        )
+        .order("created_at", {
+          ascending: true
+        });
+
+    if (error) throw error;
+
+    const dailyTotals = {};
+
+    for (
+      let i = 0;
+      i < period;
+      i++
+    ) {
+      const date =
+        new Date(startDate);
+
+      date.setDate(
+        startDate.getDate() + i
+      );
+
+      const key =
+        date.toISOString()
+          .split("T")[0];
+
+      dailyTotals[key] = 0;
+    }
+
+
+    (data || []).forEach(
+      request => {
+
+        const created =
+          new Date(
+            request.created_at
+          );
+
+        const key =
+          created
+            .toISOString()
+            .split("T")[0];
+
+        if (
+          Object.prototype.hasOwnProperty.call(
+            dailyTotals,
+            key
+          )
+        ) {
+          dailyTotals[key] +=
+            Number(
+              request.amount ??
+              request.montant ??
+              request.value ??
+              0
+            );
+        }
+      }
+    );
+
+
+    drawWithdrawalChart(
+      canvas,
+      dailyTotals
+    );
+
+  } catch (error) {
+    console.error(
+      "Withdrawal chart error:",
+      error
+    );
+  }
+}
+
+
+function drawWithdrawalChart(
+  canvas,
+  dailyTotals
+) {
   const context =
     canvas.getContext("2d");
 
   if (!context) return;
 
-  const period =
-    Number(
-      document.getElementById("period")?.value
-    ) || 30;
-
-  const days =
-    getChartDays(period);
-
-  const totals = {};
-
-  days.forEach(day => {
-    totals[day] = 0;
-  });
-
-  state.withdrawalRequests.forEach(
-    request => {
-
-      const date =
-        getWithdrawalDateKey(
-          request.created_at
-        );
-
-      if (!date || totals[date] === undefined) {
-        return;
-      }
-
-      const amount =
-        Number(
-          request.amount ??
-          request.montant ??
-          0
-        ) || 0;
-
-      totals[date] += amount;
-    }
-  );
-
-  const values =
-    days.map(day => totals[day]);
+  const rect =
+    canvas.getBoundingClientRect();
 
   const width =
-    canvas.clientWidth || 700;
+    Math.max(
+      canvas.clientWidth || rect.width || 300,
+      300
+    );
 
   const height =
-    canvas.clientHeight || 320;
+    Math.max(
+      canvas.clientHeight || rect.height || 260,
+      260
+    );
 
   const ratio =
     window.devicePixelRatio || 1;
@@ -1298,10 +1071,27 @@ function drawWithdrawalChart() {
     height
   );
 
-  const paddingLeft = 55;
+
+  const entries =
+    Object.entries(
+      dailyTotals
+    );
+
+  const values =
+    entries.map(
+      item => Number(item[1]) || 0
+    );
+
+  const maxValue =
+    Math.max(
+      ...values,
+      1
+    );
+
+  const paddingLeft = 50;
   const paddingRight = 20;
-  const paddingTop = 25;
-  const paddingBottom = 45;
+  const paddingTop = 20;
+  const paddingBottom = 40;
 
   const chartWidth =
     width -
@@ -1313,13 +1103,9 @@ function drawWithdrawalChart() {
     paddingTop -
     paddingBottom;
 
-  const maxValue =
-    Math.max(...values, 1);
-
-  const gridLines = 5;
 
   context.font =
-    "12px Arial";
+    "11px Arial";
 
   context.textAlign =
     "right";
@@ -1327,23 +1113,22 @@ function drawWithdrawalChart() {
   context.textBaseline =
     "middle";
 
-  for (
-    let index = 0;
-    index <= gridLines;
-    index++
-  ) {
-    const value =
-      (maxValue / gridLines) *
-      index;
 
+  const gridLines = 4;
+
+  for (
+    let i = 0;
+    i <= gridLines;
+    i++
+  ) {
     const y =
       paddingTop +
       chartHeight -
       (
-        index /
+        chartHeight *
+        i /
         gridLines
-      ) *
-      chartHeight;
+      );
 
     context.beginPath();
 
@@ -1353,19 +1138,25 @@ function drawWithdrawalChart() {
     );
 
     context.lineTo(
-      width - paddingRight,
+      width -
+      paddingRight,
       y
     );
 
     context.strokeStyle =
-      "rgba(0,0,0,0.08)";
+      "#e5e7eb";
 
     context.lineWidth = 1;
 
     context.stroke();
 
+    const value =
+      maxValue *
+      i /
+      gridLines;
+
     context.fillStyle =
-      "#666";
+      "#6b7280";
 
     context.fillText(
       formatMoney(value),
@@ -1374,92 +1165,111 @@ function drawWithdrawalChart() {
     );
   }
 
+
+  if (!entries.length) {
+    context.fillStyle =
+      "#6b7280";
+
+    context.textAlign =
+      "center";
+
+    context.fillText(
+      "Pa gen done retrè pou peryòd sa a.",
+      width / 2,
+      height / 2
+    );
+
+    return;
+  }
+
+
   const points = [];
 
-  values.forEach(
-    (value, index) => {
+  entries.forEach(
+    ([date, value], index) => {
 
       const x =
-        days.length === 1
-          ? paddingLeft +
-            chartWidth / 2
-          : paddingLeft +
-            (
+        paddingLeft +
+        (
+          entries.length === 1
+            ? chartWidth / 2
+            : chartWidth *
               index /
-              (days.length - 1)
-            ) *
-            chartWidth;
+              (entries.length - 1)
+        );
 
       const y =
         paddingTop +
         chartHeight -
         (
-          value /
-          maxValue
-        ) *
-        chartHeight;
+          Number(value) /
+          maxValue *
+          chartHeight
+        );
 
       points.push({
         x,
         y,
+        date,
         value
       });
     }
   );
 
-  if (points.length) {
 
-    context.beginPath();
+  context.beginPath();
 
-    points.forEach(
-      (point, index) => {
+  points.forEach(
+    (point, index) => {
 
-        if (index === 0) {
-          context.moveTo(
-            point.x,
-            point.y
-          );
-        } else {
-          context.lineTo(
-            point.x,
-            point.y
-          );
-        }
+      if (index === 0) {
+        context.moveTo(
+          point.x,
+          point.y
+        );
+      } else {
+        context.lineTo(
+          point.x,
+          point.y
+        );
       }
-    );
+    }
+  );
 
-    context.strokeStyle =
-      "#F97316";
+  context.strokeStyle =
+    "#f97316";
 
-    context.lineWidth = 3;
+  context.lineWidth = 3;
 
-    context.lineJoin =
-      "round";
+  context.lineJoin =
+    "round";
 
-    context.lineCap =
-      "round";
+  context.lineCap =
+    "round";
 
-    context.stroke();
+  context.stroke();
 
 
-    points.forEach(point => {
+  points.forEach(
+    point => {
 
       context.beginPath();
 
       context.arc(
         point.x,
         point.y,
-        4,
+        3,
         0,
         Math.PI * 2
       );
 
       context.fillStyle =
-        "#F97316";
+        "#f97316";
 
       context.fill();
-    });
-  }
+    }
+  );
+
 
   context.textAlign =
     "center";
@@ -1467,23 +1277,20 @@ function drawWithdrawalChart() {
   context.textBaseline =
     "top";
 
-  context.fillStyle =
-    "#666";
-
   const labelStep =
     Math.max(
       1,
       Math.ceil(
-        days.length / 7
+        entries.length / 6
       )
     );
 
-  days.forEach(
-    (day, index) => {
+  entries.forEach(
+    ([date], index) => {
 
       if (
         index % labelStep !== 0 &&
-        index !== days.length - 1
+        index !== entries.length - 1
       ) {
         return;
       }
@@ -1491,85 +1298,481 @@ function drawWithdrawalChart() {
       const point =
         points[index];
 
-      if (!point) return;
+      const formatted =
+        date
+          .split("-")
+          .slice(1)
+          .reverse()
+          .join("/");
+
+      context.fillStyle =
+        "#6b7280";
 
       context.fillText(
-        formatChartDate(day),
+        formatted,
         point.x,
-        height -
-          paddingBottom +
-          12
+        height - 25
       );
     }
   );
 }
 
 
-function setupChart() {
-  const period =
-    document.getElementById("period");
+async function refreshDashboard() {
+  await Promise.all([
+    loadSettings(),
+    loadProfiles(),
+    loadOrders(),
+    loadRechargeRequests(),
+    loadWithdrawalRequests()
+  ]);
 
-  if (period) {
-    period.addEventListener(
-      "change",
-      () => {
-        drawWithdrawalChart();
+  await loadFinancialStats();
+  await loadWithdrawalChart();
       }
+function setupLogin() {
+  const form =
+    document.getElementById("loginForm");
+
+  const button =
+    document.getElementById("loginButton");
+
+  if (!form) {
+    console.error(
+      "loginForm pa jwenn nan admin.html"
     );
+    return;
   }
 
-  window.addEventListener(
-    "resize",
-    () => {
-      if (
-        document.getElementById("adminPage")
-          ?.style.display !== "none"
-      ) {
-        drawWithdrawalChart();
+  form.addEventListener(
+    "submit",
+    async event => {
+      event.preventDefault();
+
+      const email =
+        document.getElementById("email")?.value.trim();
+
+      const password =
+        document.getElementById("password")?.value;
+
+      if (!email || !password) {
+        showLoginMessage(
+          "Tanpri ranpli email ak modpas la.",
+          true
+        );
+        return;
+      }
+
+      if (!supabaseClient) {
+        showLoginMessage(
+          "Supabase client la pa disponib.",
+          true
+        );
+        return;
+      }
+
+      if (button) {
+        button.disabled = true;
+        button.textContent = "Ap konekte...";
+      }
+
+      showLoginMessage("");
+
+      try {
+        const {
+          data,
+          error
+        } =
+          await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+          });
+
+        if (error) {
+          throw error;
+        }
+
+        if (!data?.user) {
+          throw new Error(
+            "Pa kapab jwenn kont itilizatè a."
+          );
+        }
+
+        const allowed =
+          await isSuperAdmin(
+            data.user.id
+          );
+
+        if (!allowed) {
+          await supabaseClient.auth.signOut();
+
+          throw new Error(
+            "Aksè refize. Kont sa a pa Super Admin."
+          );
+        }
+
+        showLoginMessage(
+          "Koneksyon reyisi."
+        );
+
+        showAdminPage();
+
+        await refreshDashboard();
+
+      } catch (error) {
+        console.error(
+          "Login error:",
+          error
+        );
+
+        showLoginMessage(
+          error.message ||
+          "Pa kapab konekte.",
+          true
+        );
+
+      } finally {
+        if (button) {
+          button.disabled = false;
+          button.textContent = "Konekte";
+        }
       }
     }
   );
 }
 
 
-async function refreshWithdrawalData() {
-  await loadWithdrawalRequests();
+async function isSuperAdmin(userId) {
+  if (!userId) return false;
 
-  drawWithdrawalChart();
+  try {
+    const {
+      data,
+      error
+    } =
+      await supabaseClient
+        .from("super_admins")
+        .select("user_id")
+        .eq("user_id", userId)
+        .maybeSingle();
 
-  await loadFinancialStats();
+    if (error) {
+      console.error(
+        "Super admin verification error:",
+        error
+      );
+
+      return false;
+    }
+
+    return !!data;
+
+  } catch (error) {
+    console.error(
+      "Super admin error:",
+      error
+    );
+
+    return false;
+  }
+}
+
+
+async function checkAdminSession() {
+  try {
+    const {
+      data,
+      error
+    } =
+      await supabaseClient.auth.getSession();
+
+    if (error) {
+      throw error;
+    }
+
+    const session =
+      data?.session;
+
+    if (!session?.user) {
+      showLoginPage();
+      return false;
+    }
+
+    const allowed =
+      await isSuperAdmin(
+        session.user.id
+      );
+
+    if (!allowed) {
+      await supabaseClient.auth.signOut();
+
+      showLoginPage();
+
+      showLoginMessage(
+        "Aksè refize. Kont sa a pa Super Admin.",
+        true
+      );
+
+      return false;
+    }
+
+    showAdminPage();
+
+    await refreshDashboard();
+
+    return true;
+
+  } catch (error) {
+    console.error(
+      "Session error:",
+      error
+    );
+
+    showLoginPage();
+
+    showLoginMessage(
+      error.message ||
+      "Yon erè rive pandan verifikasyon an.",
+      true
+    );
+
+    return false;
+  }
+}
+
+
+function setupRechargeRefresh() {
+  const button =
+    document.getElementById(
+      "refreshRecharge"
+    );
+
+  if (!button) return;
+
+  button.addEventListener(
+    "click",
+    async () => {
+
+      button.disabled = true;
+
+      try {
+        await loadRechargeRequests();
+        await loadFinancialStats();
+      } finally {
+        button.disabled = false;
+      }
+    }
+  );
+}
+
+
+function setupWithdrawalRefresh() {
+  const button =
+    document.getElementById(
+      "refreshWithdrawal"
+    );
+
+  if (!button) return;
+
+  button.addEventListener(
+    "click",
+    async () => {
+
+      button.disabled = true;
+
+      try {
+        await loadWithdrawalRequests();
+        await loadFinancialStats();
+        await loadWithdrawalChart();
+      } finally {
+        button.disabled = false;
+      }
+    }
+  );
+}
+
+
+function setupSettings() {
+  const button =
+    document.getElementById(
+      "saveSettings"
+    );
+
+  if (!button) return;
+
+  button.addEventListener(
+    "click",
+    async () => {
+
+      button.disabled = true;
+
+      try {
+        await saveSettings();
+      } finally {
+        button.disabled = false;
+      }
+    }
+  );
+}
+
+
+function setupPeriod() {
+  const period =
+    document.getElementById(
+      "period"
+    );
+
+  if (!period) return;
+
+  period.addEventListener(
+    "change",
+    async () => {
+      await loadWithdrawalChart();
+    }
+  );
+}
+
+
+function setupQuickActions() {
+  const walletButton =
+    document.getElementById(
+      "walletButton"
+    );
+
+  const settingsWalletButton =
+    document.getElementById(
+      "settingsWalletButton"
+    );
+
+  if (walletButton) {
+    walletButton.addEventListener(
+      "click",
+      () => {
+        window.location.href =
+          "wallet.html";
+      }
+    );
+  }
+
+  if (settingsWalletButton) {
+    settingsWalletButton.addEventListener(
+      "click",
+      () => {
+
+        const settings =
+          document.querySelector(
+            ".settings-grid"
+          );
+
+        if (settings) {
+          settings.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+        }
+      }
+    );
+  }
+}
+
+
+function setupLogout() {
+  const button =
+    document.getElementById(
+      "logout"
+    );
+
+  if (!button) return;
+
+  button.addEventListener(
+    "click",
+    async () => {
+
+      button.disabled = true;
+
+      try {
+        const {
+          error
+        } =
+          await supabaseClient.auth.signOut();
+
+        if (error) {
+          throw error;
+        }
+
+        showLoginPage();
+
+        showLoginMessage(
+          "Ou dekonekte avèk siksè."
+        );
+
+      } catch (error) {
+        console.error(
+          "Logout error:",
+          error
+        );
+
+        alert(
+          error.message ||
+          "Pa kapab dekonekte."
+        );
+
+      } finally {
+        button.disabled = false;
+      }
+    }
+  );
+}
+
+
+function setupResize() {
+  window.addEventListener(
+    "resize",
+    () => {
+      const adminPage =
+        document.getElementById(
+          "adminPage"
+        );
+
+      if (
+        adminPage &&
+        adminPage.style.display !== "none"
+      ) {
+        loadWithdrawalChart();
+      }
+    }
+  );
 }
 
 
 async function initializeAdmin() {
-  const loginPage =
-    document.getElementById("loginPage");
+  if (!supabaseClient) {
+    console.error(
+      "window.supabaseClient pa jwenn."
+    );
 
-  const adminPage =
-    document.getElementById("adminPage");
+    showLoginPage();
 
-  if (loginPage) {
-    loginPage.style.display = "flex";
+    showLoginMessage(
+      "Sistèm koneksyon an pa disponib.",
+      true
+    );
+
+    return;
   }
 
-  if (adminPage) {
-    adminPage.style.display = "none";
-  }
+  showLoginPage();
 
   setupLogin();
   setupRechargeRefresh();
   setupWithdrawalRefresh();
   setupSettings();
+  setupPeriod();
   setupQuickActions();
   setupLogout();
-  setupChart();
+  setupResize();
 
-  const authenticated =
-    await checkAdminSession();
-
-  if (authenticated) {
-    drawWithdrawalChart();
-  }
+  await checkAdminSession();
 }
 
 
@@ -1582,4 +1785,4 @@ if (
   );
 } else {
   initializeAdmin();
-}
+    }
