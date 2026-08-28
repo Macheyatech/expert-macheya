@@ -294,33 +294,21 @@ async function loadProfiles() {
 
 async function loadOrders() {
   try {
-    const { count, error } =
+    const { data, error } =
       await supabaseClient
         .from("orders")
-        .select("id", {
-          count: "exact",
-          head: true
-        });
+        .select("id");
 
     if (error) {
       throw error;
     }
 
+    state.orders = data || [];
+
     setText(
       "orders",
-      Number(count) || 0
+      state.orders.length
     );
-
-  } catch (error) {
-    console.error(
-      "Orders error:",
-      error
-    );
-
-    setText("orders", "0");
-  }
-}
-
 
   } catch (error) {
     console.error(
@@ -1020,9 +1008,7 @@ async function loadWithdrawalChart() {
       error
     );
   }
-}
-
-
+  }
 function drawWithdrawalChart(
   canvas,
   dailyTotals
@@ -1327,7 +1313,9 @@ async function refreshDashboard() {
 
   await loadFinancialStats();
   await loadWithdrawalChart();
-          }
+}
+
+
 function setupLogin() {
   const form =
     document.getElementById("loginForm");
@@ -1345,6 +1333,7 @@ function setupLogin() {
   form.addEventListener(
     "submit",
     async event => {
+
       event.preventDefault();
 
       const email =
@@ -1354,7 +1343,8 @@ function setupLogin() {
           .trim();
 
       const password =
-        document.getElementById("password")
+        document
+          .getElementById("password")
           ?.value;
 
       if (!email || !password) {
@@ -1456,10 +1446,7 @@ async function isSuperAdmin(userId) {
       error
     } =
       await supabaseClient
-        .from("super_admins")
-        .select("user_id")
-        .eq("user_id", userId)
-        .maybeSingle();
+        .rpc("is_super_admin");
 
     if (error) {
       console.error(
@@ -1470,7 +1457,7 @@ async function isSuperAdmin(userId) {
       return false;
     }
 
-    return !!data;
+    return data === true;
 
   } catch (error) {
     console.error(
@@ -1480,197 +1467,35 @@ async function isSuperAdmin(userId) {
 
     return false;
   }
-}
-
-
-async function checkAdminSession() {
-  try {
-    const {
-      data,
-      error
-    } =
-      await supabaseClient.auth
-        .getSession();
-
-    if (error) {
-      throw error;
     }
-
-    const session =
-      data?.session;
-
-    if (!session?.user) {
-      showLoginPage();
-      return false;
-    }
-
-    const allowed =
-      await isSuperAdmin(
-        session.user.id
-      );
-
-    if (!allowed) {
-      await supabaseClient.auth.signOut();
-
-      showLoginPage();
-
-      showLoginMessage(
-        "Aksè refize. Kont sa a pa Super Admin.",
-        true
-      );
-
-      return false;
-    }
-
-    showAdminPage();
-
-    await refreshDashboard();
-
-    return true;
-
-  } catch (error) {
-    console.error(
-      "Session error:",
-      error
-    );
-
-    showLoginPage();
-
-    showLoginMessage(
-      error.message ||
-      "Yon erè rive pandan verifikasyon an.",
-      true
-    );
-
-    return false;
-  }
-}
-
-
-function setupRechargeRefresh() {
-  const button =
-    document.getElementById(
-      "refreshRecharge"
-    );
-
-  if (!button) return;
-
-  button.addEventListener(
-    "click",
-    async () => {
-
-      button.disabled = true;
-
-      try {
-        await loadRechargeRequests();
-        await loadFinancialStats();
-      } catch (error) {
-        console.error(
-          "Recharge refresh error:",
-          error
-        );
-      } finally {
-        button.disabled = false;
-      }
-    }
-  );
-}
-
-
-function setupWithdrawalRefresh() {
-  const button =
-    document.getElementById(
-      "refreshWithdrawal"
-    );
-
-  if (!button) return;
-
-  button.addEventListener(
-    "click",
-    async () => {
-
-      button.disabled = true;
-
-      try {
-        await loadWithdrawalRequests();
-        await loadFinancialStats();
-        await loadWithdrawalChart();
-      } catch (error) {
-        console.error(
-          "Withdrawal refresh error:",
-          error
-        );
-      } finally {
-        button.disabled = false;
-      }
-    }
-  );
-}
-
-
-function setupSettings() {
-  const button =
-    document.getElementById(
-      "saveSettings"
-    );
-
-  if (!button) return;
-
-  button.addEventListener(
-    "click",
-    async () => {
-
-      button.disabled = true;
-
-      try {
-        await saveSettings();
-      } catch (error) {
-        console.error(
-          "Settings save error:",
-          error
-        );
-      } finally {
-        button.disabled = false;
-      }
-    }
-  );
-}
-
-
-function setupPeriod() {
-  const period =
-    document.getElementById(
-      "period"
-    );
-
-  if (!period) return;
-
-  period.addEventListener(
-    "change",
-    async () => {
-      await loadWithdrawalChart();
-    }
-  );
-}
-
-
 function setupQuickActions() {
   const walletButton =
-    document.getElementById(
-      "walletButton"
-    );
+    document.getElementById("walletButton");
 
   const settingsWalletButton =
-    document.getElementById(
-      "settingsWalletButton"
-    );
+    document.getElementById("settingsWalletButton");
 
   if (walletButton) {
     walletButton.addEventListener(
       "click",
       () => {
-        window.location.href =
-          "wallet.html";
+        const walletSection =
+          document.getElementById("walletSection") ||
+          document.getElementById("walletManagement") ||
+          document.querySelector(".wallet-section");
+
+        if (walletSection) {
+          walletSection.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+          });
+
+          return;
+        }
+
+        console.warn(
+          "Seksyon jesyon wallet la pa jwenn nan admin.html."
+        );
       }
     );
   }
@@ -1679,11 +1504,8 @@ function setupQuickActions() {
     settingsWalletButton.addEventListener(
       "click",
       () => {
-
         const settings =
-          document.querySelector(
-            ".settings-grid"
-          );
+          document.querySelector(".settings-grid");
 
         if (settings) {
           settings.scrollIntoView({
@@ -1699,9 +1521,7 @@ function setupQuickActions() {
 
 function setupLogout() {
   const button =
-    document.getElementById(
-      "logout"
-    );
+    document.getElementById("logout");
 
   if (!button) return;
 
@@ -1712,11 +1532,8 @@ function setupLogout() {
       button.disabled = true;
 
       try {
-        const {
-          error
-        } =
-          await supabaseClient.auth
-            .signOut();
+        const { error } =
+          await supabaseClient.auth.signOut();
 
         if (error) {
           throw error;
@@ -1753,14 +1570,11 @@ function setupResize() {
     () => {
 
       const adminPage =
-        document.getElementById(
-          "adminPage"
-        );
+        document.getElementById("adminPage");
 
       if (
         adminPage &&
-        adminPage.style.display !==
-          "none"
+        adminPage.style.display !== "none"
       ) {
         loadWithdrawalChart();
       }
@@ -1801,8 +1615,7 @@ async function initializeAdmin() {
 
 
 if (
-  document.readyState ===
-  "loading"
+  document.readyState === "loading"
 ) {
   document.addEventListener(
     "DOMContentLoaded",
@@ -1810,4 +1623,4 @@ if (
   );
 } else {
   initializeAdmin();
-        }
+  }
