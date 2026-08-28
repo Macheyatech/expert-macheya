@@ -294,21 +294,33 @@ async function loadProfiles() {
 
 async function loadOrders() {
   try {
-    const { data, error } =
+    const { count, error } =
       await supabaseClient
         .from("orders")
-        .select("id");
+        .select("id", {
+          count: "exact",
+          head: true
+        });
 
     if (error) {
       throw error;
     }
 
-    state.orders = data || [];
-
     setText(
       "orders",
-      state.orders.length
+      Number(count) || 0
     );
+
+  } catch (error) {
+    console.error(
+      "Orders error:",
+      error
+    );
+
+    setText("orders", "0");
+  }
+}
+
 
   } catch (error) {
     console.error(
