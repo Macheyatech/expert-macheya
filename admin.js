@@ -69,7 +69,6 @@ function showLoginMessage(message, isError = false) {
 
   element.textContent = message;
   element.style.display = message ? "block" : "none";
-
   element.classList.toggle("error", isError);
 }
 
@@ -191,7 +190,9 @@ async function saveSettings() {
     } =
       await supabaseClient.auth.getUser();
 
-    if (userError) throw userError;
+    if (userError) {
+      throw userError;
+    }
 
     if (!user) {
       throw new Error(
@@ -216,7 +217,9 @@ async function saveSettings() {
         .from("macheya_settings")
         .upsert(settings);
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     state.settings = {
       ...settings
@@ -226,6 +229,7 @@ async function saveSettings() {
       message.textContent =
         "Paramèt yo sove avèk siksè.";
       message.style.display = "block";
+      message.classList.remove("error");
     }
 
   } catch (error) {
@@ -239,6 +243,7 @@ async function saveSettings() {
         error.message ||
         "Pa kapab sove paramèt yo.";
       message.style.display = "block";
+      message.classList.add("error");
     }
   }
 }
@@ -250,7 +255,9 @@ async function loadProfiles() {
         .from("profiles")
         .select("*");
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     state.profiles = data || [];
 
@@ -289,41 +296,18 @@ async function loadOrders() {
   try {
     const { data, error } =
       await supabaseClient
-        .from("wallet_transactions")
-        .select("*")
-        .order("created_at", {
-          ascending: false
-        });
+        .from("orders")
+        .select("id");
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     state.orders = data || [];
 
-    const orders =
-      state.orders.filter(
-        item => {
-          const type =
-            String(
-              item.type ??
-              item.transaction_type ??
-              ""
-            )
-              .trim()
-              .toLowerCase();
-
-          return [
-            "purchase",
-            "order",
-            "commande",
-            "payment",
-            "purchase_payment"
-          ].includes(type);
-        }
-      );
-
     setText(
       "orders",
-      orders.length
+      state.orders.length
     );
 
   } catch (error) {
@@ -358,7 +342,9 @@ async function loadRechargeRequests() {
           ascending: false
         });
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     state.rechargeRequests =
       data || [];
@@ -521,7 +507,9 @@ async function updateRechargeStatus(
         .eq("id", id)
         .eq("status", "pending");
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     await Promise.all([
       loadRechargeRequests(),
@@ -539,7 +527,7 @@ async function updateRechargeStatus(
       "Pa kapab mete ajou demann rechaj la."
     );
   }
-}
+  }
 async function loadWithdrawalRequests() {
   const container =
     document.getElementById(
@@ -562,17 +550,12 @@ async function loadWithdrawalRequests() {
           ascending: false
         });
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     state.withdrawalRequests =
       data || [];
-
-    const pending =
-      state.withdrawalRequests.filter(
-        request =>
-          (request.status || "pending") ===
-          "pending"
-      );
 
     if (!state.withdrawalRequests.length) {
       container.innerHTML =
@@ -733,7 +716,9 @@ async function updateWithdrawalStatus(
         .eq("id", id)
         .eq("status", "pending");
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     await Promise.all([
       loadWithdrawalRequests(),
@@ -856,7 +841,11 @@ async function loadFinancialStats() {
           }
 
           return total +
-            (amount * feePercentage / 100);
+            (
+              amount *
+              feePercentage /
+              100
+            );
         },
         0
       );
@@ -953,7 +942,9 @@ async function loadWithdrawalChart() {
           ascending: true
         });
 
-    if (error) throw error;
+    if (error) {
+      throw error;
+    }
 
     const dailyTotals = {};
 
@@ -975,7 +966,6 @@ async function loadWithdrawalChart() {
 
       dailyTotals[key] = 0;
     }
-
 
     (data || []).forEach(
       request => {
@@ -1007,7 +997,6 @@ async function loadWithdrawalChart() {
       }
     );
 
-
     drawWithdrawalChart(
       canvas,
       dailyTotals
@@ -1036,13 +1025,17 @@ function drawWithdrawalChart(
 
   const width =
     Math.max(
-      canvas.clientWidth || rect.width || 300,
+      canvas.clientWidth ||
+      rect.width ||
+      300,
       300
     );
 
   const height =
     Math.max(
-      canvas.clientHeight || rect.height || 260,
+      canvas.clientHeight ||
+      rect.height ||
+      260,
       260
     );
 
@@ -1071,7 +1064,6 @@ function drawWithdrawalChart(
     height
   );
 
-
   const entries =
     Object.entries(
       dailyTotals
@@ -1079,7 +1071,8 @@ function drawWithdrawalChart(
 
   const values =
     entries.map(
-      item => Number(item[1]) || 0
+      item =>
+        Number(item[1]) || 0
     );
 
   const maxValue =
@@ -1103,7 +1096,6 @@ function drawWithdrawalChart(
     paddingTop -
     paddingBottom;
 
-
   context.font =
     "11px Arial";
 
@@ -1112,7 +1104,6 @@ function drawWithdrawalChart(
 
   context.textBaseline =
     "middle";
-
 
   const gridLines = 4;
 
@@ -1165,7 +1156,6 @@ function drawWithdrawalChart(
     );
   }
 
-
   if (!entries.length) {
     context.fillStyle =
       "#6b7280";
@@ -1181,7 +1171,6 @@ function drawWithdrawalChart(
 
     return;
   }
-
 
   const points = [];
 
@@ -1216,7 +1205,6 @@ function drawWithdrawalChart(
     }
   );
 
-
   context.beginPath();
 
   points.forEach(
@@ -1249,7 +1237,6 @@ function drawWithdrawalChart(
 
   context.stroke();
 
-
   points.forEach(
     point => {
 
@@ -1269,7 +1256,6 @@ function drawWithdrawalChart(
       context.fill();
     }
   );
-
 
   context.textAlign =
     "center";
@@ -1329,7 +1315,7 @@ async function refreshDashboard() {
 
   await loadFinancialStats();
   await loadWithdrawalChart();
-      }
+          }
 function setupLogin() {
   const form =
     document.getElementById("loginForm");
@@ -1350,10 +1336,14 @@ function setupLogin() {
       event.preventDefault();
 
       const email =
-        document.getElementById("email")?.value.trim();
+        document
+          .getElementById("email")
+          ?.value
+          .trim();
 
       const password =
-        document.getElementById("password")?.value;
+        document.getElementById("password")
+          ?.value;
 
       if (!email || !password) {
         showLoginMessage(
@@ -1373,7 +1363,8 @@ function setupLogin() {
 
       if (button) {
         button.disabled = true;
-        button.textContent = "Ap konekte...";
+        button.textContent =
+          "Ap konekte...";
       }
 
       showLoginMessage("");
@@ -1383,10 +1374,11 @@ function setupLogin() {
           data,
           error
         } =
-          await supabaseClient.auth.signInWithPassword({
-            email,
-            password
-          });
+          await supabaseClient.auth
+            .signInWithPassword({
+              email,
+              password
+            });
 
         if (error) {
           throw error;
@@ -1434,7 +1426,8 @@ function setupLogin() {
       } finally {
         if (button) {
           button.disabled = false;
-          button.textContent = "Konekte";
+          button.textContent =
+            "Konekte";
         }
       }
     }
@@ -1484,7 +1477,8 @@ async function checkAdminSession() {
       data,
       error
     } =
-      await supabaseClient.auth.getSession();
+      await supabaseClient.auth
+        .getSession();
 
     if (error) {
       throw error;
@@ -1558,6 +1552,11 @@ function setupRechargeRefresh() {
       try {
         await loadRechargeRequests();
         await loadFinancialStats();
+      } catch (error) {
+        console.error(
+          "Recharge refresh error:",
+          error
+        );
       } finally {
         button.disabled = false;
       }
@@ -1584,6 +1583,11 @@ function setupWithdrawalRefresh() {
         await loadWithdrawalRequests();
         await loadFinancialStats();
         await loadWithdrawalChart();
+      } catch (error) {
+        console.error(
+          "Withdrawal refresh error:",
+          error
+        );
       } finally {
         button.disabled = false;
       }
@@ -1608,6 +1612,11 @@ function setupSettings() {
 
       try {
         await saveSettings();
+      } catch (error) {
+        console.error(
+          "Settings save error:",
+          error
+        );
       } finally {
         button.disabled = false;
       }
@@ -1694,7 +1703,8 @@ function setupLogout() {
         const {
           error
         } =
-          await supabaseClient.auth.signOut();
+          await supabaseClient.auth
+            .signOut();
 
         if (error) {
           throw error;
@@ -1729,6 +1739,7 @@ function setupResize() {
   window.addEventListener(
     "resize",
     () => {
+
       const adminPage =
         document.getElementById(
           "adminPage"
@@ -1736,7 +1747,8 @@ function setupResize() {
 
       if (
         adminPage &&
-        adminPage.style.display !== "none"
+        adminPage.style.display !==
+          "none"
       ) {
         loadWithdrawalChart();
       }
@@ -1777,7 +1789,8 @@ async function initializeAdmin() {
 
 
 if (
-  document.readyState === "loading"
+  document.readyState ===
+  "loading"
 ) {
   document.addEventListener(
     "DOMContentLoaded",
@@ -1785,4 +1798,4 @@ if (
   );
 } else {
   initializeAdmin();
-    }
+        }
