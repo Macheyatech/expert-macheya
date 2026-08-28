@@ -24,7 +24,7 @@
 
     <link
         rel="preconnect"
-        href="https://fonts.googleapis.com"
+        href="https://fonts.gstatic.com"
         crossorigin
     >
 
@@ -33,520 +33,10 @@
         rel="stylesheet"
     >
 
-    <style>
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: "Poppins", sans-serif;
-            background: #f7f7f7;
-            color: #171717;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        button,
-        input,
-        select {
-            font-family: inherit;
-        }
-
-        .wallet-header {
-            background: #ffffff;
-            border-bottom: 1px solid #eeeeee;
-            padding: 15px 6%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            font-size: 21px;
-            font-weight: 700;
-        }
-
-        .logo {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-            background: #f97316;
-            color: #ffffff;
-            display: grid;
-            place-items: center;
-            font-weight: 700;
-        }
-
-        .back-button {
-            color: #555555;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .wallet-container {
-            width: min(850px, 92%);
-            margin: 35px auto 70px;
-        }
-
-        .wallet-heading {
-            margin-bottom: 25px;
-        }
-
-        .wallet-label {
-            color: #f97316;
-            font-size: 13px;
-            font-weight: 700;
-            letter-spacing: .5px;
-        }
-
-        .wallet-heading h1 {
-            margin: 7px 0;
-            font-size: 30px;
-        }
-
-        .wallet-heading p {
-            color: #777777;
-            font-size: 14px;
-        }
-
-        .wallet-card {
-            background: linear-gradient(
-                135deg,
-                #171717,
-                #292929
-            );
-            color: #ffffff;
-            border-radius: 22px;
-            padding: 28px;
-            margin-bottom: 25px;
-            box-shadow: 0 12px 35px rgba(0,0,0,.12);
-        }
-
-        .wallet-card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .wallet-card-label {
-            font-size: 13px;
-            color: #cccccc;
-        }
-
-        .wallet-user {
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .wallet-balance {
-            margin-top: 25px;
-        }
-
-        .wallet-balance span {
-            display: block;
-            color: #bbbbbb;
-            font-size: 13px;
-            margin-bottom: 5px;
-        }
-
-        .wallet-balance strong {
-            font-size: 34px;
-            color: #ffffff;
-        }
-
-        .wallet-currency {
-            color: #f97316;
-            font-size: 14px;
-            font-weight: 700;
-            margin-top: 5px;
-        }
-
-        .wallet-message {
-            background: #ffffff;
-            border-radius: 18px;
-            padding: 35px 25px;
-            text-align: center;
-            color: #666666;
-            box-shadow: 0 8px 30px rgba(0,0,0,.06);
-        }
-
-        .message-icon {
-            font-size: 45px;
-            margin-bottom: 12px;
-        }
-
-        .main-button {
-            display: inline-block;
-            margin-top: 18px;
-            padding: 12px 18px;
-            border-radius: 10px;
-            background: #f97316;
-            color: #ffffff;
-            font-weight: 700;
-            border: none;
-            cursor: pointer;
-        }
-
-        .wallet-actions {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 25px;
-        }
-
-        .wallet-action {
-            border: none;
-            border-radius: 17px;
-            padding: 20px;
-            background: #ffffff;
-            box-shadow: 0 6px 22px rgba(0,0,0,.05);
-            text-align: left;
-            cursor: pointer;
-            transition: .2s ease;
-        }
-
-        .wallet-action:hover {
-            transform: translateY(-2px);
-        }
-
-        .wallet-action .action-icon {
-            font-size: 28px;
-            margin-bottom: 8px;
-        }
-
-        .wallet-action strong {
-            display: block;
-            font-size: 16px;
-        }
-
-        .wallet-action span {
-            display: block;
-            color: #777777;
-            font-size: 12px;
-            margin-top: 4px;
-        }
-
-        .wallet-action.recharge {
-            border-left: 4px solid #16a34a;
-        }
-
-        .wallet-action.withdraw {
-            border-left: 4px solid #f97316;
-        }
-
-        .wallet-section {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 24px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 30px rgba(0,0,0,.05);
-        }
-
-        .wallet-section-header {
-            margin-bottom: 20px;
-        }
-
-        .wallet-section-header h2 {
-            font-size: 20px;
-        }
-
-        .wallet-section-header p {
-            color: #777777;
-            font-size: 13px;
-            margin-top: 5px;
-        }
-
-        .payment-info {
-            background: #fff7ed;
-            border: 1px solid #fed7aa;
-            border-radius: 15px;
-            padding: 17px;
-            margin-bottom: 20px;
-        }
-
-        .payment-info-title {
-            font-weight: 700;
-            margin-bottom: 12px;
-        }
-
-        .payment-method-info {
-            display: none;
-            background: #ffffff;
-            border-radius: 12px;
-            padding: 13px;
-            margin-top: 10px;
-        }
-
-        .payment-method-info.active {
-            display: block;
-        }
-
-        .payment-method-info strong {
-            display: block;
-            font-size: 12px;
-            color: #777777;
-            margin-bottom: 3px;
-        }
-
-        .payment-number {
-            font-size: 20px;
-            font-weight: 700;
-            color: #f97316;
-        }
-
-        .form-grid {
-            display: grid;
-            gap: 16px;
-        }
-
-        .form-group {
-            display: grid;
-            gap: 7px;
-        }
-
-        .form-group label {
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .form-group input,
-        .form-group select {
-            width: 100%;
-            border: 1px solid #dddddd;
-            border-radius: 12px;
-            padding: 14px;
-            font-size: 14px;
-            outline: none;
-            background: #ffffff;
-        }
-
-        .form-group input:focus,
-        .form-group select:focus {
-            border-color: #f97316;
-        }
-
-        .form-help {
-            color: #888888;
-            font-size: 11px;
-        }
-
-        .submit-button {
-            width: 100%;
-            border: none;
-            border-radius: 12px;
-            padding: 14px;
-            background: #f97316;
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .submit-button:disabled {
-            opacity: .6;
-            cursor: not-allowed;
-        }
-
-        .form-message {
-            display: none;
-            border-radius: 12px;
-            padding: 13px;
-            font-size: 13px;
-            margin-top: 12px;
-        }
-
-        .form-message.show {
-            display: block;
-        }
-
-        .form-message.success {
-            background: #f0fdf4;
-            color: #166534;
-            border: 1px solid #bbf7d0;
-        }
-
-        .form-message.error {
-            background: #fef2f2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
-        .transactions-title {
-            font-size: 21px;
-            margin-bottom: 15px;
-        }
-
-        .transactions {
-            display: grid;
-            gap: 12px;
-        }
-
-        .transaction {
-            background: #ffffff;
-            border-radius: 16px;
-            padding: 17px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 15px;
-            box-shadow: 0 6px 22px rgba(0,0,0,.04);
-        }
-
-        .transaction-left {
-            min-width: 0;
-        }
-
-        .transaction-title {
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        .transaction-date {
-            color: #888888;
-            font-size: 11px;
-            margin-top: 4px;
-        }
-
-        .transaction-amount {
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .transaction-amount.credit {
-            color: #16a34a;
-        }
-
-        .transaction-amount.debit {
-            color: #dc2626;
-        }
-
-        .request-list {
-            display: grid;
-            gap: 12px;
-        }
-
-        .request-card {
-            border: 1px solid #eeeeee;
-            border-radius: 15px;
-            padding: 15px;
-            background: #ffffff;
-        }
-
-        .request-card-top {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            gap: 12px;
-        }
-
-        .request-card strong {
-            font-size: 15px;
-        }
-
-        .request-date {
-            color: #888888;
-            font-size: 11px;
-            margin-top: 4px;
-        }
-
-        .request-status {
-            padding: 5px 9px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: 700;
-            white-space: nowrap;
-        }
-
-        .request-status.pending {
-            background: #fff7ed;
-            color: #c2410c;
-        }
-
-        .request-status.approved {
-            background: #f0fdf4;
-            color: #15803d;
-        }
-
-        .request-status.rejected {
-            background: #fef2f2;
-            color: #b91c1c;
-        }
-
-        .request-details {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px solid #f0f0f0;
-            display: grid;
-            gap: 5px;
-            font-size: 12px;
-            color: #555555;
-        }
-
-        .empty-request {
-            background: #fafafa;
-            border-radius: 14px;
-            padding: 20px;
-            text-align: center;
-            color: #888888;
-            font-size: 13px;
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        @media (max-width: 600px) {
-
-            .wallet-header {
-                padding: 14px 5%;
-            }
-
-            .wallet-container {
-                width: 92%;
-                margin-top: 25px;
-            }
-
-            .wallet-heading h1 {
-                font-size: 26px;
-            }
-
-            .wallet-card {
-                padding: 22px;
-            }
-
-            .wallet-balance strong {
-                font-size: 29px;
-            }
-
-            .wallet-actions {
-                grid-template-columns: 1fr;
-            }
-
-            .wallet-section {
-                padding: 19px;
-            }
-
-            .transaction {
-                align-items: flex-start;
-            }
-
-            .transaction-amount {
-                font-size: 13px;
-            }
-
-        }
-
-    </style>
+    <link
+        rel="stylesheet"
+        href="wallet.css"
+    >
 
 </head>
 
@@ -643,7 +133,7 @@
 
                 </div>
 
-                <div>
+                <div class="wallet-card-icon">
                     💰
                 </div>
 
@@ -672,8 +162,8 @@
         <div class="wallet-actions">
 
             <button
-                id="openRecharge"
-                class="wallet-action recharge"
+                id="showDepositButton"
+                class="wallet-action deposit"
                 type="button"
             >
 
@@ -693,7 +183,7 @@
 
 
             <button
-                id="openWithdrawal"
+                id="showWithdrawalButton"
                 class="wallet-action withdraw"
                 type="button"
             >
@@ -716,406 +206,22 @@
 
 
         <section
-            id="rechargeSection"
-            class="wallet-section hidden"
+            id="depositSection"
+            class="wallet-section hidden-section"
         >
 
             <div class="wallet-section-header">
 
                 <h2>
-                    ➕ Mande yon rechaj
+                    ➕ Mande rechaj
                 </h2>
 
-                <p>
-                    Fè peman an sou nimewo Macheya a, epi voye detay tranzaksyon an pou verifikasyon.
+                <p class="wallet-section-subtitle">
+                    Voye lajan sou youn nan nimewo Macheya yo,
+                    epi soumèt enfòmasyon tranzaksyon an pou verifikasyon.
                 </p>
 
             </div>
-
-
-            <div class="payment-info">
-
-                <div class="payment-info-title">
-                    📱 Enfòmasyon pou peman
-                </div>
-
-
-                <div
-                    id="moncashInfo"
-                    class="payment-method-info"
-                >
-
-                    <strong>
-                        MonCash
-                    </strong>
-
-                    <span
-                        id="moncashNumber"
-                        class="payment-number"
-                    >
-                        —
-                    </span>
-
-                </div>
-
-
-                <div
-                    id="natcashInfo"
-                    class="payment-method-info"
-                >
-
-                    <strong>
-                        NatCash
-                    </strong>
-
-                    <span
-                        id="natcashNumber"
-                        class="payment-number"
-                    >
-                        —
-                    </span>
-
-                </div>
-
-            </div>
-
-
-            <form id="rechargeForm">
-
-                <div class="form-grid">
-
-
-                    <div class="form-group">
-
-                        <label for="rechargeMethod">
-                            Metòd peman
-                        </label>
-
-                        <select
-                            id="rechargeMethod"
-                            required
-                        >
-
-                            <option value="">
-                                Chwazi metòd la
-                            </option>
-
-                            <option value="moncash">
-                                MonCash
-                            </option>
-
-                            <option value="natcash">
-                                NatCash
-                            </option>
-
-                        </select>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="rechargeAmount">
-                            Montan rechaj la
-                        </label>
-
-                        <input
-                            id="rechargeAmount"
-                            type="number"
-                            min="1"
-                            step="0.01"
-                            inputmode="decimal"
-                            placeholder="Egzanp: 1000"
-                            required
-                        >
-
-                        <span class="form-help">
-                            Antre kantite HTG ou te voye a.
-                        </span>
-
-                    </div>
-
-
-                    <div class="form-group">
-
-                        <label for="transactionId">
-                            ID tranzaksyon
-                        </label>
-
-                        <input
-                            id="transactionId"
-                            type="text"
-                            maxlength="120"
-                            placeholder="Antre ID tranzaksyon an"
-                            required
-                        >
-
-                        <span class="form-help">
-                            Se ID tranzaksyon ou resevwa apre peman an.
-                        </span>
-
-                    </div>
-
-
-                    <button
-                        id="rechargeSubmit"
-                        class="submit-button"
-                        type="submit"
-                    >
-                        Voye demann rechaj
-                    </button>
-
-
-                </div>
-
-
-                <div
-                    id="rechargeMessage"
-                    class="form-message"
-                ></div>
-
-            </form>
-
-    </section>
-            .wallet-actions {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 14px;
-            margin-bottom: 28px;
-        }
-
-        .wallet-action {
-            border: 0;
-            border-radius: 16px;
-            padding: 17px 15px;
-            background: #ffffff;
-            box-shadow: 0 6px 22px rgba(0,0,0,.05);
-            font-family: "Poppins", sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: .2s ease;
-        }
-
-        .wallet-action:hover {
-            transform: translateY(-2px);
-        }
-
-        .wallet-action.deposit {
-            background: #f97316;
-            color: #ffffff;
-        }
-
-        .wallet-action.withdraw {
-            background: #171717;
-            color: #ffffff;
-        }
-
-        .wallet-section {
-            background: #ffffff;
-            border-radius: 20px;
-            padding: 22px;
-            margin-bottom: 25px;
-            box-shadow: 0 8px 30px rgba(0,0,0,.05);
-        }
-
-        .wallet-section h2 {
-            font-size: 20px;
-            margin-bottom: 6px;
-        }
-
-        .wallet-section-subtitle {
-            color: #777777;
-            font-size: 13px;
-            margin-bottom: 20px;
-        }
-
-        .payment-info {
-            display: grid;
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .payment-method {
-            border: 1px solid #eeeeee;
-            border-radius: 14px;
-            padding: 15px;
-        }
-
-        .payment-method strong {
-            display: block;
-            margin-bottom: 4px;
-            font-size: 14px;
-        }
-
-        .payment-number {
-            font-size: 18px;
-            font-weight: 700;
-            color: #f97316;
-        }
-
-        .wallet-form {
-            display: grid;
-            gap: 14px;
-        }
-
-        .wallet-form label {
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .wallet-form input,
-        .wallet-form select {
-            width: 100%;
-            border: 1px solid #dddddd;
-            border-radius: 11px;
-            padding: 13px 14px;
-            font-family: "Poppins", sans-serif;
-            font-size: 14px;
-            outline: none;
-        }
-
-        .wallet-form input:focus,
-        .wallet-form select:focus {
-            border-color: #f97316;
-        }
-
-        .form-button {
-            border: 0;
-            border-radius: 11px;
-            padding: 13px 16px;
-            background: #f97316;
-            color: #ffffff;
-            font-family: "Poppins", sans-serif;
-            font-weight: 700;
-            cursor: pointer;
-        }
-
-        .form-button:disabled {
-            opacity: .6;
-            cursor: not-allowed;
-        }
-
-        .form-message {
-            display: none;
-            border-radius: 11px;
-            padding: 12px 14px;
-            font-size: 13px;
-            background: #f3f4f6;
-        }
-
-        .form-message.show {
-            display: block;
-        }
-
-        .form-message.error {
-            background: #fef2f2;
-            color: #b91c1c;
-        }
-
-        .form-message.success {
-            background: #f0fdf4;
-            color: #15803d;
-        }
-
-        .hidden-section {
-            display: none;
-        }
-
-        .request-history {
-            display: grid;
-            gap: 12px;
-            margin-top: 20px;
-        }
-
-        .request-item {
-            border: 1px solid #eeeeee;
-            border-radius: 14px;
-            padding: 15px;
-        }
-
-        .request-top {
-            display: flex;
-            justify-content: space-between;
-            gap: 12px;
-        }
-
-        .request-amount {
-            font-weight: 700;
-        }
-
-        .request-status {
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .request-status.pending {
-            color: #d97706;
-        }
-
-        .request-status.approved {
-            color: #16a34a;
-        }
-
-        .request-status.rejected {
-            color: #dc2626;
-        }
-
-        .request-date {
-            color: #888888;
-            font-size: 11px;
-            margin-top: 6px;
-        }
-
-        @media (max-width: 600px) {
-
-            .wallet-actions {
-                grid-template-columns: 1fr;
-            }
-
-            .wallet-section {
-                padding: 18px;
-            }
-
-            .request-top {
-                align-items: flex-start;
-            }
-
-        }
-                <div class="wallet-actions">
-
-            <button
-                id="showDepositButton"
-                class="wallet-action deposit"
-                type="button"
-            >
-                ➕ Mande rechaj
-            </button>
-
-            <button
-                id="showWithdrawalButton"
-                class="wallet-action withdraw"
-                type="button"
-            >
-                💸 Mande retrè
-            </button>
-
-        </div>
-
-
-        <section
-            id="depositSection"
-            class="wallet-section hidden-section"
-        >
-
-            <h2>
-                ➕ Mande rechaj
-            </h2>
-
-            <p class="wallet-section-subtitle">
-                Voye lajan sou youn nan nimewo Macheya yo,
-                epi soumèt enfòmasyon tranzaksyon an pou verifikasyon.
-            </p>
 
 
             <div class="payment-info">
@@ -1130,7 +236,7 @@
                         id="walletMoncashNumber"
                         class="payment-number"
                     >
-                        —
+                        Ap chaje...
                     </div>
 
                 </div>
@@ -1146,7 +252,7 @@
                         id="walletNatcashNumber"
                         class="payment-number"
                     >
-                        —
+                        Ap chaje...
                     </div>
 
                 </div>
@@ -1159,7 +265,7 @@
                 class="wallet-form"
             >
 
-                <div>
+                <div class="form-group">
 
                     <label for="depositMethod">
                         Metòd peman
@@ -1187,7 +293,7 @@
                 </div>
 
 
-                <div>
+                <div class="form-group">
 
                     <label for="depositAmount">
                         Montan ou voye a (HTG)
@@ -1198,14 +304,19 @@
                         type="number"
                         min="1"
                         step="0.01"
+                        inputmode="decimal"
                         placeholder="Egzanp: 500"
                         required
                     >
 
+                    <span class="form-help">
+                        Antre kantite HTG ou te voye a.
+                    </span>
+
                 </div>
 
 
-                <div>
+                <div class="form-group">
 
                     <label for="depositTransactionId">
                         ID tranzaksyon
@@ -1214,10 +325,15 @@
                     <input
                         id="depositTransactionId"
                         type="text"
-                        maxlength="100"
+                        maxlength="120"
                         placeholder="Antre ID tranzaksyon an"
+                        autocomplete="off"
                         required
                     >
+
+                    <span class="form-help">
+                        Se ID tranzaksyon ou resevwa apre peman an.
+                    </span>
 
                 </div>
 
@@ -1239,6 +355,13 @@
             </form>
 
 
+            <div class="history-heading">
+                <h3>
+                    Istwa demann rechaj
+                </h3>
+            </div>
+
+
             <div
                 id="depositHistory"
                 class="request-history"
@@ -1252,14 +375,18 @@
             class="wallet-section hidden-section"
         >
 
-            <h2>
-                💸 Mande retrè
-            </h2>
+            <div class="wallet-section-header">
 
-            <p class="wallet-section-subtitle">
-                Chwazi metòd ou vle resevwa lajan an,
-                antre nimewo a ak montan ou vle retire a.
-            </p>
+                <h2>
+                    💸 Mande retrè
+                </h2>
+
+                <p class="wallet-section-subtitle">
+                    Chwazi metòd ou vle resevwa lajan an,
+                    antre nimewo a ak montan ou vle retire a.
+                </p>
+
+            </div>
 
 
             <form
@@ -1267,7 +394,7 @@
                 class="wallet-form"
             >
 
-                <div>
+                <div class="form-group">
 
                     <label for="withdrawalMethod">
                         Metòd retrè
@@ -1295,7 +422,7 @@
                 </div>
 
 
-                <div>
+                <div class="form-group">
 
                     <label for="withdrawalPhone">
                         Nimewo pou resevwa lajan
@@ -1305,6 +432,7 @@
                         id="withdrawalPhone"
                         type="tel"
                         maxlength="30"
+                        inputmode="tel"
                         placeholder="Egzanp: 37XXXXXXXX"
                         required
                     >
@@ -1312,7 +440,7 @@
                 </div>
 
 
-                <div>
+                <div class="form-group">
 
                     <label for="withdrawalAmount">
                         Montan pou retire (HTG)
@@ -1323,6 +451,7 @@
                         type="number"
                         min="1"
                         step="0.01"
+                        inputmode="decimal"
                         placeholder="Egzanp: 500"
                         required
                     >
@@ -1347,954 +476,48 @@
             </form>
 
 
+            <div class="history-heading">
+                <h3>
+                    Istwa demann retrè
+                </h3>
+            </div>
+
+
             <div
                 id="withdrawalHistory"
                 class="request-history"
             ></div>
 
+        </section>
+
+
+        <section class="transactions-section">
+
+            <h2 class="transactions-title">
+                Dènye tranzaksyon
+            </h2>
+
+            <div
+                id="wallet-transactions"
+                class="transactions"
+            ></div>
+
+        </section>
+
+
     </section>
-<script>
 
-(function () {
 
-    "use strict";
+</main>
 
-    const supabase =
-        window.supabaseClient;
 
-    let currentUser = null;
-    let currentWallet = null;
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+<script src="supabase-config.js"></script>
 
-    function escapeHtml(value) {
+<script src="wallet.js"></script>
 
-        return String(value ?? "")
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-
-    }
-
-
-    function money(value) {
-
-        return new Intl.NumberFormat("fr-FR", {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2
-        }).format(Number(value) || 0) + " HTG";
-
-    }
-
-
-    function showMessage(
-        elementId,
-        text,
-        type
-    ) {
-
-        const element =
-            document.getElementById(
-                elementId
-            );
-
-        if (!element) return;
-
-        element.textContent = text;
-
-        element.className =
-            "form-message show " +
-            (type || "");
-
-    }
-
-
-    function hideMessage(elementId) {
-
-        const element =
-            document.getElementById(
-                elementId
-            );
-
-        if (!element) return;
-
-        element.textContent = "";
-
-        element.className =
-            "form-message";
-
-    }
-
-
-    function setupWalletActions() {
-
-        const depositButton =
-            document.getElementById(
-                "showDepositButton"
-            );
-
-        const withdrawalButton =
-            document.getElementById(
-                "showWithdrawalButton"
-            );
-
-        const depositSection =
-            document.getElementById(
-                "depositSection"
-            );
-
-        const withdrawalSection =
-            document.getElementById(
-                "withdrawalSection"
-            );
-
-
-        if (depositButton) {
-
-            depositButton.addEventListener(
-                "click",
-                function () {
-
-                    if (!depositSection) {
-                        return;
-                    }
-
-                    depositSection.classList.remove(
-                        "hidden-section"
-                    );
-
-                    if (withdrawalSection) {
-                        withdrawalSection.classList.add(
-                            "hidden-section"
-                        );
-                    }
-
-                    depositSection.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-
-                }
-            );
-
-        }
-
-
-        if (withdrawalButton) {
-
-            withdrawalButton.addEventListener(
-                "click",
-                function () {
-
-                    if (!withdrawalSection) {
-                        return;
-                    }
-
-                    withdrawalSection.classList.remove(
-                        "hidden-section"
-                    );
-
-                    if (depositSection) {
-                        depositSection.classList.add(
-                            "hidden-section"
-                        );
-                    }
-
-                    withdrawalSection.scrollIntoView({
-                        behavior: "smooth",
-                        block: "start"
-                    });
-
-                }
-            );
-
-        }
-
-    }
-
-
-    async function loadPaymentSettings() {
-
-        const moncash =
-            document.getElementById(
-                "walletMoncashNumber"
-            );
-
-        const natcash =
-            document.getElementById(
-                "walletNatcashNumber"
-            );
-
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .from("macheya_settings")
-                    .select(
-                        "moncash_number,natcash_number"
-                    )
-                    .eq("id", 1)
-                    .maybeSingle();
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            if (moncash) {
-
-                moncash.textContent =
-                    data?.moncash_number ||
-                    "Nimewo a poko disponib";
-
-            }
-
-
-            if (natcash) {
-
-                natcash.textContent =
-                    data?.natcash_number ||
-                    "Nimewo a poko disponib";
-
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                "Payment settings error:",
-                error
-            );
-
-            if (moncash) {
-                moncash.textContent =
-                    "Pa disponib";
-            }
-
-            if (natcash) {
-                natcash.textContent =
-                    "Pa disponib";
-            }
-
-        }
-
-    }
-
-
-    async function submitDeposit(event) {
-
-        event.preventDefault();
-
-        const button =
-            document.getElementById(
-                "depositButton"
-            );
-
-        const method =
-            document.getElementById(
-                "depositMethod"
-            )?.value;
-
-        const amount =
-            Number(
-                document.getElementById(
-                    "depositAmount"
-                )?.value
-            );
-
-        const transactionId =
-            document.getElementById(
-                "depositTransactionId"
-            )?.value.trim();
-
-
-        hideMessage(
-            "depositMessage"
-        );
-
-
-        if (!method) {
-
-            showMessage(
-                "depositMessage",
-                "Tanpri chwazi metòd peman an.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        if (!amount || amount <= 0) {
-
-            showMessage(
-                "depositMessage",
-                "Tanpri antre yon montan ki valab.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        if (!transactionId) {
-
-            showMessage(
-                "depositMessage",
-                "Tanpri antre ID tranzaksyon an.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        if (button) {
-
-            button.disabled = true;
-
-            button.textContent =
-                "Ap voye...";
-
-        }
-
-
-        try {
-
-            if (!currentUser) {
-
-                throw new Error(
-                    "Sesyon itilizatè a pa disponib."
-                );
-
-            }
-
-
-            const {
-                error
-            } =
-                await supabase
-                    .from("recharge_requests")
-                    .insert({
-
-                        user_id:
-                            currentUser.id,
-
-                        amount:
-                            amount,
-
-                        method:
-                            method,
-
-                        transaction_id:
-                            transactionId,
-
-                        status:
-                            "pending",
-
-                        created_at:
-                            new Date().toISOString()
-
-                    });
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            showMessage(
-                "depositMessage",
-                "Demann rechaj ou a voye. Super Admin ap verifye li.",
-                "success"
-            );
-
-
-            const form =
-                document.getElementById(
-                    "depositForm"
-                );
-
-            if (form) {
-                form.reset();
-            }
-
-
-            await loadDepositHistory();
-
-
-        } catch (error) {
-
-            console.error(
-                "Deposit request error:",
-                error
-            );
-
-            showMessage(
-                "depositMessage",
-                error.message ||
-                "Pa kapab voye demann rechaj la.",
-                "error"
-            );
-
-        } finally {
-
-            if (button) {
-
-                button.disabled = false;
-
-                button.textContent =
-                    "📤 Voye demann rechaj";
-
-            }
-
-        }
-
-    }
-
-
-    async function submitWithdrawal(event) {
-
-        event.preventDefault();
-
-        const button =
-            document.getElementById(
-                "withdrawalButton"
-            );
-
-        const method =
-            document.getElementById(
-                "withdrawalMethod"
-            )?.value;
-
-        const phone =
-            document.getElementById(
-                "withdrawalPhone"
-            )?.value.trim();
-
-        const amount =
-            Number(
-                document.getElementById(
-                    "withdrawalAmount"
-                )?.value
-            );
-
-
-        hideMessage(
-            "withdrawalMessage"
-        );
-
-
-        if (!method) {
-
-            showMessage(
-                "withdrawalMessage",
-                "Tanpri chwazi metòd retrè a.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        if (!phone) {
-
-            showMessage(
-                "withdrawalMessage",
-                "Tanpri antre nimewo pou resevwa lajan an.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        if (!amount || amount <= 0) {
-
-            showMessage(
-                "withdrawalMessage",
-                "Tanpri antre yon montan ki valab.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        if (!currentWallet) {
-
-            showMessage(
-                "withdrawalMessage",
-                "Wallet ou pa disponib.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        const balance =
-            Number(
-                currentWallet.balance
-            ) || 0;
-
-
-        if (amount > balance) {
-
-            showMessage(
-                "withdrawalMessage",
-                "Montan an pi gran pase balans wallet ou.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        if (button) {
-
-            button.disabled = true;
-
-            button.textContent =
-                "Ap voye...";
-
-        }
-
-
-        try {
-
-            const {
-                error
-            } =
-                await supabase
-                    .from("withdrawal_requests")
-                    .insert({
-
-                        user_id:
-                            currentUser.id,
-
-                        wallet_id:
-                            currentWallet.id,
-
-                        amount:
-                            amount,
-
-                        method:
-                            method,
-
-                        phone_number:
-                            phone,
-
-                        status:
-                            "pending",
-
-                        created_at:
-                            new Date().toISOString()
-
-                    });
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            showMessage(
-                "withdrawalMessage",
-                "Demann retrè ou a voye. Super Admin ap verifye li.",
-                "success"
-            );
-
-
-            const form =
-                document.getElementById(
-                    "withdrawalForm"
-                );
-
-            if (form) {
-                form.reset();
-            }
-
-
-            await loadWithdrawalHistory();
-
-
-        } catch (error) {
-
-            console.error(
-                "Withdrawal request error:",
-                error
-            );
-
-            showMessage(
-                "withdrawalMessage",
-                error.message ||
-                "Pa kapab voye demann retrè a.",
-                "error"
-            );
-
-        } finally {
-
-            if (button) {
-
-                button.disabled = false;
-
-                button.textContent =
-                    "📤 Voye demann retrè";
-
-            }
-
-        }
-
-    }
-
-
-    async function loadDepositHistory() {
-
-        const container =
-            document.getElementById(
-                "depositHistory"
-            );
-
-        if (!container || !currentUser) {
-            return;
-        }
-
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .from("recharge_requests")
-                    .select(
-                        "amount,method,transaction_id,status,created_at"
-                    )
-                    .eq(
-                        "user_id",
-                        currentUser.id
-                    )
-                    .order(
-                        "created_at",
-                        {
-                            ascending: false
-                        }
-                    )
-                    .limit(10);
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            if (!data?.length) {
-
-                container.innerHTML = "";
-
-                return;
-
-            }
-
-
-            container.innerHTML = `
-                ${data.map(request => `
-                    <div class="request-item">
-
-                        <div class="request-top">
-
-                            <span class="request-amount">
-                                +${money(request.amount)}
-                            </span>
-
-                            <span class="request-status ${
-                                escapeHtml(
-                                    request.status || "pending"
-                                )
-                            }">
-                                ${escapeHtml(
-                                    request.status || "pending"
-                                )}
-                            </span>
-
-                        </div>
-
-                        <div>
-                            ${escapeHtml(
-                                request.method || "—"
-                            )}
-                        </div>
-
-                        <div>
-                            ID:
-                            ${escapeHtml(
-                                request.transaction_id || "—"
-                            )}
-                        </div>
-
-                        <div class="request-date">
-                            ${escapeHtml(
-                                request.created_at || ""
-                            )}
-                        </div>
-
-                    </div>
-                `).join("")}
-            `;
-
-
-        } catch (error) {
-
-            console.error(
-                "Deposit history error:",
-                error
-            );
-
-        }
-
-    }
-
-
-    async function loadWithdrawalHistory() {
-
-        const container =
-            document.getElementById(
-                "withdrawalHistory"
-            );
-
-        if (!container || !currentUser) {
-            return;
-        }
-
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .from("withdrawal_requests")
-                    .select(
-                        "amount,method,phone_number,status,created_at"
-                    )
-                    .eq(
-                        "user_id",
-                        currentUser.id
-                    )
-                    .order(
-                        "created_at",
-                        {
-                            ascending: false
-                        }
-                    )
-                    .limit(10);
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            if (!data?.length) {
-
-                container.innerHTML = "";
-
-                return;
-
-            }
-
-
-            container.innerHTML = `
-                ${data.map(request => `
-                    <div class="request-item">
-
-                        <div class="request-top">
-
-                            <span class="request-amount">
-                                -${money(request.amount)}
-                            </span>
-
-                            <span class="request-status ${
-                                escapeHtml(
-                                    request.status || "pending"
-                                )
-                            }">
-                                ${escapeHtml(
-                                    request.status || "pending"
-                                )}
-                            </span>
-
-                        </div>
-
-                        <div>
-                            ${escapeHtml(
-                                request.method || "—"
-                            )}
-                        </div>
-
-                        <div>
-                            📱 ${escapeHtml(
-                                request.phone_number || "—"
-                            )}
-                        </div>
-
-                        <div class="request-date">
-                            ${escapeHtml(
-                                request.created_at || ""
-                            )}
-                        </div>
-
-                    </div>
-                `).join("")}
-            `;
-
-
-        } catch (error) {
-
-            console.error(
-                "Withdrawal history error:",
-                error
-            );
-
-        }
-
-    }
-
-
-    async function initializeWalletRequests() {
-
-        if (!supabase) {
-            return;
-        }
-
-
-        const {
-            data: auth,
-            error
-        } =
-            await supabase.auth.getUser();
-
-
-        if (error || !auth?.user) {
-            return;
-        }
-
-
-        currentUser =
-            auth.user;
-
-
-        const {
-            data: wallet,
-            error: walletError
-        } =
-            await supabase
-                .from("wallets")
-                .select(
-                    "id,user_id,balance,currency,updated_at"
-                )
-                .eq(
-                    "user_id",
-                    currentUser.id
-                )
-                .maybeSingle();
-
-
-        if (walletError) {
-
-            console.error(
-                "Wallet request initialization error:",
-                walletError
-            );
-
-            return;
-
-        }
-
-
-        currentWallet =
-            wallet || null;
-
-
-        setupWalletActions();
-
-        await loadPaymentSettings();
-
-        await loadDepositHistory();
-
-        await loadWithdrawalHistory();
-
-
-        const depositForm =
-            document.getElementById(
-                "depositForm"
-            );
-
-        const withdrawalForm =
-            document.getElementById(
-                "withdrawalForm"
-            );
-
-
-        if (depositForm) {
-
-            depositForm.addEventListener(
-                "submit",
-                submitDeposit
-            );
-
-        }
-
-
-        if (withdrawalForm) {
-
-            withdrawalForm.addEventListener(
-                "submit",
-                submitWithdrawal
-            );
-
-        }
-
-    }
-
-
-    if (
-        document.readyState ===
-        "loading"
-    ) {
-
-        document.addEventListener(
-            "DOMContentLoaded",
-            initializeWalletRequests
-        );
-
-    } else {
-
-        initializeWalletRequests();
-
-    }
-
-})();
-
-    </script>
 
 </body>
-</html>
-                  
+
+    </html>
