@@ -1,5 +1,5 @@
 "use strict";
-
+console.log("MACHEYA ADMIN.JS CHARGED");
 const state = {
   settings: null,
   rechargeRequests: [],
