@@ -6,6 +6,8 @@
 
     let currentUser = null;
 
+    let adminProfile = null;
+
     let settings = {
         purchaseFeePercentage: 0,
         withdrawalFeePercentage: 0
@@ -26,10 +28,13 @@
 
     function money(value) {
 
+        const amount =
+            Number(value) || 0;
+
         return new Intl.NumberFormat("fr-FR", {
             minimumFractionDigits: 0,
             maximumFractionDigits: 2
-        }).format(Number(value) || 0) + " HTG";
+        }).format(amount) + " HTG";
 
     }
 
@@ -40,27 +45,20 @@
             return "Dat pa disponib";
         }
 
-        try {
+        const date =
+            new Date(value);
 
-            const date = new Date(value);
-
-            if (Number.isNaN(date.getTime())) {
-                return String(value);
-            }
-
-            return new Intl.DateTimeFormat("fr-FR", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit"
-            }).format(date);
-
-        } catch (error) {
-
+        if (Number.isNaN(date.getTime())) {
             return String(value);
-
         }
+
+        return new Intl.DateTimeFormat("fr-FR", {
+            day: "2-digit",
+            month: "2-digit",
+            year: "numeric",
+            hour: "2-digit",
+            minute: "2-digit"
+        }).format(date);
 
     }
 
@@ -68,13 +66,16 @@
     function showMessage(text, type) {
 
         const element =
-            document.getElementById("adminSettingsMessage");
+            document.getElementById(
+                "adminSettingsMessage"
+            );
 
         if (!element) {
             return;
         }
 
-        element.textContent = text;
+        element.textContent =
+            text || "";
 
         element.className =
             "admin-form-message show " +
@@ -86,7 +87,9 @@
     function hideMessage() {
 
         const element =
-            document.getElementById("adminSettingsMessage");
+            document.getElementById(
+                "adminSettingsMessage"
+            );
 
         if (!element) {
             return;
@@ -103,10 +106,14 @@
     function setLoading(visible) {
 
         const loading =
-            document.getElementById("adminLoading");
+            document.getElementById(
+                "adminLoading"
+            );
 
         const content =
-            document.getElementById("adminContent");
+            document.getElementById(
+                "adminContent"
+            );
 
         if (loading) {
             loading.hidden = !visible;
@@ -121,32 +128,46 @@
 
     function showAdminError(message) {
 
-        const errorSection =
-            document.getElementById("adminError");
-
-        const errorMessage =
-            document.getElementById("adminErrorMessage");
-
-        if (errorMessage) {
-            errorMessage.textContent = message;
-        }
-
-        if (errorSection) {
-            errorSection.hidden = false;
-        }
+        const loading =
+            document.getElementById(
+                "adminLoading"
+            );
 
         const content =
-            document.getElementById("adminContent");
+            document.getElementById(
+                "adminContent"
+            );
+
+        const errorSection =
+            document.getElementById(
+                "adminError"
+            );
+
+        const errorMessage =
+            document.getElementById(
+                "adminErrorMessage"
+            );
+
+
+        if (loading) {
+            loading.hidden = true;
+        }
+
 
         if (content) {
             content.hidden = true;
         }
 
-        const loading =
-            document.getElementById("adminLoading");
 
-        if (loading) {
-            loading.hidden = true;
+        if (errorMessage) {
+            errorMessage.textContent =
+                message ||
+                "Aksè refize.";
+        }
+
+
+        if (errorSection) {
+            errorSection.hidden = false;
         }
 
     }
@@ -155,7 +176,9 @@
     function hideAdminError() {
 
         const errorSection =
-            document.getElementById("adminError");
+            document.getElementById(
+                "adminError"
+            );
 
         if (errorSection) {
             errorSection.hidden = true;
@@ -186,13 +209,28 @@
                 await supabase.auth.getUser();
 
 
+            if (error) {
+
+                console.error(
+                    "Auth error:",
+                    error
+                );
+
+                location.href =
+                    "login.html";
+
+                return false;
+
+            }
+
+
             if (
-                error ||
                 !data ||
                 !data.user
             ) {
 
-                location.href = "login.html";
+                location.href =
+                    "login.html";
 
                 return false;
 
@@ -227,12 +265,23 @@
             if (profileError) {
 
                 console.error(
-                    "Admin profile error:",
+                    "Profile error:",
                     profileError
                 );
 
                 showAdminError(
-                    "Nou pa kapab verifye aksè Super Admin ou."
+                    "Nou pa kapab verifye pwofil admin lan."
+                );
+
+                return false;
+
+            }
+
+
+            if (!profile) {
+
+                showAdminError(
+                    "Pwofil itilizatè a pa jwenn."
                 );
 
                 return false;
@@ -242,7 +291,7 @@
 
             const role =
                 String(
-                    profile?.role || ""
+                    profile.role || ""
                 ).toLowerCase();
 
 
@@ -260,12 +309,8 @@
             }
 
 
-            const adminName =
-                profile?.name ||
-                profile?.full_name ||
-                profile?.nom_complet ||
-                currentUser.email ||
-                "Super Admin";
+            adminProfile =
+                profile;
 
 
             const roleBadge =
@@ -273,18 +318,31 @@
                     "adminRoleBadge"
                 );
 
+
             if (roleBadge) {
+
                 roleBadge.textContent =
                     role === "super_admin"
                         ? "SUPER ADMIN"
                         : "ADMIN";
+
             }
+
+
+            const adminName =
+                profile.name ||
+                profile.full_name ||
+                profile.nom_complet ||
+                profile.email ||
+                currentUser.email ||
+                "Super Admin";
 
 
             const welcomeText =
                 document.querySelector(
                     ".admin-welcome p"
                 );
+
 
             if (welcomeText) {
 
@@ -295,8 +353,6 @@
 
             }
 
-
-            hideAdminError();
 
             return true;
 
@@ -316,10 +372,13 @@
 
         }
 
-    }
+                     }
+        async function loadSettings() {
 
+        if (!supabase) {
+            return;
+        }
 
-    async function loadSettings() {
 
         try {
 
@@ -394,9 +453,10 @@
         } catch (error) {
 
             console.error(
-                "Settings error:",
+                "Load settings error:",
                 error
             );
+
 
             showMessage(
                 "Nou pa kapab chaje paramèt komisyon yo.",
@@ -528,7 +588,6 @@
 
                             updated_at:
                                 new Date().toISOString()
-
                         },
                         {
                             onConflict: "id"
@@ -555,7 +614,17 @@
             );
 
 
-            await loadWithdrawals();
+            if (
+                document
+                    .getElementById(
+                        "adminWithdrawalsSection"
+                    )
+                    ?.hidden === false
+            ) {
+
+                await loadWithdrawalRequests();
+
+            }
 
 
         } catch (error) {
@@ -564,6 +633,7 @@
                 "Save settings error:",
                 error
             );
+
 
             showMessage(
                 error.message ||
@@ -589,6 +659,11 @@
 
 
     async function loadStatistics() {
+
+        if (!supabase) {
+            return;
+        }
+
 
         try {
 
@@ -670,6 +745,7 @@
                         .select(
                             "amount"
                         )
+
                 ]);
 
 
@@ -744,7 +820,10 @@
             const transactionVolume =
                 (transactionsResult.data || [])
                     .reduce(
-                        function (total, transaction) {
+                        function (
+                            total,
+                            transaction
+                        ) {
 
                             return total +
                                 (
@@ -795,38 +874,52 @@
 
 
             if (usersElement) {
+
                 usersElement.textContent =
                     usersCount;
+
             }
 
 
             if (sellersElement) {
+
                 sellersElement.textContent =
                     sellersCount;
+
             }
 
 
             if (buyersElement) {
+
                 buyersElement.textContent =
                     buyersCount;
+
             }
 
 
             if (productsElement) {
+
                 productsElement.textContent =
                     productsCount;
+
             }
 
 
             if (ordersElement) {
+
                 ordersElement.textContent =
                     ordersCount;
+
             }
 
 
             if (volumeElement) {
+
                 volumeElement.textContent =
-                    money(transactionVolume);
+                    money(
+                        transactionVolume
+                    );
+
             }
 
 
@@ -838,38 +931,6 @@
             );
 
         }
-
-    }
-
-
-    function setupNavigation() {
-
-        const buttons =
-            document.querySelectorAll(
-                ".admin-menu-button"
-            );
-
-
-        buttons.forEach(
-            function (button) {
-
-                button.addEventListener(
-                    "click",
-                    function () {
-
-                        const sectionName =
-                            button.dataset.section;
-
-
-                        showAdminSection(
-                            sectionName
-                        );
-
-                    }
-                );
-
-            }
-        );
 
     }
 
@@ -905,8 +966,11 @@
                 const section =
                     document.getElementById(id);
 
+
                 if (section) {
+
                     section.hidden = true;
+
                 }
 
             }
@@ -963,7 +1027,7 @@
 
 
         if (sectionName === "withdrawals") {
-            loadWithdrawals();
+            loadWithdrawalRequests();
         }
 
 
@@ -974,65 +1038,102 @@
     }
 
 
-    function setupLogout() {
+    function setupAdminNavigation() {
 
-        const button =
-            document.getElementById(
-                "adminLogoutButton"
+        const buttons =
+            document.querySelectorAll(
+                ".admin-menu-button"
             );
 
 
-        if (!button) {
-            return;
+        buttons.forEach(
+            function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const section =
+                            button.dataset.section;
+
+
+                        if (!section) {
+                            return;
+                        }
+
+
+                        showAdminSection(
+                            section
+                        );
+
+                    }
+                );
+
+            }
+        );
+
         }
-
-
-        button.addEventListener(
-            "click",
-            async function () {
-
-                button.disabled = true;
-
-                button.textContent =
-                    "Ap dekonekte...";
-                async function loadUsers() {
+        async function loadUsers() {
 
         const container =
-            document.getElementById("adminUsersList");
+            document.getElementById(
+                "adminUsersList"
+            );
+
 
         if (!container) {
             return;
         }
+
+
+        container.innerHTML = `
+            <div class="admin-empty">
+                <div class="admin-empty-icon">
+                    ⏳
+                </div>
+
+                <p>
+                    Ap chaje itilizatè yo...
+                </p>
+            </div>
+        `;
+
 
         try {
 
             const {
                 data,
                 error
-            } = await supabase
-                .from("profiles")
-                .select(`
-                    id,
-                    name,
-                    full_name,
-                    nom_complet,
-                    email,
-                    role,
-                    created_at
-                `)
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                )
-                .limit(100);
+            } =
+                await supabase
+                    .from("profiles")
+                    .select(`
+                        id,
+                        name,
+                        full_name,
+                        nom_complet,
+                        email,
+                        role,
+                        created_at
+                    `)
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    )
+                    .limit(100);
+
 
             if (error) {
                 throw error;
             }
 
-            renderUsers(data || []);
+
+            renderUsers(
+                data || []
+            );
+
 
         } catch (error) {
 
@@ -1040,6 +1141,7 @@
                 "Admin users error:",
                 error
             );
+
 
             container.innerHTML = `
                 <div class="admin-empty">
@@ -1050,25 +1152,39 @@
                     <p>
                         Nou pa kapab chaje itilizatè yo.
                     </p>
+
+                    <small>
+                        ${escapeHtml(
+                            error.message ||
+                            "Erè enkoni."
+                        )}
+                    </small>
                 </div>
             `;
+
         }
+
     }
 
 
     function renderUsers(users) {
 
         const container =
-            document.getElementById("adminUsersList");
+            document.getElementById(
+                "adminUsersList"
+            );
+
 
         if (!container) {
             return;
         }
 
+
         if (!users.length) {
 
             container.innerHTML = `
                 <div class="admin-empty">
+
                     <div class="admin-empty-icon">
                         👥
                     </div>
@@ -1076,89 +1192,153 @@
                     <p>
                         Pa gen itilizatè pou kounya.
                     </p>
+
                 </div>
             `;
 
             return;
+
         }
+
 
         container.innerHTML = "";
 
-        users.forEach(function (user) {
 
-            const role =
-                String(
-                    user.role || "buyer"
-                ).toLowerCase();
+        users.forEach(
+            function (user) {
 
-            const name =
-                user.name ||
-                user.full_name ||
-                user.nom_complet ||
-                "Itilizatè";
+                const role =
+                    String(
+                        user.role ||
+                        "buyer"
+                    ).toLowerCase();
 
-            const roleText =
-                role === "seller"
-                    ? "Vandè"
-                    : role === "admin" ||
-                      role === "super_admin"
-                        ? "Admin"
-                        : "Achtè";
 
-            const item =
-                document.createElement("div");
+                const name =
+                    user.name ||
+                    user.full_name ||
+                    user.nom_complet ||
+                    "Itilizatè";
 
-            item.className =
-                "admin-user-item";
 
-            item.innerHTML = `
+                const email =
+                    user.email ||
+                    "Pa gen email";
 
-                <div class="admin-user-avatar">
-                    ${escapeHtml(
-                        String(name).charAt(0).toUpperCase()
-                    )}
-                </div>
 
-                <div class="admin-user-main">
+                let roleText =
+                    "Achtè";
 
-                    <strong>
-                        ${escapeHtml(name)}
-                    </strong>
 
-                    <span>
+                if (
+                    role === "seller"
+                ) {
+
+                    roleText =
+                        "Vandè";
+
+                }
+
+
+                if (
+                    role === "admin" ||
+                    role === "super_admin"
+                ) {
+
+                    roleText =
+                        "Admin";
+
+                }
+
+
+                const firstLetter =
+                    String(name)
+                        .trim()
+                        .charAt(0)
+                        .toUpperCase() ||
+                    "U";
+
+
+                const item =
+                    document.createElement(
+                        "article"
+                    );
+
+
+                item.className =
+                    "admin-user-item";
+
+
+                item.innerHTML = `
+
+                    <div class="admin-user-avatar">
                         ${escapeHtml(
-                            user.email || "Pa gen email"
+                            firstLetter
                         )}
-                    </span>
+                    </div>
 
-                    <small>
-                        ID:
-                        ${escapeHtml(user.id)}
-                    </small>
 
-                </div>
+                    <div class="admin-user-main">
 
-                <div class="admin-user-side">
+                        <strong>
+                            ${escapeHtml(
+                                name
+                            )}
+                        </strong>
 
-                    <span
-                        class="admin-role ${escapeHtml(role)}"
-                    >
-                        ${escapeHtml(roleText)}
-                    </span>
 
-                    <span class="admin-user-date">
-                        ${escapeHtml(
-                            formatDate(user.created_at)
-                        )}
-                    </span>
+                        <span>
+                            ${escapeHtml(
+                                email
+                            )}
+                        </span>
 
-                </div>
 
-            `;
+                        <small>
+                            ID:
+                            ${escapeHtml(
+                                user.id
+                            )}
+                        </small>
 
-            container.appendChild(item);
+                    </div>
 
-        });
+
+                    <div class="admin-user-side">
+
+                        <span
+                            class="admin-role ${escapeHtml(
+                                role
+                            )}"
+                        >
+                            ${escapeHtml(
+                                roleText
+                            )}
+                        </span>
+
+
+                        <span
+                            class="admin-user-date"
+                        >
+                            ${escapeHtml(
+                                formatDate(
+                                    user.created_at
+                                )
+                            )}
+                        </span>
+
+                    </div>
+
+                `;
+
+
+                container.appendChild(
+                    item
+                );
+
+            }
+        );
+
     }
 
 
@@ -1169,31 +1349,54 @@
                 "adminProductsList"
             );
 
+
         if (!container) {
             return;
         }
+
+
+        container.innerHTML = `
+            <div class="admin-empty">
+
+                <div class="admin-empty-icon">
+                    ⏳
+                </div>
+
+                <p>
+                    Ap chaje pwodwi yo...
+                </p>
+
+            </div>
+        `;
+
 
         try {
 
             const {
                 data,
                 error
-            } = await supabase
-                .from("products")
-                .select("*")
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                )
-                .limit(100);
+            } =
+                await supabase
+                    .from("products")
+                    .select("*")
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    )
+                    .limit(100);
+
 
             if (error) {
                 throw error;
             }
 
-            renderProducts(data || []);
+
+            renderProducts(
+                data || []
+            );
+
 
         } catch (error) {
 
@@ -1202,8 +1405,10 @@
                 error
             );
 
+
             container.innerHTML = `
                 <div class="admin-empty">
+
                     <div class="admin-empty-icon">
                         ⚠️
                     </div>
@@ -1211,9 +1416,19 @@
                     <p>
                         Nou pa kapab chaje pwodwi yo.
                     </p>
+
+                    <small>
+                        ${escapeHtml(
+                            error.message ||
+                            "Erè enkoni."
+                        )}
+                    </small>
+
                 </div>
             `;
+
         }
+
     }
 
 
@@ -1224,8 +1439,10 @@
             product.image ||
             product.photo_url ||
             product.product_image ||
+            product.imageUrl ||
             ""
         );
+
     }
 
 
@@ -1237,6 +1454,7 @@
             product.title ||
             "Pwodwi san non"
         );
+
     }
 
 
@@ -1245,8 +1463,10 @@
         return (
             product.price ??
             product.product_price ??
+            product.amount ??
             0
         );
+
     }
 
 
@@ -1257,14 +1477,17 @@
                 "adminProductsList"
             );
 
+
         if (!container) {
             return;
         }
+
 
         if (!products.length) {
 
             container.innerHTML = `
                 <div class="admin-empty">
+
                     <div class="admin-empty-icon">
                         📦
                     </div>
@@ -1272,114 +1495,164 @@
                     <p>
                         Pa gen pwodwi pou kounya.
                     </p>
+
                 </div>
             `;
 
             return;
+
         }
+
 
         container.innerHTML = "";
 
-        products.forEach(function (product) {
 
-            const image =
-                getProductImage(product);
+        products.forEach(
+            function (product) {
 
-            const name =
-                getProductName(product);
-
-            const price =
-                getProductPrice(product);
-
-            const status =
-                String(
-                    product.status ||
-                    "published"
-                ).toLowerCase();
-
-            const item =
-                document.createElement("div");
-
-            item.className =
-                "admin-product-item";
-
-            item.innerHTML = `
-
-                <div class="admin-product-image">
-
-                    ${
-                        image
-                            ? `
-                                <img
-                                    src="${escapeHtml(image)}"
-                                    alt="${escapeHtml(name)}"
-                                    loading="lazy"
-                                >
-                            `
-                            : `
-                                <div class="admin-product-placeholder">
-                                    📦
-                                </div>
-                            `
-                    }
-
-                </div>
+                const image =
+                    getProductImage(
+                        product
+                    );
 
 
-                <div class="admin-product-main">
-
-                    <strong>
-                        ${escapeHtml(name)}
-                    </strong>
-
-                    <span class="admin-product-price">
-                        ${money(price)}
-                    </span>
-
-                    <span>
-                        Kategori:
-                        ${escapeHtml(
-                            product.category || "—"
-                        )}
-                    </span>
-
-                    <small>
-                        Vandè:
-                        ${escapeHtml(
-                            product.seller_id ||
-                            product.user_id ||
-                            "—"
-                        )}
-                    </small>
-
-                </div>
+                const name =
+                    getProductName(
+                        product
+                    );
 
 
-                <div class="admin-product-side">
+                const price =
+                    getProductPrice(
+                        product
+                    );
 
-                    <span
-                        class="admin-product-status ${escapeHtml(
-                            status
-                        )}"
-                    >
-                        ${escapeHtml(status)}
-                    </span>
 
-                    <span class="admin-product-date">
-                        ${escapeHtml(
-                            formatDate(
-                                product.created_at
-                            )
-                        )}
-                    </span>
+                const status =
+                    String(
+                        product.status ||
+                        "published"
+                    ).toLowerCase();
 
-                </div>
 
-            `;
+                const sellerId =
+                    product.seller_id ||
+                    product.user_id ||
+                    product.owner_id ||
+                    "—";
 
-            container.appendChild(item);
 
-        });
+                const item =
+                    document.createElement(
+                        "article"
+                    );
+
+
+                item.className =
+                    "admin-product-item";
+
+
+                item.innerHTML = `
+
+                    <div class="admin-product-image">
+
+                        ${
+                            image
+                                ? `
+                                    <img
+                                        src="${escapeHtml(
+                                            image
+                                        )}"
+                                        alt="${escapeHtml(
+                                            name
+                                        )}"
+                                        loading="lazy"
+                                    >
+                                `
+                                : `
+                                    <div
+                                        class="admin-product-placeholder"
+                                    >
+                                        📦
+                                    </div>
+                                `
+                        }
+
+                    </div>
+
+
+                    <div class="admin-product-main">
+
+                        <strong>
+                            ${escapeHtml(
+                                name
+                            )}
+                        </strong>
+
+
+                        <span
+                            class="admin-product-price"
+                        >
+                            ${money(
+                                price
+                            )}
+                        </span>
+
+
+                        <span>
+                            Kategori:
+                            ${escapeHtml(
+                                product.category ||
+                                "—"
+                            )}
+                        </span>
+
+
+                        <small>
+                            Vandè:
+                            ${escapeHtml(
+                                sellerId
+                            )}
+                        </small>
+
+                    </div>
+
+
+                    <div class="admin-product-side">
+
+                        <span
+                            class="admin-product-status ${escapeHtml(
+                                status
+                            )}"
+                        >
+                            ${escapeHtml(
+                                status
+                            )}
+                        </span>
+
+
+                        <span
+                            class="admin-product-date"
+                        >
+                            ${escapeHtml(
+                                formatDate(
+                                    product.created_at
+                                )
+                            )}
+                        </span>
+
+                    </div>
+
+                `;
+
+
+                container.appendChild(
+                    item
+                );
+
+            }
+        );
+
     }
 
 
@@ -1390,31 +1663,54 @@
                 "adminOrdersList"
             );
 
+
         if (!container) {
             return;
         }
+
+
+        container.innerHTML = `
+            <div class="admin-empty">
+
+                <div class="admin-empty-icon">
+                    ⏳
+                </div>
+
+                <p>
+                    Ap chaje kòmand yo...
+                </p>
+
+            </div>
+        `;
+
 
         try {
 
             const {
                 data,
                 error
-            } = await supabase
-                .from("orders")
-                .select("*")
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                )
-                .limit(100);
+            } =
+                await supabase
+                    .from("orders")
+                    .select("*")
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    )
+                    .limit(100);
+
 
             if (error) {
                 throw error;
             }
 
-            renderOrders(data || []);
+
+            renderOrders(
+                data || []
+            );
+
 
         } catch (error) {
 
@@ -1423,8 +1719,10 @@
                 error
             );
 
+
             container.innerHTML = `
                 <div class="admin-empty">
+
                     <div class="admin-empty-icon">
                         ⚠️
                     </div>
@@ -1432,9 +1730,19 @@
                     <p>
                         Nou pa kapab chaje kòmand yo.
                     </p>
+
+                    <small>
+                        ${escapeHtml(
+                            error.message ||
+                            "Erè enkoni."
+                        )}
+                    </small>
+
                 </div>
             `;
+
         }
+
     }
 
 
@@ -1445,14 +1753,17 @@
                 "adminOrdersList"
             );
 
+
         if (!container) {
             return;
         }
+
 
         if (!orders.length) {
 
             container.innerHTML = `
                 <div class="admin-empty">
+
                     <div class="admin-empty-icon">
                         🛒
                     </div>
@@ -1460,141 +1771,204 @@
                     <p>
                         Pa gen kòmand pou kounya.
                     </p>
+
                 </div>
             `;
 
             return;
+
         }
+
 
         container.innerHTML = "";
 
-        orders.forEach(function (order) {
 
-            const status =
-                String(
-                    order.status ||
-                    "pending"
-                ).toLowerCase();
+        orders.forEach(
+            function (order) {
 
-            const amount =
-                Number(
-                    order.total_amount ??
-                    order.total ??
-                    order.amount ??
-                    0
-                ) || 0;
-
-            const item =
-                document.createElement("div");
-
-            item.className =
-                "admin-order-item";
-
-            item.innerHTML = `
-
-                <div class="admin-order-icon">
-                    🛒
-                </div>
+                const status =
+                    String(
+                        order.status ||
+                        "pending"
+                    ).toLowerCase();
 
 
-                <div class="admin-order-main">
-
-                    <strong>
-                        Kòmand #${escapeHtml(
-                            String(order.id).slice(0, 12)
-                        )}
-                    </strong>
-
-                    <span>
-                        Achtè:
-                        ${escapeHtml(
-                            order.buyer_id ||
-                            order.user_id ||
-                            "—"
-                        )}
-                    </span>
-
-                    <span>
-                        Vandè:
-                        ${escapeHtml(
-                            order.seller_id ||
-                            "—"
-                        )}
-                    </span>
-
-                    <small>
-                        ${escapeHtml(
-                            formatDate(
-                                order.created_at
-                            )
-                        )}
-                    </small>
-
-                </div>
+                const amount =
+                    Number(
+                        order.total_amount ??
+                        order.total ??
+                        order.amount ??
+                        0
+                    ) || 0;
 
 
-                <div class="admin-order-side">
-
-                    <strong>
-                        ${money(amount)}
-                    </strong>
-
-                    <span
-                        class="admin-order-status ${escapeHtml(
-                            status
-                        )}"
-                    >
-                        ${escapeHtml(status)}
-                    </span>
-
-                </div>
-
-            `;
-
-            container.appendChild(item);
-
-        });
-    }
+                const orderId =
+                    String(
+                        order.id ||
+                        ""
+                    );
 
 
-    async function loadWallets() {
+                const buyerId =
+                    order.buyer_id ||
+                    order.user_id ||
+                    order.customer_id ||
+                    "—";
+
+
+                const sellerId =
+                    order.seller_id ||
+                    "—";
+
+
+                const item =
+                    document.createElement(
+                        "article"
+                    );
+
+
+                item.className =
+                    "admin-order-item";
+
+
+                item.innerHTML = `
+
+                    <div class="admin-order-icon">
+                        🛒
+                    </div>
+
+
+                    <div class="admin-order-main">
+
+                        <strong>
+                            Kòmand #${escapeHtml(
+                                orderId.slice(
+                                    0,
+                                    12
+                                )
+                            )}
+                        </strong>
+
+
+                        <span>
+                            Achtè:
+                            ${escapeHtml(
+                                buyerId
+                            )}
+                        </span>
+
+
+                        <span>
+                            Vandè:
+                            ${escapeHtml(
+                                sellerId
+                            )}
+                        </span>
+
+
+                        <small>
+                            ${escapeHtml(
+                                formatDate(
+                                    order.created_at
+                                )
+                            )}
+                        </small>
+
+                    </div>
+
+
+                    <div class="admin-order-side">
+
+                        <strong>
+                            ${money(
+                                amount
+                            )}
+                        </strong>
+
+
+                        <span
+                            class="admin-order-status ${escapeHtml(
+                                status
+                            )}"
+                        >
+                            ${escapeHtml(
+                                status
+                            )}
+                        </span>
+
+                    </div>
+
+                `;
+
+
+                container.appendChild(
+                    item
+                );
+
+            }
+        );
+
+            async function loadWallets() {
 
         const container =
             document.getElementById(
                 "adminWalletsList"
             );
 
+
         if (!container) {
             return;
         }
+
+
+        container.innerHTML = `
+            <div class="admin-empty">
+
+                <div class="admin-empty-icon">
+                    ⏳
+                </div>
+
+                <p>
+                    Ap chaje wallet yo...
+                </p>
+
+            </div>
+        `;
+
 
         try {
 
             const {
                 data,
                 error
-            } = await supabase
-                .from("wallets")
-                .select(`
-                    id,
-                    user_id,
-                    balance,
-                    currency,
-                    updated_at
-                `)
-                .order(
-                    "updated_at",
-                    {
-                        ascending: false
-                    }
-                )
-                .limit(100);
+            } =
+                await supabase
+                    .from("wallets")
+                    .select(`
+                        id,
+                        user_id,
+                        balance,
+                        currency,
+                        updated_at
+                    `)
+                    .order(
+                        "updated_at",
+                        {
+                            ascending: false
+                        }
+                    )
+                    .limit(100);
+
 
             if (error) {
                 throw error;
             }
 
-            renderWallets(data || []);
+
+            renderWallets(
+                data || []
+            );
+
 
         } catch (error) {
 
@@ -1603,8 +1977,10 @@
                 error
             );
 
+
             container.innerHTML = `
                 <div class="admin-empty">
+
                     <div class="admin-empty-icon">
                         ⚠️
                     </div>
@@ -1612,9 +1988,19 @@
                     <p>
                         Nou pa kapab chaje wallet yo.
                     </p>
+
+                    <small>
+                        ${escapeHtml(
+                            error.message ||
+                            "Erè enkoni."
+                        )}
+                    </small>
+
                 </div>
             `;
+
         }
+
     }
 
 
@@ -1625,14 +2011,17 @@
                 "adminWalletsList"
             );
 
+
         if (!container) {
             return;
         }
+
 
         if (!wallets.length) {
 
             container.innerHTML = `
                 <div class="admin-empty">
+
                     <div class="admin-empty-icon">
                         💰
                     </div>
@@ -1640,127 +2029,180 @@
                     <p>
                         Pa gen wallet pou kounya.
                     </p>
+
                 </div>
             `;
 
             return;
+
         }
+
 
         container.innerHTML = "";
 
-        wallets.forEach(function (wallet) {
 
-            const balance =
-                Number(
-                    wallet.balance
-                ) || 0;
+        wallets.forEach(
+            function (wallet) {
 
-            const item =
-                document.createElement("div");
-
-            item.className =
-                "admin-wallet-item";
-
-            item.innerHTML = `
-
-                <div class="admin-wallet-icon">
-                    💰
-                </div>
+                const balance =
+                    Number(
+                        wallet.balance
+                    ) || 0;
 
 
-                <div class="admin-wallet-main">
-
-                    <strong>
-                        Wallet
-                    </strong>
-
-                    <span>
-                        User:
-                        ${escapeHtml(
-                            wallet.user_id
-                        )}
-                    </span>
-
-                    <small>
-                        ID:
-                        ${escapeHtml(
-                            wallet.id
-                        )}
-                    </small>
-
-                </div>
+                const currency =
+                    wallet.currency ||
+                    "HTG";
 
 
-                <div class="admin-wallet-side">
+                const item =
+                    document.createElement(
+                        "article"
+                    );
 
-                    <strong>
-                        ${money(balance)}
-                    </strong>
 
-                    <span>
-                        ${escapeHtml(
-                            wallet.currency || "HTG"
-                        )}
-                    </span>
+                item.className =
+                    "admin-wallet-item";
 
-                    <small>
-                        Mizajou:
-                        ${escapeHtml(
-                            formatDate(
-                                wallet.updated_at
-                            )
-                        )}
-                    </small>
 
-                </div>
+                item.innerHTML = `
 
-            `;
+                    <div class="admin-wallet-icon">
+                        💰
+                    </div>
 
-            container.appendChild(item);
 
-        });
+                    <div class="admin-wallet-main">
+
+                        <strong>
+                            Wallet
+                        </strong>
+
+
+                        <span>
+                            User:
+                            ${escapeHtml(
+                                wallet.user_id ||
+                                "—"
+                            )}
+                        </span>
+
+
+                        <small>
+                            ID:
+                            ${escapeHtml(
+                                wallet.id ||
+                                "—"
+                            )}
+                        </small>
+
+                    </div>
+
+
+                    <div class="admin-wallet-side">
+
+                        <strong>
+                            ${money(
+                                balance
+                            )}
+                        </strong>
+
+
+                        <span>
+                            ${escapeHtml(
+                                currency
+                            )}
+                        </span>
+
+
+                        <small>
+                            Mizajou:
+                            ${escapeHtml(
+                                formatDate(
+                                    wallet.updated_at
+                                )
+                            )}
+                        </small>
+
+                    </div>
+
+                `;
+
+
+                container.appendChild(
+                    item
+                );
+
             }
-                    async function loadWithdrawalRequests() {
+        );
+
+    }
+
+
+    async function loadWithdrawalRequests() {
 
         const container =
             document.getElementById(
                 "adminWithdrawalsList"
             );
 
+
         if (!container) {
             return;
         }
+
+
+        container.innerHTML = `
+            <div class="admin-empty">
+
+                <div class="admin-empty-icon">
+                    ⏳
+                </div>
+
+                <p>
+                    Ap chaje demann retrè yo...
+                </p>
+
+            </div>
+        `;
+
 
         try {
 
             const {
                 data,
                 error
-            } = await supabase
-                .from("withdrawal_requests")
-                .select(`
-                    id,
-                    user_id,
-                    wallet_id,
-                    amount,
-                    method,
-                    phone_number,
-                    status,
-                    created_at
-                `)
-                .order(
-                    "created_at",
-                    {
-                        ascending: false
-                    }
-                )
-                .limit(100);
+            } =
+                await supabase
+                    .from("withdrawal_requests")
+                    .select(`
+                        id,
+                        user_id,
+                        wallet_id,
+                        amount,
+                        method,
+                        phone_number,
+                        status,
+                        created_at
+                    `)
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    )
+                    .limit(100);
+
 
             if (error) {
                 throw error;
             }
 
-            renderWithdrawals(data || []);
+
+            renderWithdrawals(
+                data || []
+            );
+
 
         } catch (error) {
 
@@ -1769,8 +2211,10 @@
                 error
             );
 
+
             container.innerHTML = `
                 <div class="admin-empty">
+
                     <div class="admin-empty-icon">
                         ⚠️
                     </div>
@@ -1778,9 +2222,19 @@
                     <p>
                         Nou pa kapab chaje demann retrè yo.
                     </p>
+
+                    <small>
+                        ${escapeHtml(
+                            error.message ||
+                            "Erè enkoni."
+                        )}
+                    </small>
+
                 </div>
             `;
+
         }
+
     }
 
 
@@ -1791,14 +2245,17 @@
                 "adminWithdrawalsList"
             );
 
+
         if (!container) {
             return;
         }
+
 
         if (!requests.length) {
 
             container.innerHTML = `
                 <div class="admin-empty">
+
                     <div class="admin-empty-icon">
                         📭
                     </div>
@@ -1806,183 +2263,257 @@
                     <p>
                         Pa gen demann retrè pou kounya.
                     </p>
+
                 </div>
             `;
 
             return;
+
         }
+
 
         container.innerHTML = "";
 
-        requests.forEach(function (request) {
 
-            const status =
-                String(
-                    request.status || "pending"
-                ).toLowerCase();
+        requests.forEach(
+            function (request) {
 
-            const amount =
-                Number(
-                    request.amount
-                ) || 0;
+                const status =
+                    String(
+                        request.status ||
+                        "pending"
+                    ).toLowerCase();
 
-            const fee =
-                amount *
-                (
-                    settings.withdrawalFeePercentage /
-                    100
-                );
 
-            const net =
-                Math.max(
-                    0,
-                    amount - fee
-                );
+                const amount =
+                    Number(
+                        request.amount
+                    ) || 0;
 
-            const item =
-                document.createElement("div");
 
-            item.className =
-                "admin-withdrawal-item";
+                const fee =
+                    amount *
+                    (
+                        settings.withdrawalFeePercentage /
+                        100
+                    );
 
-            const statusText =
-                status === "approved"
-                    ? "Apwouve"
-                    : status === "rejected"
-                        ? "Rejte"
-                        : "An atant";
 
-            item.innerHTML = `
+                const net =
+                    Math.max(
+                        0,
+                        amount - fee
+                    );
 
-                <div class="admin-withdrawal-top">
 
-                    <div>
+                const statusText =
+                    status === "approved"
+                        ? "Apwouve"
+                        : status === "rejected"
+                            ? "Rejte"
+                            : "An atant";
 
-                        <strong>
-                            ${money(amount)}
-                        </strong>
 
-                        <span>
-                            Demann retrè
+                const item =
+                    document.createElement(
+                        "article"
+                    );
+
+
+                item.className =
+                    "admin-withdrawal-item";
+
+
+                item.innerHTML = `
+
+                    <div class="admin-withdrawal-top">
+
+                        <div>
+
+                            <strong>
+                                ${money(
+                                    amount
+                                )}
+                            </strong>
+
+
+                            <span>
+                                Demann retrè
+                            </span>
+
+                        </div>
+
+
+                        <span
+                            class="admin-withdrawal-status ${escapeHtml(
+                                status
+                            )}"
+                        >
+                            ${escapeHtml(
+                                statusText
+                            )}
                         </span>
 
                     </div>
 
-                    <span
-                        class="admin-withdrawal-status ${escapeHtml(
-                            status
-                        )}"
-                    >
-                        ${statusText}
-                    </span>
 
-                </div>
+                    <div class="admin-withdrawal-details">
+
+                        <div>
+
+                            <span>
+                                User ID
+                            </span>
+
+                            <strong>
+                                ${escapeHtml(
+                                    request.user_id ||
+                                    "—"
+                                )}
+                            </strong>
+
+                        </div>
 
 
-                <div class="admin-withdrawal-details">
+                        <div>
 
-                    <div>
-                        <span>User ID</span>
-                        <strong>
+                            <span>
+                                Wallet ID
+                            </span>
+
+                            <strong>
+                                ${escapeHtml(
+                                    request.wallet_id ||
+                                    "—"
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Metòd
+                            </span>
+
+                            <strong>
+                                ${escapeHtml(
+                                    request.method ||
+                                    "—"
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Nimewo
+                            </span>
+
+                            <strong>
+                                ${escapeHtml(
+                                    request.phone_number ||
+                                    "—"
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Frè Macheya
+                            </span>
+
+                            <strong>
+                                ${money(
+                                    fee
+                                )}
+                            </strong>
+
+                        </div>
+
+
+                        <div>
+
+                            <span>
+                                Montan net
+                            </span>
+
+                            <strong>
+                                ${money(
+                                    net
+                                )}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="admin-withdrawal-footer">
+
+                        <span>
                             ${escapeHtml(
-                                request.user_id
+                                formatDate(
+                                    request.created_at
+                                )
                             )}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Wallet ID</span>
-                        <strong>
-                            ${escapeHtml(
-                                request.wallet_id
-                            )}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Metòd</span>
-                        <strong>
-                            ${escapeHtml(
-                                request.method || "—"
-                            )}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Nimewo</span>
-                        <strong>
-                            ${escapeHtml(
-                                request.phone_number || "—"
-                            )}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Frè Macheya</span>
-                        <strong>
-                            ${money(fee)}
-                        </strong>
-                    </div>
-
-                    <div>
-                        <span>Montan net</span>
-                        <strong>
-                            ${money(net)}
-                        </strong>
-                    </div>
-
-                </div>
+                        </span>
 
 
-                <div class="admin-withdrawal-footer">
-
-                    <span>
-                        ${escapeHtml(
-                            formatDate(
-                                request.created_at
-                            )
-                        )}
-                    </span>
-
-                    ${
-                        status === "pending"
-                            ? `
-                                <div class="admin-withdrawal-actions">
-
-                                    <button
-                                        type="button"
-                                        class="admin-approve-button"
-                                        data-withdrawal-id="${escapeHtml(
-                                            request.id
-                                        )}"
+                        ${
+                            status === "pending"
+                                ? `
+                                    <div
+                                        class="admin-withdrawal-actions"
                                     >
-                                        ✓ Apwouve
-                                    </button>
 
-                                    <button
-                                        type="button"
-                                        class="admin-reject-button"
-                                        data-withdrawal-id="${escapeHtml(
-                                            request.id
-                                        )}"
-                                    >
-                                        ✕ Rejte
-                                    </button>
+                                        <button
+                                            type="button"
+                                            class="admin-approve-button"
+                                            data-withdrawal-id="${escapeHtml(
+                                                request.id
+                                            )}"
+                                        >
+                                            ✓ Apwouve
+                                        </button>
 
-                                </div>
-                            `
-                            : ""
-                    }
 
-                </div>
+                                        <button
+                                            type="button"
+                                            class="admin-reject-button"
+                                            data-withdrawal-id="${escapeHtml(
+                                                request.id
+                                            )}"
+                                        >
+                                            ✕ Rejte
+                                        </button>
 
-            `;
+                                    </div>
+                                `
+                                : ""
+                        }
 
-            container.appendChild(item);
+                    </div>
 
-        });
+                `;
+
+
+                container.appendChild(
+                    item
+                );
+
+            }
+        );
+
 
         setupWithdrawalActions();
+
     }
 
 
@@ -1992,6 +2523,7 @@
             document.querySelectorAll(
                 ".admin-approve-button"
             );
+
 
         const rejectButtons =
             document.querySelectorAll(
@@ -2007,14 +2539,19 @@
                     function () {
 
                         const id =
-                            button.dataset.withdrawalId;
+                            button.dataset
+                                .withdrawalId;
 
-                        if (id) {
-                            updateWithdrawalStatus(
-                                id,
-                                "approved"
-                            );
+
+                        if (!id) {
+                            return;
                         }
+
+
+                        updateWithdrawalStatus(
+                            id,
+                            "approved"
+                        );
 
                     }
                 );
@@ -2031,14 +2568,19 @@
                     function () {
 
                         const id =
-                            button.dataset.withdrawalId;
+                            button.dataset
+                                .withdrawalId;
 
-                        if (id) {
-                            updateWithdrawalStatus(
-                                id,
-                                "rejected"
-                            );
+
+                        if (!id) {
+                            return;
                         }
+
+
+                        updateWithdrawalStatus(
+                            id,
+                            "rejected"
+                        );
 
                     }
                 );
@@ -2057,6 +2599,15 @@
         if (!withdrawalId) {
             return;
         }
+
+
+        if (
+            newStatus !== "approved" &&
+            newStatus !== "rejected"
+        ) {
+            return;
+        }
+
 
         const action =
             newStatus === "approved"
@@ -2117,9 +2668,11 @@
             );
 
 
-            await loadWithdrawalRequests();
+            await Promise.all([
+                loadWithdrawalRequests(),
+                loadStatistics()
+            ]);
 
-            await loadStatistics();
 
         } catch (error) {
 
@@ -2127,6 +2680,7 @@
                 "Update withdrawal status error:",
                 error
             );
+
 
             showMessage(
                 error.message ||
@@ -2136,139 +2690,12 @@
 
         }
 
-    }
-
-
-    function setupAdminNavigation() {
-
-        const buttons =
-            document.querySelectorAll(
-                ".admin-menu-button"
-            );
-
-        buttons.forEach(
-            function (button) {
-
-                button.addEventListener(
-                    "click",
-                    function () {
-
-                        const section =
-                            button.dataset.section;
-
-                        if (!section) {
-                            return;
-                        }
-
-                        showAdminSection(
-                            section
-                        );
-
                     }
-                );
 
-            }
-        );
+        
 
-    }
-
-
-    function showAdminSection(sectionName) {
-
-        const sections = {
-
-            users:
-                "adminUsersSection",
-
-            products:
-                "adminProductsSection",
-
-            orders:
-                "adminOrdersSection",
-
-            wallets:
-                "adminWalletsSection",
-
-            withdrawals:
-                "adminWithdrawalsSection",
-
-            settings:
-                "adminSettingsSection"
-
-        };
-
-
-        Object.values(sections).forEach(
-            function (id) {
-
-                const section =
-                    document.getElementById(id);
-
-                if (section) {
-                    section.hidden = true;
-                }
-
-            }
-        );
-
-
-        const targetId =
-            sections[sectionName];
-
-
-        if (!targetId) {
-            return;
-        }
-
-
-        const target =
-            document.getElementById(
-                targetId
-            );
-
-
-        if (!target) {
-            return;
-        }
-
-
-        target.hidden = false;
-
-
-        target.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-
-        if (sectionName === "users") {
-            loadUsers();
-        }
-
-        if (sectionName === "products") {
-            loadProducts();
-        }
-
-        if (sectionName === "orders") {
-            loadOrders();
-        }
-
-        if (sectionName === "wallets") {
-            loadWallets();
-        }
-
-        if (sectionName === "withdrawals") {
-            loadWithdrawalRequests();
-        }
-
-        if (sectionName === "settings") {
-            loadSettings();
-        }
-
-    }
-
-
-    function setupSettings() {
+}
+        function setupSettings() {
 
         const button =
             document.getElementById(
@@ -2283,7 +2710,11 @@
 
         button.addEventListener(
             "click",
-            saveSettings
+            function () {
+
+                saveSettings();
+
+            }
         );
 
     }
@@ -2306,13 +2737,30 @@
             "click",
             async function () {
 
+                if (
+                    button.disabled
+                ) {
+                    return;
+                }
+
+
                 button.disabled = true;
+
 
                 button.textContent =
                     "Ap dekonekte...";
 
 
                 try {
+
+                    if (!supabase) {
+
+                        throw new Error(
+                            "Supabase client pa disponib."
+                        );
+
+                    }
+
 
                     const {
                         error
@@ -2325,8 +2773,9 @@
                     }
 
 
-                    location.href =
+                    window.location.href =
                         "login.html";
+
 
                 } catch (error) {
 
@@ -2338,6 +2787,7 @@
 
                     button.disabled = false;
 
+
                     button.textContent =
                         "Dekonekte";
 
@@ -2346,6 +2796,149 @@
                         "Nou pa kapab dekonekte kounya.",
                         "error"
                     );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    function setupRefreshOnVisibility() {
+
+        let lastRefresh =
+            0;
+
+
+        document.addEventListener(
+            "visibilitychange",
+            async function () {
+
+                if (
+                    document.visibilityState !==
+                    "visible"
+                ) {
+                    return;
+                }
+
+
+                const now =
+                    Date.now();
+
+
+                if (
+                    now - lastRefresh <
+                    30000
+                ) {
+                    return;
+                }
+
+
+                lastRefresh =
+                    now;
+
+
+                if (!currentUser) {
+                    return;
+                }
+
+
+                try {
+
+                    await loadStatistics();
+
+
+                    const withdrawalsSection =
+                        document.getElementById(
+                            "adminWithdrawalsSection"
+                        );
+
+
+                    if (
+                        withdrawalsSection &&
+                        !withdrawalsSection.hidden
+                    ) {
+
+                        await loadWithdrawalRequests();
+
+                    }
+
+                } catch (error) {
+
+                    console.error(
+                        "Admin refresh error:",
+                        error
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    function setupAdminKeyboard() {
+
+        document.addEventListener(
+            "keydown",
+            function (event) {
+
+                if (
+                    event.key !==
+                    "Escape"
+                ) {
+                    return;
+                }
+
+
+                const sections = [
+                    "adminUsersSection",
+                    "adminProductsSection",
+                    "adminOrdersSection",
+                    "adminWalletsSection",
+                    "adminWithdrawalsSection",
+                    "adminSettingsSection"
+                ];
+
+
+                let openSection =
+                    false;
+
+
+                sections.forEach(
+                    function (id) {
+
+                        const section =
+                            document.getElementById(
+                                id
+                            );
+
+
+                        if (
+                            section &&
+                            !section.hidden
+                        ) {
+
+                            section.hidden =
+                                true;
+
+                            openSection =
+                                true;
+
+                        }
+
+                    }
+                );
+
+
+                if (openSection) {
+
+                    window.scrollTo({
+                        top: 0,
+                        behavior: "smooth"
+                    });
 
                 }
 
@@ -2394,6 +2987,10 @@
 
             setupLogout();
 
+            setupRefreshOnVisibility();
+
+            setupAdminKeyboard();
+
 
             await Promise.all([
                 loadStatistics(),
@@ -2411,7 +3008,10 @@
 
 
             if (content) {
-                content.hidden = false;
+
+                content.hidden =
+                    false;
+
             }
 
 
@@ -2435,7 +3035,44 @@
     }
 
 
-    if (
+    window.macheyaAdmin = {
+
+        refresh: async function () {
+
+            await Promise.all([
+                loadStatistics(),
+                loadSettings()
+            ]);
+
+        },
+
+
+        refreshUsers:
+            loadUsers,
+
+
+        refreshProducts:
+            loadProducts,
+
+
+        refreshOrders:
+            loadOrders,
+
+
+        refreshWallets:
+            loadWallets,
+
+
+        refreshWithdrawals:
+            loadWithdrawalRequests,
+
+
+        showSection:
+            showAdminSection
+
+    };
+
+     if (
         document.readyState ===
         "loading"
     ) {
