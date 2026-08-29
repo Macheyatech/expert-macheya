@@ -56,6 +56,78 @@
     }
 
 
+    function showWalletMessage(text, type = "error") {
+
+        const message =
+            document.getElementById("wallet-message");
+
+        const content =
+            document.getElementById("wallet-content");
+
+        if (!message) {
+            return;
+        }
+
+        message.hidden = false;
+
+        if (content) {
+            content.hidden = true;
+        }
+
+        if (type === "loading") {
+
+            message.innerHTML = `
+                <div class="message-icon">
+                    💰
+                </div>
+
+                <p>
+                    ${escapeHtml(text)}
+                </p>
+            `;
+
+            return;
+        }
+
+        message.innerHTML = `
+            <div class="message-icon">
+                ⚠️
+            </div>
+
+            <p>
+                ${escapeHtml(text)}
+            </p>
+
+            <a
+                href="dashboard.html"
+                class="main-button"
+            >
+                Retounen Dashboard
+            </a>
+        `;
+
+    }
+
+
+    function showWalletContent() {
+
+        const message =
+            document.getElementById("wallet-message");
+
+        const content =
+            document.getElementById("wallet-content");
+
+        if (message) {
+            message.hidden = true;
+        }
+
+        if (content) {
+            content.hidden = false;
+        }
+
+    }
+
+
     function showMessage(elementId, text, type) {
 
         const element =
@@ -87,65 +159,6 @@
 
         element.className =
             "form-message";
-
-    }
-
-
-    function showWalletError(text) {
-
-        const message =
-            document.getElementById("wallet-message");
-
-        const content =
-            document.getElementById("wallet-content");
-
-        if (content) {
-            content.hidden = true;
-        }
-
-        if (!message) {
-            return;
-        }
-
-        message.hidden = false;
-
-        message.innerHTML = `
-
-            <div class="message-icon">
-                ⚠️
-            </div>
-
-            <p>
-                ${escapeHtml(text)}
-            </p>
-
-            <a
-                href="dashboard.html"
-                class="main-button"
-            >
-                Retounen Dashboard
-            </a>
-
-        `;
-
-    }
-
-
-    function showWalletContent() {
-
-        const message =
-            document.getElementById("wallet-message");
-
-        const content =
-            document.getElementById("wallet-content");
-
-        if (message) {
-            message.hidden = true;
-        }
-
-        if (content) {
-            content.hidden = false;
-        }
 
     }
 
@@ -240,14 +253,13 @@
 
             if (!wallet) {
 
-                showWalletError(
+                showWalletMessage(
                     "Wallet vandè ou poko kreye."
                 );
 
                 return false;
 
             }
-
 
             if (
                 String(wallet.user_id) !==
@@ -258,7 +270,7 @@
                     "Seller wallet ownership mismatch."
                 );
 
-                showWalletError(
+                showWalletMessage(
                     "Aksè ak wallet sa a pa otorize."
                 );
 
@@ -266,15 +278,12 @@
 
             }
 
-
             currentWallet = wallet;
-
 
             const balanceElement =
                 document.getElementById(
                     "wallet-balance"
                 );
-
 
             if (balanceElement) {
 
@@ -283,6 +292,7 @@
 
             }
 
+            showWalletContent();
 
             return true;
 
@@ -293,7 +303,7 @@
                 error
             );
 
-            showWalletError(
+            showWalletMessage(
                 "Nou pa kapab chaje wallet vandè a."
             );
 
@@ -371,14 +381,9 @@
         const amount =
             Number(amountInput.value) || 0;
 
-
         const fee =
             amount *
-            (
-                withdrawalFeePercentage /
-                100
-            );
-
+            (withdrawalFeePercentage / 100);
 
         const net =
             Math.max(
@@ -386,14 +391,12 @@
                 amount - fee
             );
 
-
         if (feeElement) {
 
             feeElement.textContent =
                 money(fee);
 
         }
-
 
         if (netElement) {
 
@@ -424,41 +427,6 @@
     }
 
 
-    function setupWithdrawalButton() {
-
-        const button =
-            document.getElementById(
-                "openWithdrawal"
-            );
-
-        const section =
-            document.getElementById(
-                "withdrawalSection"
-            );
-
-        if (!button || !section) {
-            return;
-        }
-
-        button.addEventListener(
-            "click",
-            function () {
-
-                section.classList.remove(
-                    "hidden"
-                );
-
-                section.scrollIntoView({
-                    behavior: "smooth",
-                    block: "start"
-                });
-
-            }
-        );
-
-    }
-
-
     async function loadTransactions() {
 
         const container =
@@ -466,13 +434,9 @@
                 "wallet-transactions"
             );
 
-        if (
-            !container ||
-            !currentWallet
-        ) {
-            return;
+        if (!container || !currentWallet) {
+            return [];
         }
-
 
         try {
 
@@ -501,16 +465,19 @@
                 )
                 .limit(30);
 
-
             if (error) {
                 throw error;
             }
-
 
             renderTransactions(
                 data || []
             );
 
+            calculateTotalEarned(
+                data || []
+            );
+
+            return data || [];
 
         } catch (error) {
 
@@ -520,21 +487,64 @@
             );
 
             container.innerHTML = `
-
                 <div class="empty-request">
                     Pa kapab chaje tranzaksyon yo pou kounya.
                 </div>
-
             `;
+
+            return [];
 
         }
 
     }
 
 
-    function renderTransactions(
-        transactions
-    ) {
+    function calculateTotalEarned(transactions) {
+
+        const element =
+            document.getElementById(
+                "total-earned"
+            );
+
+        if (!element) {
+            return;
+        }
+
+        let total = 0;
+
+        transactions.forEach(
+            function (transaction) {
+
+                const type =
+                    String(
+                        transaction.type || ""
+                    ).toLowerCase();
+
+                const credit =
+                    type === "credit" ||
+                    type === "sale" ||
+                    type === "deposit" ||
+                    type === "refund";
+
+                if (credit) {
+
+                    total +=
+                        Number(
+                            transaction.amount
+                        ) || 0;
+
+                }
+
+            }
+        );
+
+        element.textContent =
+            money(total);
+
+    }
+
+
+    function renderTransactions(transactions) {
 
         const container =
             document.getElementById(
@@ -545,24 +555,19 @@
             return;
         }
 
-
         if (!transactions.length) {
 
             container.innerHTML = `
-
                 <div class="empty-request">
                     Ou poko gen okenn tranzaksyon.
                 </div>
-
             `;
 
             return;
 
         }
 
-
         container.innerHTML = "";
-
 
         transactions.forEach(
             function (transaction) {
@@ -572,25 +577,21 @@
                         transaction.type || ""
                     ).toLowerCase();
 
-
                 const credit =
                     type === "credit" ||
                     type === "sale" ||
                     type === "deposit" ||
                     type === "refund";
 
-
                 const sign =
                     credit
                         ? "+"
                         : "-";
 
-
                 const className =
                     credit
                         ? "credit"
                         : "debit";
-
 
                 const title =
                     transaction.description ||
@@ -600,16 +601,11 @@
                             : "Debi wallet"
                     );
 
-
                 const item =
-                    document.createElement(
-                        "div"
-                    );
-
+                    document.createElement("div");
 
                 item.className =
                     "transaction";
-
 
                 item.innerHTML = `
 
@@ -629,7 +625,6 @@
 
                     </div>
 
-
                     <div
                         class="transaction-amount ${className}"
                     >
@@ -639,7 +634,6 @@
                     </div>
 
                 `;
-
 
                 container.appendChild(item);
 
@@ -656,14 +650,9 @@
                 "withdrawalHistory"
             );
 
-        if (
-            !container ||
-            !currentUser ||
-            !currentWallet
-        ) {
+        if (!container || !currentUser || !currentWallet) {
             return;
         }
-
 
         try {
 
@@ -698,16 +687,17 @@
                 )
                 .limit(10);
 
-
             if (error) {
                 throw error;
             }
-
 
             renderWithdrawalHistory(
                 data || []
             );
 
+            calculateTotalWithdrawn(
+                data || []
+            );
 
         } catch (error) {
 
@@ -717,11 +707,9 @@
             );
 
             container.innerHTML = `
-
                 <div class="empty-request">
                     Pa kapab chaje istwa retrè yo.
                 </div>
-
             `;
 
         }
@@ -729,9 +717,50 @@
     }
 
 
-    function renderWithdrawalHistory(
-        requests
-    ) {
+    function calculateTotalWithdrawn(requests) {
+
+        const element =
+            document.getElementById(
+                "total-withdrawn"
+            );
+
+        if (!element) {
+            return;
+        }
+
+        let total = 0;
+
+        requests.forEach(
+            function (request) {
+
+                const status =
+                    String(
+                        request.status || ""
+                    ).toLowerCase();
+
+                if (
+                    status === "approved" ||
+                    status === "completed" ||
+                    status === "paid"
+                ) {
+
+                    total +=
+                        Number(
+                            request.amount
+                        ) || 0;
+
+                }
+
+            }
+        );
+
+        element.textContent =
+            money(total);
+
+    }
+
+
+    function renderWithdrawalHistory(requests) {
 
         const container =
             document.getElementById(
@@ -742,24 +771,19 @@
             return;
         }
 
-
         if (!requests.length) {
 
             container.innerHTML = `
-
                 <div class="empty-request">
                     Ou poko fè okenn demann retrè.
                 </div>
-
             `;
 
             return;
 
         }
 
-
         container.innerHTML = "";
-
 
         requests.forEach(
             function (request) {
@@ -770,28 +794,25 @@
                         "pending"
                     ).toLowerCase();
 
-
                 const statusText =
                     status === "approved"
                         ? "Apwouve"
                         : status === "rejected"
                             ? "Rejte"
-                            : "An atant";
-
+                            : status === "completed"
+                                ? "Fini"
+                                : status === "paid"
+                                    ? "Peye"
+                                    : "An atant";
 
                 const amount =
                     Number(
                         request.amount
                     ) || 0;
 
-
                 const fee =
                     amount *
-                    (
-                        withdrawalFeePercentage /
-                        100
-                    );
-
+                    (withdrawalFeePercentage / 100);
 
                 const net =
                     Math.max(
@@ -799,16 +820,11 @@
                         amount - fee
                     );
 
-
                 const item =
-                    document.createElement(
-                        "div"
-                    );
-
+                    document.createElement("div");
 
                 item.className =
                     "request-item";
-
 
                 item.innerHTML = `
 
@@ -828,14 +844,12 @@
 
                     </div>
 
-
                     <div class="request-method">
                         Metòd:
                         ${escapeHtml(
                             request.method || "—"
                         )}
                     </div>
-
 
                     <div class="request-phone">
                         📱
@@ -844,18 +858,15 @@
                         )}
                     </div>
 
-
                     <div class="request-fee">
                         Frè retrè:
                         ${money(fee)}
                     </div>
 
-
                     <div class="request-net">
                         Montan net:
                         ${money(net)}
                     </div>
-
 
                     <div class="request-date">
                         ${escapeHtml(
@@ -867,7 +878,6 @@
 
                 `;
 
-
                 container.appendChild(item);
 
             }
@@ -878,24 +888,20 @@
 
         event.preventDefault();
 
-
         const button =
             document.getElementById(
                 "withdrawalSubmit"
             );
-
 
         const method =
             document.getElementById(
                 "withdrawalMethod"
             )?.value;
 
-
         const phone =
             document.getElementById(
                 "withdrawalPhone"
             )?.value.trim();
-
 
         const amount =
             Number(
@@ -903,7 +909,6 @@
                     "withdrawalAmount"
                 )?.value
             );
-
 
         hideMessage(
             "withdrawalMessage"
@@ -919,7 +924,6 @@
             );
 
             return;
-
         }
 
 
@@ -932,7 +936,6 @@
             );
 
             return;
-
         }
 
 
@@ -945,7 +948,6 @@
             );
 
             return;
-
         }
 
 
@@ -958,7 +960,6 @@
             );
 
             return;
-
         }
 
 
@@ -972,28 +973,12 @@
 
             showMessage(
                 "withdrawalMessage",
-                "Montan an pi gran pase balans disponib la.",
+                "Montan an pi gran pase balans wallet ou.",
                 "error"
             );
 
             return;
-
         }
-
-
-        const fee =
-            amount *
-            (
-                withdrawalFeePercentage /
-                100
-            );
-
-
-        const net =
-            Math.max(
-                0,
-                amount - fee
-            );
 
 
         if (button) {
@@ -1010,32 +995,33 @@
 
             const {
                 error
-            } = await supabase
-                .from("withdrawal_requests")
-                .insert({
+            } =
+                await supabase
+                    .from("withdrawal_requests")
+                    .insert({
 
-                    user_id:
-                        currentUser.id,
+                        user_id:
+                            currentUser.id,
 
-                    wallet_id:
-                        currentWallet.id,
+                        wallet_id:
+                            currentWallet.id,
 
-                    amount:
-                        amount,
+                        amount:
+                            amount,
 
-                    method:
-                        method,
+                        method:
+                            method,
 
-                    phone_number:
-                        phone,
+                        phone_number:
+                            phone,
 
-                    status:
-                        "pending",
+                        status:
+                            "pending",
 
-                    created_at:
-                        new Date().toISOString()
+                        created_at:
+                            new Date().toISOString()
 
-                });
+                    });
 
 
             if (error) {
@@ -1045,7 +1031,7 @@
 
             showMessage(
                 "withdrawalMessage",
-                `Demann retrè ou a voye avèk siksè. Frè ${withdrawalFeePercentage}% la se ${money(fee)}. W ap resevwa ${money(net)} apre frè a.`,
+                "Demann retrè ou a voye avèk siksè. Super Admin ap verifye li.",
                 "success"
             );
 
@@ -1062,7 +1048,6 @@
 
 
             updateWithdrawalCalculation();
-
 
             await loadWithdrawalHistory();
 
@@ -1082,6 +1067,7 @@
                 "error"
             );
 
+
         } finally {
 
             if (button) {
@@ -1098,176 +1084,37 @@
     }
 
 
-    async function loadWalletSummary() {
+    function setupWithdrawalButton() {
 
-        if (
-            !currentUser ||
-            !currentWallet
-        ) {
+        const button =
+            document.getElementById(
+                "openWithdrawal"
+            );
+
+        const section =
+            document.getElementById(
+                "withdrawalSection"
+            );
+
+        if (!button || !section) {
             return;
         }
 
 
-        const earnedElement =
-            document.getElementById(
-                "total-earned"
-            );
+        button.addEventListener(
+            "click",
+            function () {
 
-
-        const withdrawnElement =
-            document.getElementById(
-                "total-withdrawn"
-            );
-
-
-        try {
-
-            const {
-                data: transactions,
-                error: transactionsError
-            } = await supabase
-                .from("wallet_transactions")
-                .select(
-                    "type,amount"
-                )
-                .eq(
-                    "wallet_id",
-                    currentWallet.id
+                section.classList.remove(
+                    "hidden"
                 );
 
-
-            if (transactionsError) {
-                throw transactionsError;
-            }
-
-
-            let totalEarned = 0;
-
-
-            (transactions || []).forEach(
-                function (transaction) {
-
-                    const type =
-                        String(
-                            transaction.type || ""
-                        ).toLowerCase();
-
-
-                    const isCredit =
-                        type === "credit" ||
-                        type === "sale" ||
-                        type === "deposit";
-
-
-                    if (isCredit) {
-
-                        totalEarned +=
-                            Number(
-                                transaction.amount
-                            ) || 0;
-
-                    }
-
-                }
-            );
-
-
-            if (earnedElement) {
-
-                earnedElement.textContent =
-                    money(totalEarned);
+                section.scrollIntoView({
+                    behavior: "smooth",
+                    block: "start"
+                });
 
             }
-
-
-            const {
-                data: withdrawals,
-                error: withdrawalsError
-            } = await supabase
-                .from("withdrawal_requests")
-                .select(
-                    "amount,status"
-                )
-                .eq(
-                    "user_id",
-                    currentUser.id
-                )
-                .eq(
-                    "wallet_id",
-                    currentWallet.id
-                );
-
-
-            if (withdrawalsError) {
-                throw withdrawalsError;
-            }
-
-
-            let totalWithdrawn = 0;
-
-
-            (withdrawals || []).forEach(
-                function (request) {
-
-                    const status =
-                        String(
-                            request.status || ""
-                        ).toLowerCase();
-
-
-                    if (
-                        status === "approved" ||
-                        status === "completed" ||
-                        status === "paid"
-                    ) {
-
-                        totalWithdrawn +=
-                            Number(
-                                request.amount
-                            ) || 0;
-
-                    }
-
-                }
-            );
-
-
-            if (withdrawnElement) {
-
-                withdrawnElement.textContent =
-                    money(totalWithdrawn);
-
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                "Seller wallet summary error:",
-                error
-            );
-
-        }
-
-    }
-
-
-    function setupWithdrawalForm() {
-
-        const form =
-            document.getElementById(
-                "withdrawalForm"
-            );
-
-
-        if (!form) {
-            return;
-        }
-
-
-        form.addEventListener(
-            "submit",
-            submitWithdrawal
         );
 
     }
@@ -1281,13 +1128,19 @@
                 "Supabase client pa disponib."
             );
 
-            showWalletError(
-                "Supabase pa disponib. Verify koneksyon an."
+            showWalletMessage(
+                "Sistèm wallet la pa disponib pou kounya."
             );
 
             return;
 
         }
+
+
+        showWalletMessage(
+            "Ap chaje wallet ou...",
+            "loading"
+        );
 
 
         try {
@@ -1327,30 +1180,31 @@
 
             await loadProfile();
 
-
             await loadWithdrawalFee();
-
 
             setupWithdrawalButton();
 
-
             setupWithdrawalCalculation();
 
-
-            setupWithdrawalForm();
-
-
             await loadTransactions();
-
 
             await loadWithdrawalHistory();
 
 
-            await loadWalletSummary();
+            const withdrawalForm =
+                document.getElementById(
+                    "withdrawalForm"
+                );
 
 
-            showWalletContent();
+            if (withdrawalForm) {
 
+                withdrawalForm.addEventListener(
+                    "submit",
+                    submitWithdrawal
+                );
+
+            }
 
         } catch (error) {
 
@@ -1359,9 +1213,8 @@
                 error
             );
 
-
-            showWalletError(
-                "Gen yon pwoblèm pandan n ap chaje wallet vandè a."
+            showWalletMessage(
+                "Nou pa kapab chaje wallet vandè a pou kounya."
             );
 
         }
