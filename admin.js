@@ -1,1626 +1,1278 @@
-"use strict";
+(function () {
 
-const supabaseClient = window.supabaseClient;
+    "use strict";
 
-const state = {
-  settings: null,
-  rechargeRequests: [],
-  withdrawalRequests: [],
-  profiles: [],
-  orders: [],
-  transactions: [],
-  financialStats: {
-    deposits: 0,
-    withdrawals: 0,
-    fees: 0,
-    circulation: 0
-  }
-};
+    const supabase = window.supabaseClient;
 
-function setText(id, value) {
-  const element = document.getElementById(id);
+    let currentUser = null;
 
-  if (element) {
-    element.textContent = value;
-  }
-}
-
-function formatMoney(value) {
-  const number = Number(value) || 0;
-
-  return number.toLocaleString("fr-FR", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2
-  });
-}
-
-function formatDate(value) {
-  if (!value) return "—";
-
-  const date = new Date(value);
-
-  if (Number.isNaN(date.getTime())) {
-    return "—";
-  }
-
-  return date.toLocaleString("fr-FR", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-  });
-}
-
-function escapeHTML(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#039;");
-}
-
-function showLoginMessage(message, isError = false) {
-  const element =
-    document.getElementById("loginMessage");
-
-  if (!element) return;
-
-  element.textContent = message;
-  element.style.display = message ? "block" : "none";
-  element.classList.toggle("error", isError);
-}
-
-function showAdminPage() {
-  const loginPage =
-    document.getElementById("loginPage");
-
-  const adminPage =
-    document.getElementById("adminPage");
-
-  if (loginPage) {
-    loginPage.style.display = "none";
-  }
-
-  if (adminPage) {
-    adminPage.style.display = "block";
-  }
-}
-
-function showLoginPage() {
-  const loginPage =
-    document.getElementById("loginPage");
-
-  const adminPage =
-    document.getElementById("adminPage");
-
-  if (loginPage) {
-    loginPage.style.display = "flex";
-  }
-
-  if (adminPage) {
-    adminPage.style.display = "none";
-  }
-}
-
-async function loadSettings() {
-  try {
-    const { data, error } =
-      await supabaseClient
-        .from("macheya_settings")
-        .select("*")
-        .eq("id", 1)
-        .maybeSingle();
-
-    if (error) throw error;
-
-    state.settings = data || {};
-
-    const fee =
-      document.getElementById("feePercentage");
-
-    const moncash =
-      document.getElementById("moncashNumber");
-
-    const natcash =
-      document.getElementById("natcashNumber");
-
-    if (fee) {
-      fee.value =
-        data?.fee_percentage ?? 0;
-    }
-
-    if (moncash) {
-      moncash.value =
-        data?.moncash_number ?? "";
-    }
-
-    if (natcash) {
-      natcash.value =
-        data?.natcash_number ?? "";
-    }
-
-  } catch (error) {
-    console.error(
-      "Settings error:",
-      error
-    );
-  }
-}
-
-async function saveSettings() {
-  const fee =
-    document.getElementById("feePercentage");
-
-  const moncash =
-    document.getElementById("moncashNumber");
-
-  const natcash =
-    document.getElementById("natcashNumber");
-
-  const message =
-    document.getElementById("settingsMessage");
-
-  if (!fee || !moncash || !natcash) {
-    return;
-  }
-
-  const feeValue =
-    Number(fee.value);
-
-  if (
-    Number.isNaN(feeValue) ||
-    feeValue < 0 ||
-    feeValue > 100
-  ) {
-    if (message) {
-      message.textContent =
-        "Pousantaj la dwe ant 0 ak 100.";
-      message.style.display = "block";
-    }
-
-    return;
-  }
-
-  try {
-    const {
-      data: { user },
-      error: userError
-    } =
-      await supabaseClient.auth.getUser();
-
-    if (userError) {
-      throw userError;
-    }
-
-    if (!user) {
-      throw new Error(
-        "Ou pa konekte kòm admin."
-      );
-    }
-
-    const settings = {
-      id: 1,
-      fee_percentage: feeValue,
-      moncash_number:
-        moncash.value.trim(),
-      natcash_number:
-        natcash.value.trim(),
-      updated_by: user.id,
-      updated_at:
-        new Date().toISOString()
+    let settings = {
+        purchaseFeePercentage: 0,
+        withdrawalFeePercentage: 0
     };
 
-    const { error } =
-      await supabaseClient
-        .from("macheya_settings")
-        .upsert(settings);
 
-    if (error) {
-      throw error;
+    function escapeHtml(value) {
+
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+
     }
 
-    state.settings = {
-      ...settings
-    };
 
-    if (message) {
-      message.textContent =
-        "Paramèt yo sove avèk siksè.";
-      message.style.display = "block";
-      message.classList.remove("error");
+    function money(value) {
+
+        return new Intl.NumberFormat("fr-FR", {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 2
+        }).format(Number(value) || 0) + " HTG";
+
     }
 
-  } catch (error) {
-    console.error(
-      "Save settings error:",
-      error
-    );
 
-    if (message) {
-      message.textContent =
-        error.message ||
-        "Pa kapab sove paramèt yo.";
-      message.style.display = "block";
-      message.classList.add("error");
-    }
-  }
-}
+    function formatDate(value) {
 
-async function loadProfiles() {
-  try {
-    const { data, error } =
-      await supabaseClient
-        .from("profiles")
-        .select("*");
+        if (!value) {
+            return "Dat pa disponib";
+        }
 
-    if (error) {
-      throw error;
+        try {
+
+            return new Intl.DateTimeFormat("fr-FR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+            }).format(new Date(value));
+
+        } catch (error) {
+
+            return String(value);
+
+        }
+
     }
 
-    state.profiles = data || [];
 
-    const buyers =
-      state.profiles.filter(
-        profile =>
-          profile.role === "acheteur"
-      ).length;
+    function showMessage(text, type) {
 
-    const sellers =
-      state.profiles.filter(
-        profile =>
-          profile.role === "vendeur"
-      ).length;
+        const element =
+            document.getElementById("adminMessage");
 
-    setText("buyers", buyers);
-    setText("sellers", sellers);
-    setText(
-      "users",
-      state.profiles.length
-    );
+        if (!element) {
+            return;
+        }
 
-  } catch (error) {
-    console.error(
-      "Profiles error:",
-      error
-    );
+        element.textContent = text;
 
-    setText("buyers", "0");
-    setText("sellers", "0");
-    setText("users", "0");
-  }
-}
+        element.className =
+            "admin-message show " +
+            (type || "");
 
-async function loadOrders() {
-  try {
-    const { data, error } =
-      await supabaseClient
-        .from("orders")
-        .select("id");
-
-    if (error) {
-      throw error;
     }
 
-    state.orders = data || [];
 
-    setText(
-      "orders",
-      state.orders.length
-    );
+    function hideMessage() {
 
-  } catch (error) {
-    console.error(
-      "Orders error:",
-      error
-    );
+        const element =
+            document.getElementById("adminMessage");
 
-    setText("orders", "0");
-  }
-}
+        if (!element) {
+            return;
+        }
 
-async function loadRechargeRequests() {
-  const container =
-    document.getElementById(
-      "rechargeRequests"
-    );
+        element.textContent = "";
 
-  if (!container) return;
+        element.className =
+            "admin-message";
 
-  container.innerHTML =
-    `<div class="loading">
-      Ap chèche demann rechaj...
-    </div>`;
-
-  try {
-    const { data, error } =
-      await supabaseClient
-        .from("recharge_requests")
-        .select("*")
-        .order("created_at", {
-          ascending: false
-        });
-
-    if (error) {
-      throw error;
     }
 
-    state.rechargeRequests =
-      data || [];
 
-    if (!state.rechargeRequests.length) {
-      container.innerHTML =
-        `<div class="empty">
-          Pa gen demann rechaj pou kounye a.
-        </div>`;
+    function setLoading(visible) {
 
-      return;
+        const loading =
+            document.getElementById("adminLoading");
+
+        const content =
+            document.getElementById("adminContent");
+
+        if (loading) {
+            loading.hidden = !visible;
+        }
+
+        if (content) {
+            content.hidden = visible;
+        }
+
     }
 
-    container.innerHTML =
-      state.rechargeRequests
-        .map(request => {
 
-          const amount =
-            request.amount ??
-            request.montant ??
-            request.value ??
-            0;
+    function showAdminError(message) {
 
-          const method =
-            request.method ??
-            request.payment_method ??
-            request.type ??
-            "—";
+        const errorSection =
+            document.getElementById("adminError");
 
-          const status =
-            request.status ??
-            "pending";
+        const errorMessage =
+            document.getElementById("adminErrorMessage");
 
-          const phone =
-            request.phone_number ??
-            request.phone ??
-            request.number ??
-            "—";
+        if (errorMessage) {
+            errorMessage.textContent = message;
+        }
 
-          const statusClass =
-            status === "approved"
-              ? "approved"
-              : status === "rejected"
-                ? "rejected"
-                : "pending";
+        if (errorSection) {
+            errorSection.hidden = false;
+        }
 
-          return `
-            <div class="request-card">
+        const content =
+            document.getElementById("adminContent");
 
-              <div>
-                <strong>
-                  💰 ${formatMoney(amount)} HTG
-                </strong>
+        if (content) {
+            content.hidden = true;
+        }
 
-                <span>
-                  ${escapeHTML(method)}
-                </span>
-              </div>
-
-              <div>
-                📱 ${escapeHTML(phone)}
-              </div>
-
-              <div>
-                <small>
-                  ${formatDate(request.created_at)}
-                </small>
-              </div>
-
-              <div class="request-status ${statusClass}">
-                ${escapeHTML(status)}
-              </div>
-
-              ${
-                status === "pending"
-                  ? `
-                    <div class="request-actions">
-
-                      <button
-                        class="approve-btn"
-                        onclick="updateRechargeStatus('${escapeHTML(request.id)}','approved')"
-                        type="button"
-                      >
-                        ✓ Aksepte
-                      </button>
-
-                      <button
-                        class="reject-btn"
-                        onclick="updateRechargeStatus('${escapeHTML(request.id)}','rejected')"
-                        type="button"
-                      >
-                        ✕ Refize
-                      </button>
-
-                    </div>
-                  `
-                  : ""
-              }
-
-            </div>
-          `;
-        })
-        .join("");
-
-  } catch (error) {
-    console.error(
-      "Recharge error:",
-      error
-    );
-
-    container.innerHTML =
-      `<div class="error">
-        ${escapeHTML(error.message)}
-      </div>`;
-  }
-}
-
-async function updateRechargeStatus(
-  id,
-  status
-) {
-  try {
-    const {
-      data: request,
-      error: fetchError
-    } =
-      await supabaseClient
-        .from("recharge_requests")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-
-    if (fetchError) {
-      throw fetchError;
     }
 
-    if (!request) {
-      throw new Error(
-        "Demann rechaj la pa egziste."
-      );
+
+    function hideAdminError() {
+
+        const errorSection =
+            document.getElementById("adminError");
+
+        if (errorSection) {
+            errorSection.hidden = true;
+        }
+
     }
 
-    if (
-      (request.status || "pending") !==
-      "pending"
-    ) {
-      throw new Error(
-        "Demann sa a deja trete."
-      );
-    }
 
-    const { error } =
-      await supabaseClient
-        .from("recharge_requests")
-        .update({
-          status,
-          updated_at:
-            new Date().toISOString()
-        })
-        .eq("id", id)
-        .eq("status", "pending");
+    async function verifyAdmin() {
 
-    if (error) {
-      throw error;
-    }
+        if (!supabase) {
 
-    await Promise.all([
-      loadRechargeRequests(),
-      loadFinancialStats()
-    ]);
-
-  } catch (error) {
-    console.error(
-      "Recharge update error:",
-      error
-    );
-
-    alert(
-      error.message ||
-      "Pa kapab mete ajou demann rechaj la."
-    );
-  }
-  }
-async function loadWithdrawalRequests() {
-  const container =
-    document.getElementById(
-      "withdrawalRequests"
-    );
-
-  if (!container) return;
-
-  container.innerHTML =
-    `<div class="loading">
-      Ap chèche demann retrè...
-    </div>`;
-
-  try {
-    const { data, error } =
-      await supabaseClient
-        .from("withdrawal_requests")
-        .select("*")
-        .order("created_at", {
-          ascending: false
-        });
-
-    if (error) {
-      throw error;
-    }
-
-    state.withdrawalRequests =
-      data || [];
-
-    if (!state.withdrawalRequests.length) {
-      container.innerHTML =
-        `<div class="empty">
-          Pa gen okenn demann retrè pou kounye a.
-        </div>`;
-
-      return;
-    }
-
-    container.innerHTML =
-      state.withdrawalRequests
-        .map(request => {
-
-          const amount =
-            request.amount ??
-            request.montant ??
-            request.value ??
-            0;
-
-          const method =
-            request.method ??
-            request.payment_method ??
-            request.type ??
-            "—";
-
-          const number =
-            request.phone_number ??
-            request.phone ??
-            request.number ??
-            "—";
-
-          const status =
-            request.status ||
-            "pending";
-
-          const statusClass =
-            status === "approved"
-              ? "approved"
-              : status === "rejected"
-                ? "rejected"
-                : "pending";
-
-          return `
-            <div class="request-card">
-
-              <div>
-                <strong>
-                  💸 ${formatMoney(amount)} HTG
-                </strong>
-              </div>
-
-              <div>
-                📱 ${escapeHTML(number)}
-              </div>
-
-              <div>
-                💳 ${escapeHTML(method)}
-              </div>
-
-              <div>
-                <small>
-                  ${formatDate(request.created_at)}
-                </small>
-              </div>
-
-              <div class="request-status ${statusClass}">
-                ${escapeHTML(status)}
-              </div>
-
-              ${
-                status === "pending"
-                  ? `
-                    <div class="request-actions">
-
-                      <button
-                        class="approve-btn"
-                        onclick="updateWithdrawalStatus('${escapeHTML(request.id)}','approved')"
-                        type="button"
-                      >
-                        ✓ Peye
-                      </button>
-
-                      <button
-                        class="reject-btn"
-                        onclick="updateWithdrawalStatus('${escapeHTML(request.id)}','rejected')"
-                        type="button"
-                      >
-                        ✕ Refize
-                      </button>
-
-                    </div>
-                  `
-                  : ""
-              }
-
-            </div>
-          `;
-        })
-        .join("");
-
-  } catch (error) {
-    console.error(
-      "Withdrawal error:",
-      error
-    );
-
-    container.innerHTML =
-      `<div class="error">
-        ${escapeHTML(error.message)}
-      </div>`;
-  }
-}
-
-
-async function updateWithdrawalStatus(
-  id,
-  status
-) {
-  try {
-    const {
-      data: request,
-      error: fetchError
-    } =
-      await supabaseClient
-        .from("withdrawal_requests")
-        .select("*")
-        .eq("id", id)
-        .maybeSingle();
-
-    if (fetchError) {
-      throw fetchError;
-    }
-
-    if (!request) {
-      throw new Error(
-        "Demann retrè a pa egziste."
-      );
-    }
-
-    if (
-      (request.status || "pending") !==
-      "pending"
-    ) {
-      throw new Error(
-        "Demann sa a deja trete."
-      );
-    }
-
-    const { error } =
-      await supabaseClient
-        .from("withdrawal_requests")
-        .update({
-          status,
-          updated_at:
-            new Date().toISOString()
-        })
-        .eq("id", id)
-        .eq("status", "pending");
-
-    if (error) {
-      throw error;
-    }
-
-    await Promise.all([
-      loadWithdrawalRequests(),
-      loadFinancialStats(),
-      loadWithdrawalChart()
-    ]);
-
-  } catch (error) {
-    console.error(
-      "Withdrawal update error:",
-      error
-    );
-
-    alert(
-      error.message ||
-      "Pa kapab mete ajou demann retrè a."
-    );
-  }
-}
-
-
-async function loadFinancialStats() {
-  try {
-    let deposits = 0;
-    let withdrawals = 0;
-    let fees = 0;
-
-    const {
-      data: rechargeData,
-      error: rechargeError
-    } =
-      await supabaseClient
-        .from("recharge_requests")
-        .select("*");
-
-    if (rechargeError) {
-      throw rechargeError;
-    }
-
-    const approvedRecharges =
-      (rechargeData || []).filter(
-        request =>
-          request.status === "approved"
-      );
-
-    deposits =
-      approvedRecharges.reduce(
-        (total, request) =>
-          total +
-          Number(
-            request.amount ??
-            request.montant ??
-            request.value ??
-            0
-          ),
-        0
-      );
-
-
-    const {
-      data: withdrawalData,
-      error: withdrawalError
-    } =
-      await supabaseClient
-        .from("withdrawal_requests")
-        .select("*");
-
-    if (withdrawalError) {
-      throw withdrawalError;
-    }
-
-    const approvedWithdrawals =
-      (withdrawalData || []).filter(
-        request =>
-          request.status === "approved"
-      );
-
-    withdrawals =
-      approvedWithdrawals.reduce(
-        (total, request) =>
-          total +
-          Number(
-            request.amount ??
-            request.montant ??
-            request.value ??
-            0
-          ),
-        0
-      );
-
-
-    const feePercentage =
-      Number(
-        state.settings?.fee_percentage ?? 0
-      );
-
-    fees =
-      approvedWithdrawals.reduce(
-        (total, request) => {
-
-          const amount =
-            Number(
-              request.amount ??
-              request.montant ??
-              request.value ??
-              0
+            showAdminError(
+                "Supabase client pa disponib."
             );
 
-          const requestFee =
-            request.fee ??
-            request.fee_amount ??
-            request.frais;
+            return false;
 
-          if (
-            requestFee !== undefined &&
-            requestFee !== null
-          ) {
-            return total +
-              Number(requestFee || 0);
-          }
-
-          return total +
-            (
-              amount *
-              feePercentage /
-              100
-            );
-        },
-        0
-      );
+        }
 
 
-    const circulation =
-      Math.max(
-        0,
-        deposits -
-        withdrawals
-      );
+        const {
+            data,
+            error
+        } =
+            await supabase.auth.getUser();
 
-    state.financialStats = {
-      deposits,
-      withdrawals,
-      fees,
-      circulation
-    };
-
-    setText(
-      "deposits",
-      `${formatMoney(deposits)} HTG`
-    );
-
-    setText(
-      "withdrawals",
-      `${formatMoney(withdrawals)} HTG`
-    );
-
-    setText(
-      "fees",
-      `${formatMoney(fees)} HTG`
-    );
-
-    setText(
-      "circulation",
-      `${formatMoney(circulation)} HTG`
-    );
-
-  } catch (error) {
-    console.error(
-      "Financial stats error:",
-      error
-    );
-  }
-}
-
-
-async function loadWithdrawalChart() {
-  const canvas =
-    document.getElementById("chart");
-
-  if (!canvas) return;
-
-  const periodElement =
-    document.getElementById("period");
-
-  const period =
-    Number(
-      periodElement?.value || 30
-    );
-
-  try {
-    const startDate =
-      new Date();
-
-    startDate.setHours(
-      0,
-      0,
-      0,
-      0
-    );
-
-    startDate.setDate(
-      startDate.getDate() -
-      (period - 1)
-    );
-
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .from("withdrawal_requests")
-        .select(
-          "amount,montant,value,created_at,status"
-        )
-        .eq("status", "approved")
-        .gte(
-          "created_at",
-          startDate.toISOString()
-        )
-        .order("created_at", {
-          ascending: true
-        });
-
-    if (error) {
-      throw error;
-    }
-
-    const dailyTotals = {};
-
-    for (
-      let i = 0;
-      i < period;
-      i++
-    ) {
-      const date =
-        new Date(startDate);
-
-      date.setDate(
-        startDate.getDate() + i
-      );
-
-      const key =
-        date.toISOString()
-          .split("T")[0];
-
-      dailyTotals[key] = 0;
-    }
-
-    (data || []).forEach(
-      request => {
-
-        const created =
-          new Date(
-            request.created_at
-          );
-
-        const key =
-          created
-            .toISOString()
-            .split("T")[0];
 
         if (
-          Object.prototype.hasOwnProperty.call(
-            dailyTotals,
-            key
-          )
+            error ||
+            !data ||
+            !data.user
         ) {
-          dailyTotals[key] +=
-            Number(
-              request.amount ??
-              request.montant ??
-              request.value ??
-              0
-            );
+
+            location.href =
+                "login.html";
+
+            return false;
+
         }
-      }
-    );
 
-    drawWithdrawalChart(
-      canvas,
-      dailyTotals
-    );
 
-  } catch (error) {
-    console.error(
-      "Withdrawal chart error:",
-      error
-    );
-  }
-  }
-function drawWithdrawalChart(
-  canvas,
-  dailyTotals
-) {
-  const context =
-    canvas.getContext("2d");
+        currentUser =
+            data.user;
 
-  if (!context) return;
 
-  const rect =
-    canvas.getBoundingClientRect();
-
-  const width =
-    Math.max(
-      canvas.clientWidth ||
-      rect.width ||
-      300,
-      300
-    );
-
-  const height =
-    Math.max(
-      canvas.clientHeight ||
-      rect.height ||
-      260,
-      260
-    );
-
-  const ratio =
-    window.devicePixelRatio || 1;
-
-  canvas.width =
-    width * ratio;
-
-  canvas.height =
-    height * ratio;
-
-  context.setTransform(
-    ratio,
-    0,
-    0,
-    ratio,
-    0,
-    0
-  );
-
-  context.clearRect(
-    0,
-    0,
-    width,
-    height
-  );
-
-  const entries =
-    Object.entries(
-      dailyTotals
-    );
-
-  const values =
-    entries.map(
-      item =>
-        Number(item[1]) || 0
-    );
-
-  const maxValue =
-    Math.max(
-      ...values,
-      1
-    );
-
-  const paddingLeft = 50;
-  const paddingRight = 20;
-  const paddingTop = 20;
-  const paddingBottom = 40;
-
-  const chartWidth =
-    width -
-    paddingLeft -
-    paddingRight;
-
-  const chartHeight =
-    height -
-    paddingTop -
-    paddingBottom;
-
-  context.font =
-    "11px Arial";
-
-  context.textAlign =
-    "right";
-
-  context.textBaseline =
-    "middle";
-
-  const gridLines = 4;
-
-  for (
-    let i = 0;
-    i <= gridLines;
-    i++
-  ) {
-    const y =
-      paddingTop +
-      chartHeight -
-      (
-        chartHeight *
-        i /
-        gridLines
-      );
-
-    context.beginPath();
-
-    context.moveTo(
-      paddingLeft,
-      y
-    );
-
-    context.lineTo(
-      width -
-      paddingRight,
-      y
-    );
-
-    context.strokeStyle =
-      "#e5e7eb";
-
-    context.lineWidth = 1;
-
-    context.stroke();
-
-    const value =
-      maxValue *
-      i /
-      gridLines;
-
-    context.fillStyle =
-      "#6b7280";
-
-    context.fillText(
-      formatMoney(value),
-      paddingLeft - 8,
-      y
-    );
-  }
-
-  if (!entries.length) {
-    context.fillStyle =
-      "#6b7280";
-
-    context.textAlign =
-      "center";
-
-    context.fillText(
-      "Pa gen done retrè pou peryòd sa a.",
-      width / 2,
-      height / 2
-    );
-
-    return;
-  }
-
-  const points = [];
-
-  entries.forEach(
-    ([date, value], index) => {
-
-      const x =
-        paddingLeft +
-        (
-          entries.length === 1
-            ? chartWidth / 2
-            : chartWidth *
-              index /
-              (entries.length - 1)
-        );
-
-      const y =
-        paddingTop +
-        chartHeight -
-        (
-          Number(value) /
-          maxValue *
-          chartHeight
-        );
-
-      points.push({
-        x,
-        y,
-        date,
-        value
-      });
-    }
-  );
-
-  context.beginPath();
-
-  points.forEach(
-    (point, index) => {
-
-      if (index === 0) {
-        context.moveTo(
-          point.x,
-          point.y
-        );
-      } else {
-        context.lineTo(
-          point.x,
-          point.y
-        );
-      }
-    }
-  );
-
-  context.strokeStyle =
-    "#f97316";
-
-  context.lineWidth = 3;
-
-  context.lineJoin =
-    "round";
-
-  context.lineCap =
-    "round";
-
-  context.stroke();
-
-  points.forEach(
-    point => {
-
-      context.beginPath();
-
-      context.arc(
-        point.x,
-        point.y,
-        3,
-        0,
-        Math.PI * 2
-      );
-
-      context.fillStyle =
-        "#f97316";
-
-      context.fill();
-    }
-  );
-
-  context.textAlign =
-    "center";
-
-  context.textBaseline =
-    "top";
-
-  const labelStep =
-    Math.max(
-      1,
-      Math.ceil(
-        entries.length / 6
-      )
-    );
-
-  entries.forEach(
-    ([date], index) => {
-
-      if (
-        index % labelStep !== 0 &&
-        index !== entries.length - 1
-      ) {
-        return;
-      }
-
-      const point =
-        points[index];
-
-      const formatted =
-        date
-          .split("-")
-          .slice(1)
-          .reverse()
-          .join("/");
-
-      context.fillStyle =
-        "#6b7280";
-
-      context.fillText(
-        formatted,
-        point.x,
-        height - 25
-      );
-    }
-  );
-}
-
-
-async function refreshDashboard() {
-  await Promise.all([
-    loadSettings(),
-    loadProfiles(),
-    loadOrders(),
-    loadRechargeRequests(),
-    loadWithdrawalRequests()
-  ]);
-
-  await loadFinancialStats();
-  await loadWithdrawalChart();
-}
-
-
-function setupLogin() {
-  const form =
-    document.getElementById("loginForm");
-
-  const button =
-    document.getElementById("loginButton");
-
-  if (!form) {
-    console.error(
-      "loginForm pa jwenn nan admin.html"
-    );
-    return;
-  }
-
-  form.addEventListener(
-    "submit",
-    async event => {
-
-      event.preventDefault();
-
-      const email =
-        document
-          .getElementById("email")
-          ?.value
-          .trim();
-
-      const password =
-        document
-          .getElementById("password")
-          ?.value;
-
-      if (!email || !password) {
-        showLoginMessage(
-          "Tanpri ranpli email ak modpas la.",
-          true
-        );
-        return;
-      }
-
-      if (!supabaseClient) {
-        showLoginMessage(
-          "Supabase client la pa disponib.",
-          true
-        );
-        return;
-      }
-
-      if (button) {
-        button.disabled = true;
-        button.textContent =
-          "Ap konekte...";
-      }
-
-      showLoginMessage("");
-
-      try {
         const {
-          data,
-          error
+            data: profile,
+            error: profileError
         } =
-          await supabaseClient.auth
-            .signInWithPassword({
-              email,
-              password
-            });
+            await supabase
+                .from("profiles")
+                .select(`
+                    id,
+                    role,
+                    email
+                `)
+                .eq(
+                    "id",
+                    currentUser.id
+                )
+                .maybeSingle();
 
-        if (error) {
-          throw error;
+
+        if (profileError) {
+
+            console.error(
+                "Admin profile error:",
+                profileError
+            );
+
+            showAdminError(
+                "Nou pa kapab verifye aksè Super Admin ou."
+            );
+
+            return false;
+
         }
 
-        if (!data?.user) {
-          throw new Error(
-            "Pa kapab jwenn kont itilizatè a."
-          );
+
+        const role =
+            String(
+                profile?.role || ""
+            ).toLowerCase();
+
+
+        if (
+            role !== "admin" &&
+            role !== "super_admin"
+        ) {
+
+            showAdminError(
+                "Aksè sa a rezève pou Super Admin sèlman."
+            );
+
+            return false;
+
         }
 
-        const allowed =
-          await isSuperAdmin(
-            data.user.id
-          );
 
-        if (!allowed) {
-          await supabaseClient.auth.signOut();
+        return true;
 
-          throw new Error(
-            "Aksè refize. Kont sa a pa Super Admin."
-          );
+    }
+
+
+    async function loadSettings() {
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from("macheya_settings")
+                    .select(`
+                        id,
+                        purchase_fee_percentage,
+                        withdrawal_fee_percentage,
+                        updated_at
+                    `)
+                    .eq(
+                        "id",
+                        1
+                    )
+                    .maybeSingle();
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            if (data) {
+
+                settings.purchaseFeePercentage =
+                    Number(
+                        data.purchase_fee_percentage
+                    ) || 0;
+
+
+                settings.withdrawalFeePercentage =
+                    Number(
+                        data.withdrawal_fee_percentage
+                    ) || 0;
+
+            }
+
+
+            const purchaseInput =
+                document.getElementById(
+                    "purchaseFeePercentage"
+                );
+
+
+            const withdrawalInput =
+                document.getElementById(
+                    "withdrawalFeePercentage"
+                );
+
+
+            if (purchaseInput) {
+
+                purchaseInput.value =
+                    settings.purchaseFeePercentage;
+
+            }
+
+
+            if (withdrawalInput) {
+
+                withdrawalInput.value =
+                    settings.withdrawalFeePercentage;
+
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "Settings error:",
+                error
+            );
+
+            showMessage(
+                "Nou pa kapab chaje paramèt komisyon yo.",
+                "error"
+            );
+
         }
 
-        showLoginMessage(
-          "Koneksyon reyisi."
-        );
+    }
 
-        showAdminPage();
 
-        await refreshDashboard();
+    function validPercentage(value) {
 
-      } catch (error) {
-        console.error(
-          "Login error:",
-          error
-        );
+        const number =
+            Number(value);
 
-        showLoginMessage(
-          error.message ||
-          "Pa kapab konekte.",
-          true
-        );
 
-      } finally {
+        if (!Number.isFinite(number)) {
+            return false;
+        }
+
+
+        if (
+            number < 0 ||
+            number > 100
+        ) {
+            return false;
+        }
+
+
+        return true;
+
+    }
+
+
+    async function saveSettings(event) {
+
+        event.preventDefault();
+
+        hideMessage();
+
+
+        const purchaseInput =
+            document.getElementById(
+                "purchaseFeePercentage"
+            );
+
+
+        const withdrawalInput =
+            document.getElementById(
+                "withdrawalFeePercentage"
+            );
+
+
+        const button =
+            document.getElementById(
+                "saveSettingsButton"
+            );
+
+
+        const purchaseFee =
+            Number(
+                purchaseInput?.value
+            );
+
+
+        const withdrawalFee =
+            Number(
+                withdrawalInput?.value
+            );
+
+
+        if (
+            !validPercentage(
+                purchaseFee
+            )
+        ) {
+
+            showMessage(
+                "Komisyon sou acha a dwe ant 0% ak 100%.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
+        if (
+            !validPercentage(
+                withdrawalFee
+            )
+        ) {
+
+            showMessage(
+                "Frè retrè a dwe ant 0% ak 100%.",
+                "error"
+            );
+
+            return;
+
+        }
+
+
         if (button) {
-          button.disabled = false;
-          button.textContent =
-            "Konekte";
-        }
-      }
-    }
-  );
-}
 
+            button.disabled = true;
 
-async function isSuperAdmin(userId) {
-  if (!userId) return false;
+            button.textContent =
+                "Ap sove...";
 
-  try {
-    const {
-      data,
-      error
-    } =
-      await supabaseClient
-        .rpc("is_super_admin");
-
-    if (error) {
-      console.error(
-        "Super admin verification error:",
-        error
-      );
-
-      return false;
-    }
-
-    return data === true;
-
-  } catch (error) {
-    console.error(
-      "Super admin error:",
-      error
-    );
-
-    return false;
-  }
-    }
-function setupQuickActions() {
-  const walletButton =
-    document.getElementById("walletButton");
-
-  const settingsWalletButton =
-    document.getElementById("settingsWalletButton");
-
-  if (walletButton) {
-    walletButton.addEventListener(
-      "click",
-      () => {
-        const walletSection =
-          document.getElementById("walletSection") ||
-          document.getElementById("walletManagement") ||
-          document.querySelector(".wallet-section");
-
-        if (walletSection) {
-          walletSection.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-          });
-
-          return;
         }
 
-        console.warn(
-          "Seksyon jesyon wallet la pa jwenn nan admin.html."
-        );
-      }
-    );
-  }
 
-  if (settingsWalletButton) {
-    settingsWalletButton.addEventListener(
-      "click",
-      () => {
-        const settings =
-          document.querySelector(".settings-grid");
+        try {
 
-        if (settings) {
-          settings.scrollIntoView({
-            behavior: "smooth",
-            block: "center"
-          });
+            const {
+                error
+            } =
+                await supabase
+                    .from("macheya_settings")
+                    .upsert(
+                        {
+                            id: 1,
+
+                            purchase_fee_percentage:
+                                purchaseFee,
+
+                            withdrawal_fee_percentage:
+                                withdrawalFee,
+
+                            updated_at:
+                                new Date().toISOString()
+
+                        },
+                        {
+                            onConflict: "id"
+                        }
+                    );
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            settings.purchaseFeePercentage =
+                purchaseFee;
+
+
+            settings.withdrawalFeePercentage =
+                withdrawalFee;
+
+
+            showMessage(
+                "Paramèt Macheya yo sove avèk siksè.",
+                "success"
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Save settings error:",
+                error
+            );
+
+            showMessage(
+                error.message ||
+                "Nou pa kapab sove paramèt yo.",
+                "error"
+            );
+
+
+        } finally {
+
+            if (button) {
+
+                button.disabled = false;
+
+                button.textContent =
+                    "Sove paramèt";
+
+            }
+
         }
-      }
-    );
-  }
-}
 
-
-function setupLogout() {
-  const button =
-    document.getElementById("logout");
-
-  if (!button) return;
-
-  button.addEventListener(
-    "click",
-    async () => {
-
-      button.disabled = true;
-
-      try {
-        const { error } =
-          await supabaseClient.auth.signOut();
-
-        if (error) {
-          throw error;
-        }
-
-        showLoginPage();
-
-        showLoginMessage(
-          "Ou dekonekte avèk siksè."
-        );
-
-      } catch (error) {
-        console.error(
-          "Logout error:",
-          error
-        );
-
-        alert(
-          error.message ||
-          "Pa kapab dekonekte."
-        );
-
-      } finally {
-        button.disabled = false;
-      }
     }
-  );
-}
 
 
-function setupResize() {
-  window.addEventListener(
-    "resize",
-    () => {
+    async function loadStatistics() {
 
-      const adminPage =
-        document.getElementById("adminPage");
+        try {
 
+            const [
+                usersResult,
+                productsResult,
+                ordersResult,
+                withdrawalsResult
+            ] =
+                await Promise.all([
+
+                    supabase
+                        .from("profiles")
+                        .select(
+                            "id",
+                            {
+                                count: "exact",
+                                head: true
+                            }
+                        ),
+
+                    supabase
+                        .from("products")
+                        .select(
+                            "id",
+                            {
+                                count: "exact",
+                                head: true
+                            }
+                        ),
+
+                    supabase
+                        .from("orders")
+                        .select(
+                            "id",
+                            {
+                                count: "exact",
+                                head: true
+                            }
+                        ),
+
+                    supabase
+                        .from("withdrawal_requests")
+                        .select(
+                            "id",
+                            {
+                                count: "exact",
+                                head: true
+                            }
+                        )
+
+                ]);
+
+
+            if (usersResult.error) {
+
+                console.error(
+                    "Users statistics:",
+                    usersResult.error
+                );
+
+            }
+
+
+            if (productsResult.error) {
+
+                console.error(
+                    "Products statistics:",
+                    productsResult.error
+                );
+
+            }
+
+
+            if (ordersResult.error) {
+
+                console.error(
+                    "Orders statistics:",
+                    ordersResult.error
+                );
+
+            }
+
+
+            if (withdrawalsResult.error) {
+
+                console.error(
+                    "Withdrawals statistics:",
+                    withdrawalsResult.error
+                );
+
+            }
+
+
+            const usersCount =
+                usersResult.count || 0;
+
+
+            const productsCount =
+                productsResult.count || 0;
+
+
+            const ordersCount =
+                ordersResult.count || 0;
+
+
+            const withdrawalsCount =
+                withdrawalsResult.count || 0;
+
+
+            const usersElement =
+                document.getElementById(
+                    "totalUsers"
+                );
+
+
+            const productsElement =
+                document.getElementById(
+                    "totalProducts"
+                );
+
+
+            const ordersElement =
+                document.getElementById(
+                    "totalOrders"
+                );
+
+
+            const withdrawalsElement =
+                document.getElementById(
+                    "totalWithdrawals"
+                );
+
+
+            if (usersElement) {
+                usersElement.textContent =
+                    usersCount;
+            }
+
+
+            if (productsElement) {
+                productsElement.textContent =
+                    productsCount;
+            }
+
+
+            if (ordersElement) {
+                ordersElement.textContent =
+                    ordersCount;
+            }
+
+
+            if (withdrawalsElement) {
+                withdrawalsElement.textContent =
+                    withdrawalsCount;
+            }
+
+
+        } catch (error) {
+
+            console.error(
+                "Statistics error:",
+                error
+            );
+
+        }
+
+             }
+
+     async function loadWithdrawalRequests() {
+
+        const container =
+            document.getElementById(
+                "withdrawalList"
+            );
+
+
+        if (!container) {
+            return;
+        }
+
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from("withdrawal_requests")
+                    .select(`
+                        id,
+                        user_id,
+                        wallet_id,
+                        amount,
+                        method,
+                        phone_number,
+                        status,
+                        created_at
+                    `)
+                    .order(
+                        "created_at",
+                        {
+                            ascending: false
+                        }
+                    )
+                    .limit(30);
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            renderWithdrawalRequests(
+                data || []
+            );
+
+
+        } catch (error) {
+
+            console.error(
+                "Withdrawal requests error:",
+                error
+            );
+
+
+            container.innerHTML = `
+                <div class="admin-empty">
+
+                    <div class="admin-empty-icon">
+                        ⚠️
+                    </div>
+
+                    <p>
+                        Nou pa kapab chaje demann retrè yo.
+                    </p>
+
+                </div>
+            `;
+
+        }
+
+    }
+
+
+    function renderWithdrawalRequests(
+        requests
+    ) {
+
+        const container =
+            document.getElementById(
+                "withdrawalList"
+            );
+
+
+        if (!container) {
+            return;
+        }
+
+
+        if (!requests.length) {
+
+            container.innerHTML = `
+                <div class="admin-empty">
+
+                    <div class="admin-empty-icon">
+                        📭
+                    </div>
+
+                    <p>
+                        Pa gen demann retrè pou kounya.
+                    </p>
+
+                </div>
+            `;
+
+            return;
+
+        }
+
+
+        container.innerHTML = "";
+
+
+        requests.forEach(
+            function (request) {
+
+                const status =
+                    String(
+                        request.status ||
+                        "pending"
+                    ).toLowerCase();
+
+
+                const amount =
+                    Number(
+                        request.amount
+                    ) || 0;
+
+
+                const fee =
+                    amount *
+                    (
+                        settings.withdrawalFeePercentage /
+                        100
+                    );
+
+
+                const net =
+                    Math.max(
+                        0,
+                        amount - fee
+                    );
+
+
+                const item =
+                    document.createElement(
+                        "div"
+                    );
+
+
+                item.className =
+                    "withdrawal-item";
+
+
+                item.innerHTML = `
+
+                    <div class="withdrawal-top">
+
+                        <span class="withdrawal-amount">
+                            ${money(amount)}
+                        </span>
+
+
+                        <span class="status ${escapeHtml(
+                            status
+                        )}">
+                            ${escapeHtml(
+                                status
+                            )}
+                        </span>
+
+                    </div>
+
+
+                    <div class="withdrawal-details">
+
+                        <span>
+                            👤 User:
+                            ${escapeHtml(
+                                request.user_id
+                            )}
+                        </span>
+
+
+                        <span>
+                            💳 Wallet:
+                            ${escapeHtml(
+                                request.wallet_id
+                            )}
+                        </span>
+
+
+                        <span>
+                            📱 Metòd:
+                            ${escapeHtml(
+                                request.method || "—"
+                            )}
+                        </span>
+
+
+                        <span>
+                            📞 Nimewo:
+                            ${escapeHtml(
+                                request.phone_number || "—"
+                            )}
+                        </span>
+
+
+                        <span>
+                            💸 Frè Macheya:
+                            ${money(fee)}
+                        </span>
+
+
+                        <span>
+                            💰 Montan net:
+                            ${money(net)}
+                        </span>
+
+
+                        <span>
+                            📅
+                            ${escapeHtml(
+                                formatDate(
+                                    request.created_at
+                                )
+                            )}
+                        </span>
+
+                    </div>
+
+
+                    ${
+                        status === "pending"
+                            ? `
+
+                                <div class="withdrawal-actions">
+
+                                    <button
+                                        type="button"
+                                        class="approve-button"
+                                        data-withdrawal-id="${escapeHtml(
+                                            request.id
+                                        )}"
+                                    >
+                                        Apwouve
+                                    </button>
+
+
+                                    <button
+                                        type="button"
+                                        class="reject-button"
+                                        data-withdrawal-id="${escapeHtml(
+                                            request.id
+                                        )}"
+                                    >
+                                        Rejte
+                                    </button>
+
+                                </div>
+
+                            `
+                            : ""
+                    }
+
+                `;
+
+
+                container.appendChild(
+                    item
+                );
+
+            }
+        );
+
+
+        setupWithdrawalActions();
+
+    }
+
+
+    function setupWithdrawalActions() {
+
+        const approveButtons =
+            document.querySelectorAll(
+                ".approve-button"
+            );
+
+
+        const rejectButtons =
+            document.querySelectorAll(
+                ".reject-button"
+            );
+
+
+        approveButtons.forEach(
+            function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const id =
+                            button.dataset
+                                .withdrawalId;
+
+
+                        handleWithdrawalStatus(
+                            id,
+                            "approved"
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+
+        rejectButtons.forEach(
+            function (button) {
+
+                button.addEventListener(
+                    "click",
+                    function () {
+
+                        const id =
+                            button.dataset
+                                .withdrawalId;
+
+
+                        handleWithdrawalStatus(
+                            id,
+                            "rejected"
+                        );
+
+                    }
+                );
+
+            }
+        );
+
+    }
+
+
+    async function handleWithdrawalStatus(
+        withdrawalId,
+        newStatus
+    ) {
+
+        if (!withdrawalId) {
+            return;
+        }
+
+
+        if (
+            newStatus !== "approved" &&
+            newStatus !== "rejected"
+        ) {
+            return;
+        }
+
+
+        const confirmation =
+            newStatus === "approved"
+                ? "Èske ou konfime ou vle apwouve demann retrè sa a?"
+                : "Èske ou konfime ou vle rejte demann retrè sa a?";
+
+
+        if (!window.confirm(confirmation)) {
+            return;
+        }
+
+
+        hideMessage();
+
+
+        try {
+
+            const {
+                data,
+                error
+            } =
+                await supabase
+                    .from("withdrawal_requests")
+                    .update({
+                        status:
+                            newStatus
+                    })
+                    .eq(
+                        "id",
+                        withdrawalId
+                    )
+                    .select(
+                        "id,status"
+                    )
+                    .maybeSingle();
+
+
+            if (error) {
+                throw error;
+            }
+
+
+            if (!data) {
+
+                throw new Error(
+                    "Demann retrè a pa jwenn oswa ou pa gen pèmisyon pou modifye li."
+                );
+
+            }
+
+
+            showMessage(
+                newStatus === "approved"
+                    ? "Demann retrè a apwouve avèk siksè."
+                    : "Demann retrè a rejte avèk siksè.",
+                "success"
+            );
+
+
+            await Promise.all([
+                loadWithdrawalRequests(),
+                loadStatistics()
+            ]);
+
+
+        } catch (error) {
+
+            console.error(
+                "Withdrawal status error:",
+                error
+            );
+
+
+            showMessage(
+                error.message ||
+                "Nou pa kapab modifye demann retrè sa a.",
+                "error"
+            );
+
+        }
+
+    }
+
+
+    function setupLogout() {
+
+        const button =
+            document.getElementById(
+                "logoutButton"
+            );
+
+
+        if (!button) {
+            return;
+        }
+
+
+        button.addEventListener(
+            "click",
+            async function () {
+
+                button.disabled = true;
+
+                button.textContent =
+                    "Ap dekonekte...";
+
+
+                try {
+
+                    const {
+                        error
+                    } =
+                        await supabase.auth.signOut();
+
+
+                    if (error) {
+                        throw error;
+                    }
+
+
+                    location.href =
+                        "login.html";
+
+
+                } catch (error) {
+
+                    console.error(
+                        "Logout error:",
+                        error
+                    );
+
+
+                    button.disabled = false;
+
+                    button.textContent =
+                        "Dekonekte";
+
+
+                    showMessage(
+                        "Nou pa kapab dekonekte kounya.",
+                        "error"
+                    );
+
+                }
+
+            }
+        );
+
+    }
+
+
+    function setupSettingsForm() {
+
+        const form =
+            document.getElementById(
+                "settingsForm"
+            );
+
+
+        if (!form) {
+            return;
+        }
+
+
+        form.addEventListener(
+            "submit",
+            saveSettings
+        );
+
+    }
+
+
+    async function initializeAdmin() {
+
+        setLoading(true);
+
+        hideAdminError();
+
+
+        const isAdmin =
+            await verifyAdmin();
+
+
+        if (!isAdmin) {
+
+            setLoading(false);
+
+            return;
+
+        }
+
+
+        setupLogout();
+
+        setupSettingsForm();
+
+
+        await loadSettings();
+
+        await loadStatistics();
+
+        await loadWithdrawalRequests();
+
+
+        setLoading(false);
+
+        }
       if (
-        adminPage &&
-        adminPage.style.display !== "none"
-      ) {
-        loadWithdrawalChart();
-      }
+        document.readyState ===
+        "loading"
+    ) {
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            initializeAdmin
+        );
+
+    } else {
+
+        initializeAdmin();
+
     }
-  );
-}
 
 
-async function initializeAdmin() {
-  if (!supabaseClient) {
-    console.error(
-      "window.supabaseClient pa jwenn."
-    );
-
-    showLoginPage();
-
-    showLoginMessage(
-      "Sistèm koneksyon an pa disponib.",
-      true
-    );
-
-    return;
-  }
-
-  showLoginPage();
-
-  setupLogin();
-  setupRechargeRefresh();
-  setupWithdrawalRefresh();
-  setupSettings();
-  setupPeriod();
-  setupQuickActions();
-  setupLogout();
-  setupResize();
-
-  await checkAdminSession();
-}
-
-
-if (
-  document.readyState === "loading"
-) {
-  document.addEventListener(
-    "DOMContentLoaded",
-    initializeAdmin
-  );
-} else {
-  initializeAdmin();
-  }
+})();
