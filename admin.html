@@ -1,353 +1,985 @@
 <!DOCTYPE html>
 <html lang="ht">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Super Admin | macheya</title>
 
-<link rel="stylesheet" href="admin.css">
+    <meta charset="UTF-8">
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="supabase-config.js"></script>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Super Admin Dashboard macheya."
+    >
+
+    <title>Super Admin | macheya</title>
+
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="admin.css"
+    >
+
 </head>
+
 
 <body>
 
-<div id="loginPage" class="login-page">
 
-  <div class="login-card">
+    <header class="admin-header">
 
-    <div class="logo">M</div>
-
-    <h1>Super Admin</h1>
-
-    <p class="login-sub">
-      Konekte pou antre nan zòn administrasyon macheya.
-    </p>
-
-    <form id="loginForm">
-
-      <label for="email">Email Super Admin</label>
-
-      <input
-        id="email"
-        type="email"
-        placeholder="admin@macheya.com"
-        autocomplete="email"
-        required
-      >
-
-      <label for="password">Modpas</label>
-
-      <input
-        id="password"
-        type="password"
-        placeholder="••••••••"
-        autocomplete="current-password"
-        required
-      >
-
-      <button id="loginButton" class="primary-btn" type="submit">
-        Konekte
-      </button>
-
-    </form>
-
-    <div id="loginMessage" class="message"></div>
-
-  </div>
-
-</div>
-
-
-<div id="adminPage" class="admin-page">
-
-<header class="topbar">
-
-  <div class="brand">
-    Ⓜ macheya
-  </div>
-
-  <div class="admin-badge">
-    🔐 SUPER ADMIN
-  </div>
-
-</header>
-
-
-<main class="container">
-
-  <section class="page-title">
-
-    <h1>Dashboard Super Admin</h1>
-
-    <p>
-      Kontwòl ak siveyans macheya.
-    </p>
-
-  </section>
-
-
-  <!-- STATS -->
-
-  <section class="stats-grid">
-
-    <div class="stat-card">
-      <span>💰 Lajan ki sikile</span>
-      <strong id="circulation">0 HTG</strong>
-    </div>
-
-    <div class="stat-card">
-      <span>👤 Achtè</span>
-      <strong id="buyers">...</strong>
-    </div>
-
-    <div class="stat-card">
-      <span>🏪 Vandè</span>
-      <strong id="sellers">...</strong>
-    </div>
-
-    <div class="stat-card">
-      <span>💸 Frè Macheya</span>
-      <strong id="fees">0 HTG</strong>
-    </div>
-
-    <div class="stat-card">
-      <span>➕ Depo</span>
-      <strong id="deposits">0 HTG</strong>
-    </div>
-
-    <div class="stat-card">
-      <span>➖ Retrè</span>
-      <strong id="withdrawals">0 HTG</strong>
-    </div>
-
-    <div class="stat-card">
-      <span>👥 Itilizatè</span>
-      <strong id="users">...</strong>
-    </div>
-
-    <div class="stat-card">
-      <span>📦 Kòmand</span>
-      <strong id="orders">...</strong>
-    </div>
-
-  </section>
-
-
-  <!-- RECHARGE -->
-
-  <section class="panel">
-
-    <div class="panel-header">
-
-      <h2>➕ Demann rechaj</h2>
-
-      <button
-        id="refreshRecharge"
-        class="refresh-btn"
-        type="button"
-      >
-        ↻ Rafrechi
-      </button>
-
-    </div>
-
-    <div id="rechargeRequests" class="requests">
-
-      <div class="empty">
-        Ap chèche demann rechaj...
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- WITHDRAWALS -->
-
-  <section class="panel">
-
-    <div class="panel-header">
-
-      <h2>🧾 Demann retrè</h2>
-
-      <button
-        id="refreshWithdrawal"
-        class="refresh-btn"
-        type="button"
-      >
-        ↻ Rafrechi
-      </button>
-
-    </div>
-
-    <div id="withdrawalRequests" class="requests">
-
-      <div class="empty">
-        Ap chèche demann retrè...
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- CHART -->
-
-  <section class="panel">
-
-    <div class="panel-header">
-
-      <h2>📈 Evolisyon retrè</h2>
-
-      <select id="period" class="period">
-
-        <option value="7">
-          7 jou
-        </option>
-
-        <option value="30" selected>
-          30 jou
-        </option>
-
-        <option value="90">
-          90 jou
-        </option>
-
-      </select>
-
-    </div>
-
-    <div class="chart-container">
-      <canvas id="chart"></canvas>
-    </div>
-
-    <p class="chart-note">
-      Graf la montre kantite retrè yo dapre dat demann yo.
-    </p>
-
-  </section>
-
-
-  <!-- SETTINGS -->
-
-  <section class="panel">
-
-    <div class="panel-header">
-
-      <h2>⚙️ Paramèt Macheya</h2>
-
-    </div>
-
-
-    <div class="settings-grid">
-
-      <div class="setting">
-
-        <label for="feePercentage">
-          💸 Pousantaj frè retrè (%)
-        </label>
-
-        <input
-          id="feePercentage"
-          type="number"
-          min="0"
-          max="100"
-          step="0.01"
-          placeholder="Egzanp: 5"
+        <a
+            href="index.html"
+            class="admin-brand"
         >
 
-      </div>
+            <span class="admin-logo">
+                M
+            </span>
+
+            <span class="admin-brand-name">
+                macheya
+            </span>
+
+        </a>
 
 
-      <div class="setting">
+        <div class="admin-header-right">
 
-        <label for="moncashNumber">
-          📱 Numéro MonCash
-        </label>
+            <span
+                id="adminRoleBadge"
+                class="admin-role-badge"
+            >
+                SUPER ADMIN
+            </span>
 
-        <input
-          id="moncashNumber"
-          type="tel"
-          placeholder="Numéro MonCash"
+
+            <button
+                id="adminLogoutButton"
+                class="admin-logout-button"
+                type="button"
+            >
+                Dekonekte
+            </button>
+
+        </div>
+
+    </header>
+
+
+
+    <main class="admin-container">
+
+
+        <section class="admin-welcome">
+
+            <div>
+
+                <span class="admin-label">
+                    SUPER ADMIN
+                </span>
+
+
+                <h1>
+                    Dashboard Macheya
+                </h1>
+
+
+                <p>
+                    Jere aktivite platfòm nan,
+                    vandè, achtè, kòmand, wallet ak retrè.
+                </p>
+
+            </div>
+
+        </section>
+
+
+
+        <section
+            id="adminLoading"
+            class="admin-loading"
         >
 
-      </div>
+            <div class="admin-spinner"></div>
+
+            <p>
+                Ap prepare dashboard admin...
+            </p>
+
+        </section>
 
 
-      <div class="setting">
 
-        <label for="natcashNumber">
-          📱 Numéro NatCash
-        </label>
-
-        <input
-          id="natcashNumber"
-          type="tel"
-          placeholder="Numéro NatCash"
+        <section
+            id="adminError"
+            class="admin-error"
+            hidden
         >
 
-      </div>
+            <div class="admin-error-icon">
+                ⚠️
+            </div>
 
 
-      <button
-        id="saveSettings"
-        class="primary-btn"
-        type="button"
-      >
-        💾 Sove paramèt yo
-      </button>
+            <h2>
+                Aksè refize
+            </h2>
 
-      <div id="settingsMessage" class="settings-message"></div>
 
-    </div>
+            <p id="adminErrorMessage">
+                Ou pa gen otorizasyon pou antre nan espas Super Admin lan.
+            </p>
+
+
+            <a
+                href="dashboard.html"
+                class="admin-main-button"
+            >
+                Retounen
+            </a>
+
+        </section>
+
+
+
+        <section
+            id="adminContent"
+            hidden
+        >
+
+
+            <!-- =========================
+                 STATISTIK PLATFÒM
+            ========================== -->
+
+            <section class="admin-stats">
+
+
+                <article class="admin-stat-card">
+
+                    <div class="admin-stat-icon">
+                        👥
+                    </div>
+
+
+                    <div>
+
+                        <span class="admin-stat-label">
+                            Total itilizatè
+                        </span>
+
+
+                        <strong
+                            id="adminTotalUsers"
+                            class="admin-stat-value"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+
+                <article class="admin-stat-card">
+
+                    <div class="admin-stat-icon">
+                        🏪
+                    </div>
+
+
+                    <div>
+
+                        <span class="admin-stat-label">
+                            Vandè
+                        </span>
+
+
+                        <strong
+                            id="adminTotalSellers"
+                            class="admin-stat-value"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+
+                <article class="admin-stat-card">
+
+                    <div class="admin-stat-icon">
+                        🛍️
+                    </div>
+
+
+                    <div>
+
+                        <span class="admin-stat-label">
+                            Achtè
+                        </span>
+
+
+                        <strong
+                            id="adminTotalBuyers"
+                            class="admin-stat-value"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+
+                <article class="admin-stat-card">
+
+                    <div class="admin-stat-icon">
+                        📦
+                    </div>
+
+
+                    <div>
+
+                        <span class="admin-stat-label">
+                            Pwodwi
+                        </span>
+
+
+                        <strong
+                            id="adminTotalProducts"
+                            class="admin-stat-value"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+
+                <article class="admin-stat-card">
+
+                    <div class="admin-stat-icon">
+                        🛒
+                    </div>
+
+
+                    <div>
+
+                        <span class="admin-stat-label">
+                            Kòmand
+                        </span>
+
+
+                        <strong
+                            id="adminTotalOrders"
+                            class="admin-stat-value"
+                        >
+                            0
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+
+                <article class="admin-stat-card">
+
+                    <div class="admin-stat-icon">
+                        💰
+                    </div>
+
+
+                    <div>
+
+                        <span class="admin-stat-label">
+                            Volim tranzaksyon
+                        </span>
+
+
+                        <strong
+                            id="adminTransactionVolume"
+                            class="admin-stat-value"
+                        >
+                            0 HTG
+                        </strong>
+
+                    </div>
+
+                </article>
+
+
+            </section>
+
+
+
+            <!-- =========================
+                 NAVIGASYON ADMIN
+            ========================== -->
+
+            <section class="admin-menu">
+
+
+                <article class="admin-menu-card">
+
+                    <div class="admin-menu-icon">
+                        👥
+                    </div>
+
+
+                    <h2>
+                        Itilizatè
+                    </h2>
+
+
+                    <p>
+                        Gade epi jere kont vandè ak achtè yo.
+                    </p>
+
+
+                    <button
+                        type="button"
+                        class="admin-menu-button"
+                        data-section="users"
+                    >
+                        Jere itilizatè →
+                    </button>
+
+                </article>
+
+
+
+                <article class="admin-menu-card">
+
+                    <div class="admin-menu-icon">
+                        📦
+                    </div>
+
+
+                    <h2>
+                        Pwodwi
+                    </h2>
+
+
+                    <p>
+                        Kontwole pwodwi ki sou marketplace la.
+                    </p>
+
+
+                    <button
+                        type="button"
+                        class="admin-menu-button"
+                        data-section="products"
+                    >
+                        Jere pwodwi →
+                    </button>
+
+                </article>
+
+
+
+                <article class="admin-menu-card">
+
+                    <div class="admin-menu-icon">
+                        🛒
+                    </div>
+
+
+                    <h2>
+                        Kòmand
+                    </h2>
+
+
+                    <p>
+                        Swiv tout kòmand ki fèt sou Macheya.
+                    </p>
+
+
+                    <button
+                        type="button"
+                        class="admin-menu-button"
+                        data-section="orders"
+                    >
+                        Jere kòmand →
+                    </button>
+
+                </article>
+
+
+
+                <article class="admin-menu-card">
+
+                    <div class="admin-menu-icon">
+                        💳
+                    </div>
+
+
+                    <h2>
+                        Wallet
+                    </h2>
+
+
+                    <p>
+                        Kontwole wallet vandè ak achtè yo.
+                    </p>
+
+
+                    <button
+                        type="button"
+                        class="admin-menu-button"
+                        data-section="wallets"
+                    >
+                        Jere wallet →
+                    </button>
+
+                </article>
+
+
+
+                <article class="admin-menu-card">
+
+                    <div class="admin-menu-icon">
+                        💸
+                    </div>
+
+
+                    <h2>
+                        Retrè
+                    </h2>
+
+
+                    <p>
+                        Verifye epi trete demann retrè yo.
+                    </p>
+
+
+                    <button
+                        type="button"
+                        class="admin-menu-button"
+                        data-section="withdrawals"
+                    >
+                        Jere retrè →
+                    </button>
+
+                </article>
+
+
+
+                <article class="admin-menu-card">
+
+                    <div class="admin-menu-icon">
+                        ⚙️
+                    </div>
+
+
+                    <h2>
+                        Paramèt
+                    </h2>
+
+
+                    <p>
+                        Modifye komisyon ak paramèt finansye Macheya.
+                    </p>
+
+
+                    <button
+                        type="button"
+                        class="admin-menu-button"
+                        data-section="settings"
+                    >
+                        Paramèt Macheya →
+                    </button>
+
+                </article>
+
 
   </section>
+              <!-- =========================
+                 SEKSYON ITILIZATÈ
+            ========================== -->
+
+            <section
+                id="adminUsersSection"
+                class="admin-section"
+                hidden
+            >
+
+                <div class="admin-section-header">
+
+                    <div>
+
+                        <span class="admin-label">
+                            ITILIZATÈ
+                        </span>
+
+                        <h2>
+                            Vandè ak achtè
+                        </h2>
+
+                        <p>
+                            Jere kont itilizatè yo sou platfòm nan.
+                        </p>
+
+                    </div>
+
+                </div>
 
 
-  <!-- QUICK ACTIONS -->
+                <div
+                    id="adminUsersList"
+                    class="admin-data-list"
+                >
 
-  <section class="panel">
+                    <div class="admin-empty">
+                        Ap chaje itilizatè yo...
+                    </div>
 
-    <h2>⚡ Aksyon rapid</h2>
+                </div>
 
-    <div class="actions">
-
-      <button
-        id="walletButton"
-        class="action-btn"
-        type="button"
-      >
-        💳 Jesyon Wallet
-      </button>
-
-      <button
-        id="settingsWalletButton"
-        class="action-btn gray"
-        type="button"
-      >
-        ⚙️ Paramèt Wallet
-      </button>
-
-      <button
-        id="logout"
-        class="action-btn gray"
-        type="button"
-      >
-        🚪 Dekonekte
-      </button>
-
-    </div>
-
-  </section>
-
-</main>
-
-</div>
+            </section>
 
 
-<script src="admin.js"></script>
+
+            <!-- =========================
+                 SEKSYON PWODWI
+            ========================== -->
+
+            <section
+                id="adminProductsSection"
+                class="admin-section"
+                hidden
+            >
+
+                <div class="admin-section-header">
+
+                    <div>
+
+                        <span class="admin-label">
+                            MARKETPLACE
+                        </span>
+
+                        <h2>
+                            Pwodwi yo
+                        </h2>
+
+                        <p>
+                            Kontwole pwodwi vandè yo pibliye.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="adminProductsList"
+                    class="admin-data-list"
+                >
+
+                    <div class="admin-empty">
+                        Ap chaje pwodwi yo...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =========================
+                 SEKSYON KÒMAND
+            ========================== -->
+
+            <section
+                id="adminOrdersSection"
+                class="admin-section"
+                hidden
+            >
+
+                <div class="admin-section-header">
+
+                    <div>
+
+                        <span class="admin-label">
+                            KÒMAND
+                        </span>
+
+                        <h2>
+                            Tout kòmand
+                        </h2>
+
+                        <p>
+                            Swiv aktivite kòmand sou Macheya.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="adminOrdersList"
+                    class="admin-data-list"
+                >
+
+                    <div class="admin-empty">
+                        Ap chaje kòmand yo...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =========================
+                 SEKSYON WALLET
+            ========================== -->
+
+            <section
+                id="adminWalletsSection"
+                class="admin-section"
+                hidden
+            >
+
+                <div class="admin-section-header">
+
+                    <div>
+
+                        <span class="admin-label">
+                            FINANS
+                        </span>
+
+                        <h2>
+                            Wallet yo
+                        </h2>
+
+                        <p>
+                            Gade balans wallet yo ak aktivite finansye yo.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="adminWalletsList"
+                    class="admin-data-list"
+                >
+
+                    <div class="admin-empty">
+                        Ap chaje wallet yo...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =========================
+                 SEKSYON RETRÈ
+            ========================== -->
+
+            <section
+                id="adminWithdrawalsSection"
+                class="admin-section"
+                hidden
+            >
+
+                <div class="admin-section-header">
+
+                    <div>
+
+                        <span class="admin-label">
+                            RETRÈ
+                        </span>
+
+                        <h2>
+                            Demann retrè
+                        </h2>
+
+                        <p>
+                            Verifye epi trete demann retrè vandè ak achtè yo.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="adminWithdrawalsList"
+                    class="admin-data-list"
+                >
+
+                    <div class="admin-empty">
+                        Ap chaje demann retrè yo...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+
+            <!-- =========================
+                 PARAMÈT MACHÉYA
+            ========================== -->
+
+            <section
+                id="adminSettingsSection"
+                class="admin-section"
+                hidden
+            >
+
+                <div class="admin-section-header">
+
+                    <div>
+
+                        <span class="admin-label">
+                            KONFIGIRASYON
+                        </span>
+
+                        <h2>
+                            Paramèt Macheya
+                        </h2>
+
+                        <p>
+                            Kontwole pousantaj ak règ finansye platfòm nan.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="admin-settings-grid">
+
+
+                    <div class="admin-setting-card">
+
+                        <div class="admin-setting-icon">
+                            🛒
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Komisyon sou acha
+                            </h3>
+
+
+                            <p>
+                                Pousantaj Macheya ajoute sou montan achtè a peye.
+                            </p>
+
+                        </div>
+
+
+                        <div class="admin-setting-control">
+
+                            <label
+                                for="purchaseFeePercentage"
+                            >
+                                Pousantaj
+                            </label>
+
+
+                            <div class="percentage-input">
+
+                                <input
+                                    id="purchaseFeePercentage"
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                    inputmode="decimal"
+                                    placeholder="10"
+                                >
+
+                                <span>
+                                    %
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+
+                    <div class="admin-setting-card">
+
+                        <div class="admin-setting-icon">
+                            💸
+                        </div>
+
+
+                        <div>
+
+                            <h3>
+                                Frè retrè
+                            </h3>
+
+
+                            <p>
+                                Pousantaj Macheya dedwi lè yon itilizatè fè retrè.
+                            </p>
+
+                        </div>
+
+
+                        <div class="admin-setting-control">
+
+                            <label
+                                for="withdrawalFeePercentage"
+                            >
+                                Pousantaj
+                            </label>
+
+
+                            <div class="percentage-input">
+
+                                <input
+                                    id="withdrawalFeePercentage"
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    step="0.01"
+                                    inputmode="decimal"
+                                    placeholder="10"
+                                >
+
+                                <span>
+                                    %
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+
+                </div>
+
+
+                <div
+                    id="adminSettingsMessage"
+                    class="admin-form-message"
+                ></div>
+
+
+                <button
+                    id="saveAdminSettings"
+                    class="admin-save-button"
+                    type="button"
+                >
+                    💾 Sove paramèt yo
+                </button>
+
+            </section>
+
+
+
+            <!-- =========================
+                 AKTIVITE RESAN
+            ========================== -->
+
+            <section class="admin-section">
+
+                <div class="admin-section-header">
+
+                    <div>
+
+                        <span class="admin-label">
+                            AKTIVITE
+                        </span>
+
+                        <h2>
+                            Aktivite resan
+                        </h2>
+
+                        <p>
+                            Dènye mouvman ki fèt sou platfòm nan.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    id="adminRecentActivity"
+                    class="admin-data-list"
+                >
+
+                    <div class="admin-empty">
+                        Ap chaje aktivite resan yo...
+                    </div>
+
+                </div>
+
+            </section>
+
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =========================
+         SUPABASE
+    ========================== -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+    ></script>
+
+
+    <script
+        src="supabase-config.js"
+    ></script>
+
+
+    <script
+        src="admin.js"
+    ></script>
+
 
 </body>
-   </html>
+
+                      </html>
