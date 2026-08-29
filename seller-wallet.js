@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ht">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <meta
+        name="description"
+        content="Wallet vandè mwen sou macheya."
+    >
+
+    <title>Wallet vandè | macheya</title>
+
+    <link
+        rel="preconnect"
+        href="https://fonts.googleapis.com"
+    >
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="seller-wallet.css"
+    >
+
+</head>
+
+
+<body>
+
+
+<header class="wallet-header">
+
+    <a
+        href="seller-dashboard.html"
+        class="brand"
+    >
+
+        <span class="logo">
+            M
+        </span>
+
+        <span>
+            macheya
+        </span>
+
+    </a>
+
+
+    <a
+        href="seller-dashboard.html"
+        class="back-button"
+    >
+        ← Dashboard
+    </a>
+
+</header>
+
+
+<main class="wallet-container">
+
+
+    <section class="wallet-heading">
+
+        <span class="wallet-label">
+            ESPAS VANDÈ
+        </span>
+
+        <h1>
+            Wallet mwen
+        </h1>
+
+        <p>
+            Jere lajan ou touche sou macheya,
+            retrè ak istwa tranzaksyon ou yo.
+        </p>
+
+    </section>
+
+
+    <section
+        id="wallet-message"
+        class="wallet-message"
+    >
+
+        <div class="message-icon">
+            💰
+        </div>
+
+        <p>
+            Ap chaje wallet ou...
+        </p>
+
+    </section>
+
+
+    <section
+        id="wallet-content"
+        hidden
+    >
+
+
+        <div class="wallet-card">
+
+            <div class="wallet-card-top">
+
+                <div>
+
+                    <div class="wallet-card-label">
+                        WALLET VANDÈ
+                    </div>
+
+                    <div
+                        id="wallet-user"
+                        class="wallet-user"
+                    >
+                        —
+                    </div>
+
+                </div>
+
+
+                <div class="wallet-icon">
+                    💼
+                </div>
+
+            </div>
+
+
+            <div class="wallet-balance">
+
+                <span>
+                    Balans disponib
+                </span>
+
+                <strong id="wallet-balance">
+                    0 HTG
+                </strong>
+
+                <div class="wallet-currency">
+                    HTG
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="wallet-summary">
+
+            <div class="summary-card">
+
+                <span>
+                    💰 Total touche
+                </span>
+
+                <strong id="total-earned">
+                    0 HTG
+                </strong>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span>
+                    💸 Total retrè
+                </span>
+
+                <strong id="total-withdrawn">
+                    0 HTG
+                </strong>
+
+            </div>
+
+        </div>
+
+
+        <div class="wallet-actions">
+
+            <button
+                id="openWithdrawal"
+                class="wallet-action"
+                type="button"
+            >
+
+                <div class="action-icon">
+                    💸
+                </div>
+
+                <strong>
+                    Mande retrè
+                </strong>
+
+                <span>
+                    Retire lajan nan wallet ou
+                </span>
+
+            </button>
+
+        </div>
+
+
+        <section
+            id="withdrawalSection"
+            class="wallet-section hidden"
+        >
+
+            <div class="wallet-section-header">
+
+                <h2>
+                    💸 Mande retrè
+                </h2>
+
+                <p>
+                    Chwazi metòd ou vle resevwa lajan an
+                    epi antre montan ou vle retire a.
+                </p>
+
+            </div>
+
+
+            <form id="withdrawalForm">
+
+                <div class="form-grid">
+
+
+                    <div class="form-group">
+
+                        <label for="withdrawalMethod">
+                            Metòd retrè
+                        </label>
+
+                        <select
+                            id="withdrawalMethod"
+                            required
+                        >
+
+                            <option value="">
+                                Chwazi metòd la
+                            </option>
+
+                            <option value="moncash">
+                                MonCash
+                            </option>
+
+                            <option value="natcash">
+                                NatCash
+                            </option>
+
+                        </select>
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="withdrawalPhone">
+                            Nimewo pou resevwa lajan
+                        </label>
+
+                        <input
+                            id="withdrawalPhone"
+                            type="tel"
+                            maxlength="30"
+                            placeholder="Egzanp: 37XXXXXXXX"
+                            required
+                        >
+
+                    </div>
+
+
+                    <div class="form-group">
+
+                        <label for="withdrawalAmount">
+                            Montan pou retire
+                        </label>
+
+                        <input
+                            id="withdrawalAmount"
+                            type="number"
+                            min="1"
+                            step="0.01"
+                            inputmode="decimal"
+                            placeholder="Egzanp: 1000"
+                            required
+                        >
+
+                        <span class="form-help">
+                            Montan an pa dwe depase balans disponib la.
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="withdrawalFeeBox"
+                        class="fee-box"
+                    >
+
+                        <div>
+                            <span>
+                                Frè retrè
+                            </span>
+
+                            <strong id="withdrawalFee">
+                                0 HTG
+                            </strong>
+                        </div>
+
+
+                        <div>
+                            <span>
+                                W ap resevwa
+                            </span>
+
+                            <strong id="withdrawalNet">
+                                0 HTG
+                            </strong>
+                        </div>
+
+                    </div>
+
+
+                    <button
+                        id="withdrawalSubmit"
+                        class="submit-button"
+                        type="submit"
+                    >
+                        📤 Voye demann retrè
+                    </button>
+
+
+                </div>
+
+
+                <div
+                    id="withdrawalMessage"
+                    class="form-message"
+                ></div>
+
+            </form>
+
+        </section>
+
+
+        <section class="wallet-section">
+
+            <div class="wallet-section-header">
+
+                <h2>
+                    🧾 Istwa demann retrè
+                </h2>
+
+                <p>
+                    Men dènye demann retrè ou yo.
+                </p>
+
+            </div>
+
+
+            <div
+                id="withdrawalHistory"
+                class="request-history"
+            >
+
+                <div class="empty-request">
+                    Ap chaje istwa retrè...
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section class="wallet-section">
+
+            <div class="wallet-section-header">
+
+                <h2>
+                    📊 Dènye tranzaksyon
+                </h2>
+
+                <p>
+                    Men dènye mouvman ki fèt sou wallet ou.
+                </p>
+
+            </div>
+
+
+            <div
+                id="wallet-transactions"
+                class="transactions"
+            >
+
+                <div class="empty-request">
+                    Ap chaje tranzaksyon yo...
+                </div>
+
+            </div>
+
+        </section>
+
+
+    </section>
+
+
+</main>
+
+
+<script
+    src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+></script>
+
+<script src="supabase-config.js"></script>
+
+<script src="seller-wallet.js"></script>
+
+
+</body>
+
+</html>
