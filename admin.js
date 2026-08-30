@@ -1,2497 +1,434 @@
 (function () {
-
     "use strict";
 
     const supabase = window.supabaseClient;
 
-    let currentUser = null;
+    if (!supabase) {
+        console.error("Supabase client pa disponib.");
+        return;
+    }
 
-    let adminProfile = null;
-
-    let settings = {
-        purchaseFeePercentage: 0,
-        withdrawalFeePercentage: 0
+    const state = {
+        user: null,
+        settings: {
+            moncash_number: "",
+            natcash_number: "",
+            withdrawal_fee_percent: 2.75,
+            fee_percentage: 0
+        },
+        rechargeRequests: [],
+        withdrawalRequests: [],
+        orders: [],
+        users: [],
+        loading: false
     };
 
+    const $ = id => document.getElementById(id);
 
-    function escapeHtml(value) {
+    const elements = {
+        loading: $("admin-loading"),
+        content: $("admin-content"),
+        error: $("admin-error"),
 
+        moncash: $("admin-moncash-number"),
+        natcash: $("admin-natcash-number"),
+        withdrawalFee: $("admin-withdrawal-fee"),
+        marketplaceFee: $("admin-marketplace-fee"),
+
+        saveSettings: $("save-admin-settings"),
+
+        rechargeList: $("recharge-requests-list"),
+        withdrawalList: $("withdrawal-requests-list"),
+        ordersList: $("admin-orders-list"),
+        usersList: $("admin-users-list"),
+
+        rechargeCount: $("recharge-requests-count"),
+        withdrawalCount: $("withdrawal-requests-count"),
+        ordersCount: $("admin-orders-count"),
+        usersCount: $("admin-users-count")
+    };
+
+    function showLoading(show) {
+        state.loading = show;
+
+        if (elements.loading) {
+            elements.loading.style.display =
+                show ? "flex" : "none";
+        }
+
+        if (elements.content) {
+            elements.content.style.display =
+                show ? "none" : "";
+        }
+    }
+
+    function showError(message) {
+        console.error(message);
+
+        if (!elements.error) return;
+
+        elements.error.textContent = message;
+        elements.error.style.display = "block";
+    }
+
+    function hideError() {
+        if (!elements.error) return;
+
+        elements.error.textContent = "";
+        elements.error.style.display = "none";
+    }
+
+    function formatMoney(value) {
+        const amount = Number(value || 0);
+
+        return amount.toLocaleString("fr-FR", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }) + " HTG";
+    }
+
+    function formatDate(value) {
+        if (!value) return "—";
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) {
+            return "—";
+        }
+
+        return date.toLocaleString("fr-FR", {
+            dateStyle: "short",
+            timeStyle: "short"
+        });
+    }
+
+    function escapeHTML(value) {
         return String(value ?? "")
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;")
             .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
-
     }
 
+    async function getCurrentUser() {
+        const {
+            data,
+            error
+        } = await supabase.auth.getUser();
 
-    function money(value) {
+        if (error) {
+            throw error;
+        }
 
-        const amount =
-            Number(value) || 0;
+        if (!data || !data.user) {
+            throw new Error(
+                "Ou dwe konekte pou antre nan panel admin."
+            );
+        }
 
-        return new Intl.NumberFormat("fr-FR", {
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 2
-        }).format(amount) + " HTG";
+        state.user = data.user;
 
+        return data.user;
     }
 
+    async function verifySuperAdmin() {
+        const {
+            data,
+            error
+        } = await supabase.rpc(
+            "is_super_admin"
+        );
 
-    function formatDate(value) {
-
-        if (!value) {
-            return "Dat pa disponib";
+        if (error) {
+            throw error;
         }
 
-        const date =
-            new Date(value);
-
-        if (Number.isNaN(date.getTime())) {
-            return String(value);
-        }
-
-        return new Intl.DateTimeFormat("fr-FR", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "numeric",
-            hour: "2-digit",
-            minute: "2-digit"
-        }).format(date);
-
-    }
-
-
-    function showMessage(text, type) {
-
-        const element =
-            document.getElementById(
-                "adminSettingsMessage"
+        if (data !== true) {
+            throw new Error(
+                "Aksè refize. Se Super Admin sèlman ki ka antre isit la."
             );
-
-        if (!element) {
-            return;
         }
-
-        element.textContent =
-            text || "";
-
-        element.className =
-            "admin-form-message show " +
-            (type || "");
-
-    }
-
-
-    function hideMessage() {
-
-        const element =
-            document.getElementById(
-                "adminSettingsMessage"
-            );
-
-        if (!element) {
-            return;
-        }
-
-        element.textContent = "";
-
-        element.className =
-            "admin-form-message";
-
-    }
-
-
-    function setLoading(visible) {
-
-        const loading =
-            document.getElementById(
-                "adminLoading"
-            );
-
-        const content =
-            document.getElementById(
-                "adminContent"
-            );
-
-        if (loading) {
-            loading.hidden = !visible;
-        }
-
-        if (content) {
-            content.hidden = visible;
-        }
-
-    }
-
-
-    function showAdminError(message) {
-
-        const loading =
-            document.getElementById(
-                "adminLoading"
-            );
-
-        const content =
-            document.getElementById(
-                "adminContent"
-            );
-
-        const errorSection =
-            document.getElementById(
-                "adminError"
-            );
-
-        const errorMessage =
-            document.getElementById(
-                "adminErrorMessage"
-            );
-
-
-        if (loading) {
-            loading.hidden = true;
-        }
-
-
-        if (content) {
-            content.hidden = true;
-        }
-
-
-        if (errorMessage) {
-            errorMessage.textContent =
-                message ||
-                "Aksè refize.";
-        }
-
-
-        if (errorSection) {
-            errorSection.hidden = false;
-        }
-
-    }
-
-
-    function hideAdminError() {
-
-        const errorSection =
-            document.getElementById(
-                "adminError"
-            );
-
-        if (errorSection) {
-            errorSection.hidden = true;
-        }
-
-    }
-
-
-    async function verifyAdmin() {
-
-        if (!supabase) {
-
-            showAdminError(
-                "Supabase client pa disponib."
-            );
-
-            return false;
-
-        }
-
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase.auth.getUser();
-
-
-            if (error) {
-
-                console.error(
-                    "Auth error:",
-                    error
-                );
-
-                location.href =
-                    "login.html";
-
-                return false;
-
-            }
-
-
-            if (
-                !data ||
-                !data.user
-            ) {
-
-                location.href =
-                    "login.html";
-
-                return false;
-
-            }
-
-
-            currentUser =
-                data.user;
-
-
-            const {
-                data: profile,
-                error: profileError
-            } =
-                await supabase
-                    .from("profiles")
-                    .select(`
-                        id,
-                        role,
-                        email,
-                        name,
-                        full_name,
-                        nom_complet
-                    `)
-                    .eq(
-                        "id",
-                        currentUser.id
-                    )
-                    .maybeSingle();
-
-
-            if (profileError) {
-
-                console.error(
-                    "Profile error:",
-                    profileError
-                );
-
-                showAdminError(
-                    "Nou pa kapab verifye pwofil admin lan."
-                );
-
-                return false;
-
-            }
-
-
-            if (!profile) {
-
-                showAdminError(
-                    "Pwofil itilizatè a pa jwenn."
-                );
-
-                return false;
-
-            }
-
-
-            const role =
-                String(
-                    profile.role || ""
-                ).toLowerCase();
-
-
-            if (
-                role !== "admin" &&
-                role !== "super_admin"
-            ) {
-
-                showAdminError(
-                    "Aksè sa a rezève pou Super Admin sèlman."
-                );
-
-                return false;
-
-            }
-
-
-            adminProfile =
-                profile;
-
-
-            const roleBadge =
-                document.getElementById(
-                    "adminRoleBadge"
-                );
-
-
-            if (roleBadge) {
-
-                roleBadge.textContent =
-                    role === "super_admin"
-                        ? "SUPER ADMIN"
-                        : "ADMIN";
-
-            }
-
-
-            const adminName =
-                profile.name ||
-                profile.full_name ||
-                profile.nom_complet ||
-                profile.email ||
-                currentUser.email ||
-                "Super Admin";
-
-
-            const welcomeText =
-                document.querySelector(
-                    ".admin-welcome p"
-                );
-
-
-            if (welcomeText) {
-
-                welcomeText.textContent =
-                    "Byenveni " +
-                    adminName +
-                    ". Jere aktivite platfòm nan, vandè, achtè, kòmand, wallet ak retrè.";
-
-            }
-
-
-            return true;
-
-
-        } catch (error) {
-
-            console.error(
-                "Verify admin error:",
-                error
-            );
-
-            showAdminError(
-                "Yon pwoblèm rive pandan verifikasyon aksè admin lan."
-            );
-
-            return false;
-
-        }
-
-                     }
-        async function loadSettings() {
-
-        if (!supabase) {
-            return;
-        }
-
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .from("macheya_settings")
-                    .select(`
-                        id,
-                        purchase_fee_percentage,
-                        withdrawal_fee_percentage,
-                        updated_at
-                    `)
-                    .eq(
-                        "id",
-                        1
-                    )
-                    .maybeSingle();
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            if (data) {
-
-                settings.purchaseFeePercentage =
-                    Number(
-                        data.purchase_fee_percentage
-                    ) || 0;
-
-
-                settings.withdrawalFeePercentage =
-                    Number(
-                        data.withdrawal_fee_percentage
-                    ) || 0;
-
-            }
-
-
-            const purchaseInput =
-                document.getElementById(
-                    "purchaseFeePercentage"
-                );
-
-
-            const withdrawalInput =
-                document.getElementById(
-                    "withdrawalFeePercentage"
-                );
-
-
-            if (purchaseInput) {
-
-                purchaseInput.value =
-                    settings.purchaseFeePercentage;
-
-            }
-
-
-            if (withdrawalInput) {
-
-                withdrawalInput.value =
-                    settings.withdrawalFeePercentage;
-
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                "Load settings error:",
-                error
-            );
-
-
-            showMessage(
-                "Nou pa kapab chaje paramèt komisyon yo.",
-                "error"
-            );
-
-        }
-
-    }
-
-
-    function validPercentage(value) {
-
-        const number =
-            Number(value);
-
-
-        if (!Number.isFinite(number)) {
-            return false;
-        }
-
-
-        if (
-            number < 0 ||
-            number > 100
-        ) {
-            return false;
-        }
-
 
         return true;
-
     }
 
+    async function loadAdminSettings() {
+        const {
+            data,
+            error
+        } = await supabase.rpc(
+            "get_admin_settings"
+        );
 
-    async function saveSettings() {
+        if (error) {
+            throw error;
+        }
 
-        hideMessage();
+        if (data && data.length) {
+            const settings = data[0];
 
+            state.settings.moncash_number =
+                settings.moncash_number || "";
 
-        const purchaseInput =
-            document.getElementById(
-                "purchaseFeePercentage"
-            );
+            state.settings.natcash_number =
+                settings.natcash_number || "";
 
+            state.settings.withdrawal_fee_percent =
+                Number(
+                    settings.withdrawal_fee_percent ?? 2.75
+                );
+        }
 
-        const withdrawalInput =
-            document.getElementById(
-                "withdrawalFeePercentage"
-            );
-
-
-        const button =
-            document.getElementById(
-                "saveAdminSettings"
-            );
-
-
-        const purchaseFee =
-            Number(
-                purchaseInput?.value
-            );
-
-
-        const withdrawalFee =
-            Number(
-                withdrawalInput?.value
-            );
-
-
-        if (
-            !validPercentage(
-                purchaseFee
+        const {
+            data: macheyaData,
+            error: macheyaError
+        } = await supabase
+            .from("macheya_settings")
+            .select(
+                "fee_percentage, moncash_number, natcash_number"
             )
-        ) {
+            .eq("id", 1)
+            .maybeSingle();
 
-            showMessage(
-                "Komisyon sou acha a dwe ant 0% ak 100%.",
-                "error"
-            );
-
-            return;
-
+        if (macheyaError) {
+            throw macheyaError;
         }
 
+        if (macheyaData) {
+            state.settings.fee_percentage =
+                Number(
+                    macheyaData.fee_percentage ?? 0
+                );
 
-        if (
-            !validPercentage(
-                withdrawalFee
-            )
-        ) {
-
-            showMessage(
-                "Frè retrè a dwe ant 0% ak 100%.",
-                "error"
-            );
-
-            return;
-
-        }
-
-
-        if (button) {
-
-            button.disabled = true;
-
-            button.textContent =
-                "Ap sove...";
-
-        }
-
-
-        try {
-
-            const {
-                error
-            } =
-                await supabase
-                    .from("macheya_settings")
-                    .upsert(
-                        {
-                            id: 1,
-
-                            purchase_fee_percentage:
-                                purchaseFee,
-
-                            withdrawal_fee_percentage:
-                                withdrawalFee,
-
-                            updated_at:
-                                new Date().toISOString()
-                        },
-                        {
-                            onConflict: "id"
-                        }
-                    );
-
-
-            if (error) {
-                throw error;
+            if (!state.settings.moncash_number) {
+                state.settings.moncash_number =
+                    macheyaData.moncash_number || "";
             }
 
-
-            settings.purchaseFeePercentage =
-                purchaseFee;
-
-
-            settings.withdrawalFeePercentage =
-                withdrawalFee;
-
-
-            showMessage(
-                "Paramèt Macheya yo sove avèk siksè.",
-                "success"
-            );
-
-
-            if (
-                document
-                    .getElementById(
-                        "adminWithdrawalsSection"
-                    )
-                    ?.hidden === false
-            ) {
-
-                await loadWithdrawalRequests();
-
+            if (!state.settings.natcash_number) {
+                state.settings.natcash_number =
+                    macheyaData.natcash_number || "";
             }
-
-
-        } catch (error) {
-
-            console.error(
-                "Save settings error:",
-                error
-            );
-
-
-            showMessage(
-                error.message ||
-                "Nou pa kapab sove paramèt yo.",
-                "error"
-            );
-
-
-        } finally {
-
-            if (button) {
-
-                button.disabled = false;
-
-                button.textContent =
-                    "💾 Sove paramèt yo";
-
-            }
-
         }
 
+        renderSettings();
     }
 
-
-    async function loadStatistics() {
-
-        if (!supabase) {
-            return;
+    function renderSettings() {
+        if (elements.moncash) {
+            elements.moncash.value =
+                state.settings.moncash_number;
         }
 
-
-        try {
-
-            const [
-                usersResult,
-                sellersResult,
-                buyersResult,
-                productsResult,
-                ordersResult,
-                transactionsResult
-            ] =
-                await Promise.all([
-
-                    supabase
-                        .from("profiles")
-                        .select(
-                            "id",
-                            {
-                                count: "exact",
-                                head: true
-                            }
-                        ),
-
-
-                    supabase
-                        .from("profiles")
-                        .select(
-                            "id",
-                            {
-                                count: "exact",
-                                head: true
-                            }
-                        )
-                        .eq(
-                            "role",
-                            "seller"
-                        ),
-
-
-                    supabase
-                        .from("profiles")
-                        .select(
-                            "id",
-                            {
-                                count: "exact",
-                                head: true
-                            }
-                        )
-                        .eq(
-                            "role",
-                            "buyer"
-                        ),
-
-
-                    supabase
-                        .from("products")
-                        .select(
-                            "id",
-                            {
-                                count: "exact",
-                                head: true
-                            }
-                        ),
-
-
-                    supabase
-                        .from("orders")
-                        .select(
-                            "id",
-                            {
-                                count: "exact",
-                                head: true
-                            }
-                        ),
-
-
-                    supabase
-                        .from("wallet_transactions")
-                        .select(
-                            "amount"
-                        )
-
-                ]);
-
-
-            if (usersResult.error) {
-                console.error(
-                    "Users statistics:",
-                    usersResult.error
-                );
-            }
-
-
-            if (sellersResult.error) {
-                console.error(
-                    "Sellers statistics:",
-                    sellersResult.error
-                );
-            }
-
-
-            if (buyersResult.error) {
-                console.error(
-                    "Buyers statistics:",
-                    buyersResult.error
-                );
-            }
-
-
-            if (productsResult.error) {
-                console.error(
-                    "Products statistics:",
-                    productsResult.error
-                );
-            }
-
-
-            if (ordersResult.error) {
-                console.error(
-                    "Orders statistics:",
-                    ordersResult.error
-                );
-            }
-
-
-            if (transactionsResult.error) {
-                console.error(
-                    "Transactions statistics:",
-                    transactionsResult.error
-                );
-            }
-
-
-            const usersCount =
-                usersResult.count || 0;
-
-
-            const sellersCount =
-                sellersResult.count || 0;
-
-
-            const buyersCount =
-                buyersResult.count || 0;
-
-
-            const productsCount =
-                productsResult.count || 0;
-
-
-            const ordersCount =
-                ordersResult.count || 0;
-
-
-            const transactionVolume =
-                (transactionsResult.data || [])
-                    .reduce(
-                        function (
-                            total,
-                            transaction
-                        ) {
-
-                            return total +
-                                (
-                                    Number(
-                                        transaction.amount
-                                    ) || 0
-                                );
-
-                        },
-                        0
-                    );
-
-
-            const usersElement =
-                document.getElementById(
-                    "adminTotalUsers"
-                );
-
-
-            const sellersElement =
-                document.getElementById(
-                    "adminTotalSellers"
-                );
-
-
-            const buyersElement =
-                document.getElementById(
-                    "adminTotalBuyers"
-                );
-
-
-            const productsElement =
-                document.getElementById(
-                    "adminTotalProducts"
-                );
-
-
-            const ordersElement =
-                document.getElementById(
-                    "adminTotalOrders"
-                );
-
-
-            const volumeElement =
-                document.getElementById(
-                    "adminTransactionVolume"
-                );
-
-
-            if (usersElement) {
-
-                usersElement.textContent =
-                    usersCount;
-
-            }
-
-
-            if (sellersElement) {
-
-                sellersElement.textContent =
-                    sellersCount;
-
-            }
-
-
-            if (buyersElement) {
-
-                buyersElement.textContent =
-                    buyersCount;
-
-            }
-
-
-            if (productsElement) {
-
-                productsElement.textContent =
-                    productsCount;
-
-            }
-
-
-            if (ordersElement) {
-
-                ordersElement.textContent =
-                    ordersCount;
-
-            }
-
-
-            if (volumeElement) {
-
-                volumeElement.textContent =
-                    money(
-                        transactionVolume
-                    );
-
-            }
-
-
-        } catch (error) {
-
-            console.error(
-                "Statistics error:",
-                error
-            );
-
+        if (elements.natcash) {
+            elements.natcash.value =
+                state.settings.natcash_number;
         }
 
+        if (elements.withdrawalFee) {
+            elements.withdrawalFee.value =
+                state.settings.withdrawal_fee_percent;
+        }
+
+        if (elements.marketplaceFee) {
+            elements.marketplaceFee.value =
+                state.settings.fee_percentage;
+        }
     }
 
+    async function loadRechargeRequests() {
+        const {
+            data,
+            error
+        } = await supabase
+            .from("wallet_deposits")
+            .select("*")
+            .order("created_at", {
+                ascending: false
+            });
 
-    function showAdminSection(sectionName) {
-
-        const sections = {
-
-            users:
-                "adminUsersSection",
-
-            products:
-                "adminProductsSection",
-
-            orders:
-                "adminOrdersSection",
-
-            wallets:
-                "adminWalletsSection",
-
-            withdrawals:
-                "adminWithdrawalsSection",
-
-            settings:
-                "adminSettingsSection"
-
-        };
-
-
-        Object.values(sections).forEach(
-            function (id) {
-
-                const section =
-                    document.getElementById(id);
-
-
-                if (section) {
-
-                    section.hidden = true;
-
-                }
-
-            }
-        );
-
-
-        const targetId =
-            sections[sectionName];
-
-
-        if (!targetId) {
-            return;
+        if (error) {
+            throw error;
         }
 
+        state.rechargeRequests = data || [];
 
-        const target =
-            document.getElementById(
-                targetId
-            );
-
-
-        if (!target) {
-            return;
+        if (elements.rechargeCount) {
+            elements.rechargeCount.textContent =
+                state.rechargeRequests.filter(
+                    item => item.status === "pending"
+                ).length;
         }
-
-
-        target.hidden = false;
-
-
-        target.scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-        });
-
-
-        if (sectionName === "users") {
-            loadUsers();
-        }
-
-
-        if (sectionName === "products") {
-            loadProducts();
-        }
-
-
-        if (sectionName === "orders") {
-            loadOrders();
-        }
-
-
-        if (sectionName === "wallets") {
-            loadWallets();
-        }
-
-
-        if (sectionName === "withdrawals") {
-            loadWithdrawalRequests();
-        }
-
-
-        if (sectionName === "settings") {
-            loadSettings();
-        }
-
     }
-
-
-    function setupAdminNavigation() {
-
-        const buttons =
-            document.querySelectorAll(
-                ".admin-menu-button"
-            );
-
-
-        buttons.forEach(
-            function (button) {
-
-                button.addEventListener(
-                    "click",
-                    function () {
-
-                        const section =
-                            button.dataset.section;
-
-
-                        if (!section) {
-                            return;
-                        }
-
-
-                        showAdminSection(
-                            section
-                        );
-
-                    }
-                );
-
-            }
-        );
-
-        }
-        async function loadUsers() {
-
-        const container =
-            document.getElementById(
-                "adminUsersList"
-            );
-
-
-        if (!container) {
-            return;
-        }
-
-
-        container.innerHTML = `
-            <div class="admin-empty">
-                <div class="admin-empty-icon">
-                    ⏳
-                </div>
-
-                <p>
-                    Ap chaje itilizatè yo...
-                </p>
-            </div>
-        `;
-
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .from("profiles")
-                    .select(`
-                        id,
-                        name,
-                        full_name,
-                        nom_complet,
-                        email,
-                        role,
-                        created_at
-                    `)
-                    .order(
-                        "created_at",
-                        {
-                            ascending: false
-                        }
-                    )
-                    .limit(100);
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            renderUsers(
-                data || []
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Admin users error:",
-                error
-            );
-
-
-            container.innerHTML = `
-                <div class="admin-empty">
-                    <div class="admin-empty-icon">
-                        ⚠️
-                    </div>
-
-                    <p>
-                        Nou pa kapab chaje itilizatè yo.
-                    </p>
-
-                    <small>
-                        ${escapeHtml(
-                            error.message ||
-                            "Erè enkoni."
-                        )}
-                    </small>
-                </div>
-            `;
-
-        }
-
-    }
-
-
-    function renderUsers(users) {
-
-        const container =
-            document.getElementById(
-                "adminUsersList"
-            );
-
-
-        if (!container) {
-            return;
-        }
-
-
-        if (!users.length) {
-
-            container.innerHTML = `
-                <div class="admin-empty">
-
-                    <div class="admin-empty-icon">
-                        👥
-                    </div>
-
-                    <p>
-                        Pa gen itilizatè pou kounya.
-                    </p>
-
-                </div>
-            `;
-
-            return;
-
-        }
-
-
-        container.innerHTML = "";
-
-
-        users.forEach(
-            function (user) {
-
-                const role =
-                    String(
-                        user.role ||
-                        "buyer"
-                    ).toLowerCase();
-
-
-                const name =
-                    user.name ||
-                    user.full_name ||
-                    user.nom_complet ||
-                    "Itilizatè";
-
-
-                const email =
-                    user.email ||
-                    "Pa gen email";
-
-
-                let roleText =
-                    "Achtè";
-
-
-                if (
-                    role === "seller"
-                ) {
-
-                    roleText =
-                        "Vandè";
-
-                }
-
-
-                if (
-                    role === "admin" ||
-                    role === "super_admin"
-                ) {
-
-                    roleText =
-                        "Admin";
-
-                }
-
-
-                const firstLetter =
-                    String(name)
-                        .trim()
-                        .charAt(0)
-                        .toUpperCase() ||
-                    "U";
-
-
-                const item =
-                    document.createElement(
-                        "article"
-                    );
-
-
-                item.className =
-                    "admin-user-item";
-
-
-                item.innerHTML = `
-
-                    <div class="admin-user-avatar">
-                        ${escapeHtml(
-                            firstLetter
-                        )}
-                    </div>
-
-
-                    <div class="admin-user-main">
-
-                        <strong>
-                            ${escapeHtml(
-                                name
-                            )}
-                        </strong>
-
-
-                        <span>
-                            ${escapeHtml(
-                                email
-                            )}
-                        </span>
-
-
-                        <small>
-                            ID:
-                            ${escapeHtml(
-                                user.id
-                            )}
-                        </small>
-
-                    </div>
-
-
-                    <div class="admin-user-side">
-
-                        <span
-                            class="admin-role ${escapeHtml(
-                                role
-                            )}"
-                        >
-                            ${escapeHtml(
-                                roleText
-                            )}
-                        </span>
-
-
-                        <span
-                            class="admin-user-date"
-                        >
-                            ${escapeHtml(
-                                formatDate(
-                                    user.created_at
-                                )
-                            )}
-                        </span>
-
-                    </div>
-
-                `;
-
-
-                container.appendChild(
-                    item
-                );
-
-            }
-        );
-
-    }
-
-
-    async function loadProducts() {
-
-        const container =
-            document.getElementById(
-                "adminProductsList"
-            );
-
-
-        if (!container) {
-            return;
-        }
-
-
-        container.innerHTML = `
-            <div class="admin-empty">
-
-                <div class="admin-empty-icon">
-                    ⏳
-                </div>
-
-                <p>
-                    Ap chaje pwodwi yo...
-                </p>
-
-            </div>
-        `;
-
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .from("products")
-                    .select("*")
-                    .order(
-                        "created_at",
-                        {
-                            ascending: false
-                        }
-                    )
-                    .limit(100);
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            renderProducts(
-                data || []
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Admin products error:",
-                error
-            );
-
-
-            container.innerHTML = `
-                <div class="admin-empty">
-
-                    <div class="admin-empty-icon">
-                        ⚠️
-                    </div>
-
-                    <p>
-                        Nou pa kapab chaje pwodwi yo.
-                    </p>
-
-                    <small>
-                        ${escapeHtml(
-                            error.message ||
-                            "Erè enkoni."
-                        )}
-                    </small>
-
-                </div>
-            `;
-
-        }
-
-    }
-
-
-    function getProductImage(product) {
-
-        return (
-            product.image_url ||
-            product.image ||
-            product.photo_url ||
-            product.product_image ||
-            product.imageUrl ||
-            ""
-        );
-
-    }
-
-
-    function getProductName(product) {
-
-        return (
-            product.name ||
-            product.product_name ||
-            product.title ||
-            "Pwodwi san non"
-        );
-
-    }
-
-
-    function getProductPrice(product) {
-
-        return (
-            product.price ??
-            product.product_price ??
-            product.amount ??
-            0
-        );
-
-    }
-
-
-    function renderProducts(products) {
-
-        const container =
-            document.getElementById(
-                "adminProductsList"
-            );
-
-
-        if (!container) {
-            return;
-        }
-
-
-        if (!products.length) {
-
-            container.innerHTML = `
-                <div class="admin-empty">
-
-                    <div class="admin-empty-icon">
-                        📦
-                    </div>
-
-                    <p>
-                        Pa gen pwodwi pou kounya.
-                    </p>
-
-                </div>
-            `;
-
-            return;
-
-        }
-
-
-        container.innerHTML = "";
-
-
-        products.forEach(
-            function (product) {
-
-                const image =
-                    getProductImage(
-                        product
-                    );
-
-
-                const name =
-                    getProductName(
-                        product
-                    );
-
-
-                const price =
-                    getProductPrice(
-                        product
-                    );
-
-
-                const status =
-                    String(
-                        product.status ||
-                        "published"
-                    ).toLowerCase();
-
-
-                const sellerId =
-                    product.seller_id ||
-                    product.user_id ||
-                    product.owner_id ||
-                    "—";
-
-
-                const item =
-                    document.createElement(
-                        "article"
-                    );
-
-
-                item.className =
-                    "admin-product-item";
-
-
-                item.innerHTML = `
-
-                    <div class="admin-product-image">
-
-                        ${
-                            image
-                                ? `
-                                    <img
-                                        src="${escapeHtml(
-                                            image
-                                        )}"
-                                        alt="${escapeHtml(
-                                            name
-                                        )}"
-                                        loading="lazy"
-                                    >
-                                `
-                                : `
-                                    <div
-                                        class="admin-product-placeholder"
-                                    >
-                                        📦
-                                    </div>
-                                `
-                        }
-
-                    </div>
-
-
-                    <div class="admin-product-main">
-
-                        <strong>
-                            ${escapeHtml(
-                                name
-                            )}
-                        </strong>
-
-
-                        <span
-                            class="admin-product-price"
-                        >
-                            ${money(
-                                price
-                            )}
-                        </span>
-
-
-                        <span>
-                            Kategori:
-                            ${escapeHtml(
-                                product.category ||
-                                "—"
-                            )}
-                        </span>
-
-
-                        <small>
-                            Vandè:
-                            ${escapeHtml(
-                                sellerId
-                            )}
-                        </small>
-
-                    </div>
-
-
-                    <div class="admin-product-side">
-
-                        <span
-                            class="admin-product-status ${escapeHtml(
-                                status
-                            )}"
-                        >
-                            ${escapeHtml(
-                                status
-                            )}
-                        </span>
-
-
-                        <span
-                            class="admin-product-date"
-                        >
-                            ${escapeHtml(
-                                formatDate(
-                                    product.created_at
-                                )
-                            )}
-                        </span>
-
-                    </div>
-
-                `;
-
-
-                container.appendChild(
-                    item
-                );
-
-            }
-        );
-
-    }
-
-
-    async function loadOrders() {
-
-        const container =
-            document.getElementById(
-                "adminOrdersList"
-            );
-
-
-        if (!container) {
-            return;
-        }
-
-
-        container.innerHTML = `
-            <div class="admin-empty">
-
-                <div class="admin-empty-icon">
-                    ⏳
-                </div>
-
-                <p>
-                    Ap chaje kòmand yo...
-                </p>
-
-            </div>
-        `;
-
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .from("orders")
-                    .select("*")
-                    .order(
-                        "created_at",
-                        {
-                            ascending: false
-                        }
-                    )
-                    .limit(100);
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            renderOrders(
-                data || []
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Admin orders error:",
-                error
-            );
-
-
-            container.innerHTML = `
-                <div class="admin-empty">
-
-                    <div class="admin-empty-icon">
-                        ⚠️
-                    </div>
-
-                    <p>
-                        Nou pa kapab chaje kòmand yo.
-                    </p>
-
-                    <small>
-                        ${escapeHtml(
-                            error.message ||
-                            "Erè enkoni."
-                        )}
-                    </small>
-
-                </div>
-            `;
-
-        }
-
-    }
-
-
-    function renderOrders(orders) {
-
-        const container =
-            document.getElementById(
-                "adminOrdersList"
-            );
-
-
-        if (!container) {
-            return;
-        }
-
-
-        if (!orders.length) {
-
-            container.innerHTML = `
-                <div class="admin-empty">
-
-                    <div class="admin-empty-icon">
-                        🛒
-                    </div>
-
-                    <p>
-                        Pa gen kòmand pou kounya.
-                    </p>
-
-                </div>
-            `;
-
-            return;
-
-        }
-
-
-        container.innerHTML = "";
-
-
-        orders.forEach(
-            function (order) {
-
-                const status =
-                    String(
-                        order.status ||
-                        "pending"
-                    ).toLowerCase();
-
-
-                const amount =
-                    Number(
-                        order.total_amount ??
-                        order.total ??
-                        order.amount ??
-                        0
-                    ) || 0;
-
-
-                const orderId =
-                    String(
-                        order.id ||
-                        ""
-                    );
-
-
-                const buyerId =
-                    order.buyer_id ||
-                    order.user_id ||
-                    order.customer_id ||
-                    "—";
-
-
-                const sellerId =
-                    order.seller_id ||
-                    "—";
-
-
-                const item =
-                    document.createElement(
-                        "article"
-                    );
-
-
-                item.className =
-                    "admin-order-item";
-
-
-                item.innerHTML = `
-
-                    <div class="admin-order-icon">
-                        🛒
-                    </div>
-
-
-                    <div class="admin-order-main">
-
-                        <strong>
-                            Kòmand #${escapeHtml(
-                                orderId.slice(
-                                    0,
-                                    12
-                                )
-                            )}
-                        </strong>
-
-
-                        <span>
-                            Achtè:
-                            ${escapeHtml(
-                                buyerId
-                            )}
-                        </span>
-
-
-                        <span>
-                            Vandè:
-                            ${escapeHtml(
-                                sellerId
-                            )}
-                        </span>
-
-
-                        <small>
-                            ${escapeHtml(
-                                formatDate(
-                                    order.created_at
-                                )
-                            )}
-                        </small>
-
-                    </div>
-
-
-                    <div class="admin-order-side">
-
-                        <strong>
-                            ${money(
-                                amount
-                            )}
-                        </strong>
-
-
-                        <span
-                            class="admin-order-status ${escapeHtml(
-                                status
-                            )}"
-                        >
-                            ${escapeHtml(
-                                status
-                            )}
-                        </span>
-
-                    </div>
-
-                `;
-
-
-                container.appendChild(
-                    item
-                );
-
-            }
-        );
-
-            async function loadWallets() {
-
-        const container =
-            document.getElementById(
-                "adminWalletsList"
-            );
-
-
-        if (!container) {
-            return;
-        }
-
-
-        container.innerHTML = `
-            <div class="admin-empty">
-
-                <div class="admin-empty-icon">
-                    ⏳
-                </div>
-
-                <p>
-                    Ap chaje wallet yo...
-                </p>
-
-            </div>
-        `;
-
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .from("wallets")
-                    .select(`
-                        id,
-                        user_id,
-                        balance,
-                        currency,
-                        updated_at
-                    `)
-                    .order(
-                        "updated_at",
-                        {
-                            ascending: false
-                        }
-                    )
-                    .limit(100);
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            renderWallets(
-                data || []
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Admin wallets error:",
-                error
-            );
-
-
-            container.innerHTML = `
-                <div class="admin-empty">
-
-                    <div class="admin-empty-icon">
-                        ⚠️
-                    </div>
-
-                    <p>
-                        Nou pa kapab chaje wallet yo.
-                    </p>
-
-                    <small>
-                        ${escapeHtml(
-                            error.message ||
-                            "Erè enkoni."
-                        )}
-                    </small>
-
-                </div>
-            `;
-
-        }
-
-    }
-
-
-    function renderWallets(wallets) {
-
-        const container =
-            document.getElementById(
-                "adminWalletsList"
-            );
-
-
-        if (!container) {
-            return;
-        }
-
-
-        if (!wallets.length) {
-
-            container.innerHTML = `
-                <div class="admin-empty">
-
-                    <div class="admin-empty-icon">
-                        💰
-                    </div>
-
-                    <p>
-                        Pa gen wallet pou kounya.
-                    </p>
-
-                </div>
-            `;
-
-            return;
-
-        }
-
-
-        container.innerHTML = "";
-
-
-        wallets.forEach(
-            function (wallet) {
-
-                const balance =
-                    Number(
-                        wallet.balance
-                    ) || 0;
-
-
-                const currency =
-                    wallet.currency ||
-                    "HTG";
-
-
-                const item =
-                    document.createElement(
-                        "article"
-                    );
-
-
-                item.className =
-                    "admin-wallet-item";
-
-
-                item.innerHTML = `
-
-                    <div class="admin-wallet-icon">
-                        💰
-                    </div>
-
-
-                    <div class="admin-wallet-main">
-
-                        <strong>
-                            Wallet
-                        </strong>
-
-
-                        <span>
-                            User:
-                            ${escapeHtml(
-                                wallet.user_id ||
-                                "—"
-                            )}
-                        </span>
-
-
-                        <small>
-                            ID:
-                            ${escapeHtml(
-                                wallet.id ||
-                                "—"
-                            )}
-                        </small>
-
-                    </div>
-
-
-                    <div class="admin-wallet-side">
-
-                        <strong>
-                            ${money(
-                                balance
-                            )}
-                        </strong>
-
-
-                        <span>
-                            ${escapeHtml(
-                                currency
-                            )}
-                        </span>
-
-
-                        <small>
-                            Mizajou:
-                            ${escapeHtml(
-                                formatDate(
-                                    wallet.updated_at
-                                )
-                            )}
-                        </small>
-
-                    </div>
-
-                `;
-
-
-                container.appendChild(
-                    item
-                );
-
-            }
-        );
-
-    }
-
 
     async function loadWithdrawalRequests() {
+        const {
+            data,
+            error
+        } = await supabase
+            .from("withdrawal_requests")
+            .select("*")
+            .order("created_at", {
+                ascending: false
+            });
 
-        const container =
-            document.getElementById(
-                "adminWithdrawalsList"
-            );
-
-
-        if (!container) {
-            return;
+        if (error) {
+            throw error;
         }
 
+        state.withdrawalRequests = data || [];
 
-        container.innerHTML = `
-            <div class="admin-empty">
-
-                <div class="admin-empty-icon">
-                    ⏳
-                </div>
-
-                <p>
-                    Ap chaje demann retrè yo...
-                </p>
-
-            </div>
-        `;
-
-
-        try {
-
-            const {
-                data,
-                error
-            } =
-                await supabase
-                    .from("withdrawal_requests")
-                    .select(`
-                        id,
-                        user_id,
-                        wallet_id,
-                        amount,
-                        method,
-                        phone_number,
-                        status,
-                        created_at
-                    `)
-                    .order(
-                        "created_at",
-                        {
-                            ascending: false
-                        }
-                    )
-                    .limit(100);
-
-
-            if (error) {
-                throw error;
-            }
-
-
-            renderWithdrawals(
-                data || []
-            );
-
-
-        } catch (error) {
-
-            console.error(
-                "Admin withdrawals error:",
-                error
-            );
-
-
-            container.innerHTML = `
-                <div class="admin-empty">
-
-                    <div class="admin-empty-icon">
-                        ⚠️
-                    </div>
-
-                    <p>
-                        Nou pa kapab chaje demann retrè yo.
-                    </p>
-
-                    <small>
-                        ${escapeHtml(
-                            error.message ||
-                            "Erè enkoni."
-                        )}
-                    </small>
-
-                </div>
-            `;
-
+        if (elements.withdrawalCount) {
+            elements.withdrawalCount.textContent =
+                state.withdrawalRequests.filter(
+                    item => item.status === "pending"
+                ).length;
         }
-
     }
 
+    async function loadOrders() {
+        const {
+            data,
+            error
+        } = await supabase
+            .from("orders")
+            .select("*")
+            .order("created_at", {
+                ascending: false
+            });
 
-    function renderWithdrawals(requests) {
+        if (error) {
+            throw error;
+        }
 
-        const container =
-            document.getElementById(
-                "adminWithdrawalsList"
-            );
+        state.orders = data || [];
 
+        if (elements.ordersCount) {
+            elements.ordersCount.textContent =
+                state.orders.length;
+        }
+    }
 
-        if (!container) {
+    async function loadUsers() {
+        const {
+            data,
+            error
+        } = await supabase
+            .from("profiles")
+            .select("*")
+            .order("created_at", {
+                ascending: false
+            });
+
+        if (error) {
+            throw error;
+        }
+
+        state.users = data || [];
+
+        if (elements.usersCount) {
+            elements.usersCount.textContent =
+                state.users.length;
+        }
+        }
+        function getStatusLabel(status) {
+        const labels = {
+            pending: "An atant",
+            approved: "Apwouve",
+            rejected: "Rejte",
+            delivered: "Livre",
+            completed: "Fini",
+            cancelled: "Anile"
+        };
+
+        return labels[status] || status || "—";
+    }
+
+    function getStatusClass(status) {
+        return `status-${String(status || "unknown")
+            .toLowerCase()
+            .replace(/[^a-z0-9_-]/g, "")}`;
+    }
+
+    function renderRechargeRequests() {
+        if (!elements.rechargeList) return;
+
+        if (!state.rechargeRequests.length) {
+            elements.rechargeList.innerHTML =
+                '<div class="admin-empty">Pa gen demann rechaj.</div>';
             return;
         }
 
+        elements.rechargeList.innerHTML =
+            state.rechargeRequests.map(request => {
+                const pending =
+                    request.status === "pending";
 
-        if (!requests.length) {
+                return `
+                    <div class="admin-request-item"
+                         data-id="${escapeHTML(request.id)}">
 
-            container.innerHTML = `
-                <div class="admin-empty">
-
-                    <div class="admin-empty-icon">
-                        📭
-                    </div>
-
-                    <p>
-                        Pa gen demann retrè pou kounya.
-                    </p>
-
-                </div>
-            `;
-
-            return;
-
-        }
-
-
-        container.innerHTML = "";
-
-
-        requests.forEach(
-            function (request) {
-
-                const status =
-                    String(
-                        request.status ||
-                        "pending"
-                    ).toLowerCase();
-
-
-                const amount =
-                    Number(
-                        request.amount
-                    ) || 0;
-
-
-                const fee =
-                    amount *
-                    (
-                        settings.withdrawalFeePercentage /
-                        100
-                    );
-
-
-                const net =
-                    Math.max(
-                        0,
-                        amount - fee
-                    );
-
-
-                const statusText =
-                    status === "approved"
-                        ? "Apwouve"
-                        : status === "rejected"
-                            ? "Rejte"
-                            : "An atant";
-
-
-                const item =
-                    document.createElement(
-                        "article"
-                    );
-
-
-                item.className =
-                    "admin-withdrawal-item";
-
-
-                item.innerHTML = `
-
-                    <div class="admin-withdrawal-top">
-
-                        <div>
+                        <div class="request-main">
 
                             <strong>
-                                ${money(
-                                    amount
-                                )}
+                                ${formatMoney(request.amount)}
                             </strong>
 
-
                             <span>
-                                Demann retrè
+                                Metòd:
+                                ${escapeHTML(request.method)}
                             </span>
 
-                        </div>
-
-
-                        <span
-                            class="admin-withdrawal-status ${escapeHtml(
-                                status
-                            )}"
-                        >
-                            ${escapeHtml(
-                                statusText
-                            )}
-                        </span>
-
-                    </div>
-
-
-                    <div class="admin-withdrawal-details">
-
-                        <div>
-
                             <span>
-                                User ID
-                            </span>
-
-                            <strong>
-                                ${escapeHtml(
-                                    request.user_id ||
-                                    "—"
+                                Kont:
+                                ${escapeHTML(
+                                    request.sender_account || "—"
                                 )}
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Wallet ID
                             </span>
 
-                            <strong>
-                                ${escapeHtml(
-                                    request.wallet_id ||
-                                    "—"
-                                )}
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
                             <span>
-                                Metòd
+                                Referans:
+                                ${escapeHTML(
+                                    request.payment_reference || "—"
+                                )}
                             </span>
 
-                            <strong>
-                                ${escapeHtml(
-                                    request.method ||
-                                    "—"
+                            <span class="${getStatusClass(
+                                request.status
+                            )}">
+                                ${escapeHTML(
+                                    getStatusLabel(request.status)
                                 )}
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Nimewo
                             </span>
 
-                            <strong>
-                                ${escapeHtml(
-                                    request.phone_number ||
-                                    "—"
-                                )}
-                            </strong>
+                            <small>
+                                ${formatDate(request.created_at)}
+                            </small>
 
                         </div>
-
-
-                        <div>
-
-                            <span>
-                                Frè Macheya
-                            </span>
-
-                            <strong>
-                                ${money(
-                                    fee
-                                )}
-                            </strong>
-
-                        </div>
-
-
-                        <div>
-
-                            <span>
-                                Montan net
-                            </span>
-
-                            <strong>
-                                ${money(
-                                    net
-                                )}
-                            </strong>
-
-                        </div>
-
-                    </div>
-
-
-                    <div class="admin-withdrawal-footer">
-
-                        <span>
-                            ${escapeHtml(
-                                formatDate(
-                                    request.created_at
-                                )
-                            )}
-                        </span>
-
 
                         ${
-                            status === "pending"
+                            pending
                                 ? `
-                                    <div
-                                        class="admin-withdrawal-actions"
-                                    >
+                                    <div class="request-actions">
 
                                         <button
                                             type="button"
-                                            class="admin-approve-button"
-                                            data-withdrawal-id="${escapeHtml(
+                                            class="admin-action-btn approve-recharge-btn"
+                                            data-id="${escapeHTML(
                                                 request.id
-                                            )}"
-                                        >
-                                            ✓ Apwouve
+                                            )}">
+                                            Apwouve
                                         </button>
 
-
                                         <button
                                             type="button"
-                                            class="admin-reject-button"
-                                            data-withdrawal-id="${escapeHtml(
+                                            class="admin-action-btn reject-recharge-btn"
+                                            data-id="${escapeHTML(
                                                 request.id
-                                            )}"
-                                        >
-                                            ✕ Rejte
+                                            )}">
+                                            Rejte
                                         </button>
 
                                     </div>
@@ -2500,592 +437,1276 @@
                         }
 
                     </div>
-
                 `;
-
-
-                container.appendChild(
-                    item
-                );
-
-            }
-        );
-
-
-        setupWithdrawalActions();
-
+            }).join("");
     }
 
+    function renderWithdrawalRequests() {
+        if (!elements.withdrawalList) return;
 
-    function setupWithdrawalActions() {
+        if (!state.withdrawalRequests.length) {
+            elements.withdrawalList.innerHTML =
+                '<div class="admin-empty">Pa gen demann retrè.</div>';
+            return;
+        }
 
-        const approveButtons =
-            document.querySelectorAll(
-                ".admin-approve-button"
-            );
+        elements.withdrawalList.innerHTML =
+            state.withdrawalRequests.map(request => {
+                const pending =
+                    request.status === "pending";
 
+                return `
+                    <div class="admin-request-item"
+                         data-id="${escapeHTML(request.id)}">
 
-        const rejectButtons =
-            document.querySelectorAll(
-                ".admin-reject-button"
-            );
+                        <div class="request-main">
 
+                            <strong>
+                                ${formatMoney(request.amount)}
+                            </strong>
 
-        approveButtons.forEach(
-            function (button) {
+                            <span>
+                                Frè Macheya:
+                                ${formatMoney(request.fee)}
+                            </span>
 
-                button.addEventListener(
-                    "click",
-                    function () {
+                            <span>
+                                Total pou retire:
+                                ${formatMoney(
+                                    request.total_deducted
+                                )}
+                            </span>
 
-                        const id =
-                            button.dataset
-                                .withdrawalId;
+                            <span>
+                                Metòd:
+                                ${escapeHTML(request.method)}
+                            </span>
 
+                            <span>
+                                Destinasyon:
+                                ${escapeHTML(
+                                    request.destination_account
+                                )}
+                            </span>
 
-                        if (!id) {
-                            return;
+                            <span class="${getStatusClass(
+                                request.status
+                            )}">
+                                ${escapeHTML(
+                                    getStatusLabel(request.status)
+                                )}
+                            </span>
+
+                            <small>
+                                ${formatDate(request.created_at)}
+                            </small>
+
+                        </div>
+
+                        ${
+                            pending
+                                ? `
+                                    <div class="request-actions">
+
+                                        <button
+                                            type="button"
+                                            class="admin-action-btn approve-withdrawal-btn"
+                                            data-id="${escapeHTML(
+                                                request.id
+                                            )}">
+                                            Apwouve
+                                        </button>
+
+                                        <button
+                                            type="button"
+                                            class="admin-action-btn reject-withdrawal-btn"
+                                            data-id="${escapeHTML(
+                                                request.id
+                                            )}">
+                                            Rejte
+                                        </button>
+
+                                    </div>
+                                `
+                                : ""
                         }
 
-
-                        updateWithdrawalStatus(
-                            id,
-                            "approved"
-                        );
-
-                    }
-                );
-
-            }
-        );
-
-
-        rejectButtons.forEach(
-            function (button) {
-
-                button.addEventListener(
-                    "click",
-                    function () {
-
-                        const id =
-                            button.dataset
-                                .withdrawalId;
-
-
-                        if (!id) {
-                            return;
-                        }
-
-
-                        updateWithdrawalStatus(
-                            id,
-                            "rejected"
-                        );
-
-                    }
-                );
-
-            }
-        );
-
+                    </div>
+                `;
+            }).join("");
     }
 
+    function renderOrders() {
+        if (!elements.ordersList) return;
 
-    async function updateWithdrawalStatus(
-        withdrawalId,
-        newStatus
+        if (!state.orders.length) {
+            elements.ordersList.innerHTML =
+                '<div class="admin-empty">Pa gen kòmand pou montre.</div>';
+            return;
+        }
+
+        elements.ordersList.innerHTML =
+            state.orders.map(order => {
+                const status =
+                    order.status || "pending";
+
+                return `
+                    <div class="admin-order-item"
+                         data-id="${escapeHTML(order.id)}">
+
+                        <div class="order-main">
+
+                            <strong>
+                                ${escapeHTML(
+                                    order.product_name || "Pwodwi"
+                                )}
+                            </strong>
+
+                            <span>
+                                Achtè:
+                                ${escapeHTML(
+                                    order.buyer_name || "—"
+                                )}
+                            </span>
+
+                            <span>
+                                Telefòn:
+                                ${escapeHTML(
+                                    order.buyer_phone || "—"
+                                )}
+                            </span>
+
+                            <span>
+                                Kantite:
+                                ${escapeHTML(
+                                    order.quantity || 1
+                                )}
+                            </span>
+
+                            <span>
+                                Total:
+                                ${formatMoney(order.total)}
+                            </span>
+
+                            <span class="${getStatusClass(status)}">
+                                ${escapeHTML(
+                                    getStatusLabel(status)
+                                )}
+                            </span>
+
+                            <small>
+                                Kreye:
+                                ${formatDate(order.created_at)}
+                            </small>
+
+                            ${
+                                order.delivered_at
+                                    ? `
+                                        <small>
+                                            Livre:
+                                            ${formatDate(
+                                                order.delivered_at
+                                            )}
+                                        </small>
+                                    `
+                                    : ""
+                            }
+
+                            ${
+                                order.completed_at
+                                    ? `
+                                        <small>
+                                            Fini:
+                                            ${formatDate(
+                                                order.completed_at
+                                            )}
+                                        </small>
+                                    `
+                                    : ""
+                            }
+
+                        </div>
+
+                        <button
+                            type="button"
+                            class="admin-action-btn view-order-btn"
+                            data-id="${escapeHTML(order.id)}">
+                            Gade detay
+                        </button>
+
+                    </div>
+                `;
+            }).join("");
+    }
+
+    function renderUsers() {
+        if (!elements.usersList) return;
+
+        if (!state.users.length) {
+            elements.usersList.innerHTML =
+                '<div class="admin-empty">Pa gen itilizatè.</div>';
+            return;
+        }
+
+        elements.usersList.innerHTML =
+            state.users.map(user => {
+                const name =
+                    user.full_name ||
+                    user.name ||
+                    user.username ||
+                    "Itilizatè";
+
+                return `
+                    <div class="admin-user-item"
+                         data-id="${escapeHTML(user.id)}">
+
+                        <div class="user-main">
+
+                            <strong>
+                                ${escapeHTML(name)}
+                            </strong>
+
+                            <span>
+                                Wòl:
+                                ${escapeHTML(
+                                    user.role || "—"
+                                )}
+                            </span>
+
+                            ${
+                                user.phone
+                                    ? `
+                                        <span>
+                                            Telefòn:
+                                            ${escapeHTML(
+                                                user.phone
+                                            )}
+                                        </span>
+                                    `
+                                    : ""
+                            }
+
+                            <small>
+                                Enskri:
+                                ${formatDate(user.created_at)}
+                            </small>
+
+                        </div>
+
+                    </div>
+                `;
+            }).join("");
+    }
+
+    function getRechargeRequest(id) {
+        return state.rechargeRequests.find(
+            request => request.id === id
+        ) || null;
+    }
+
+    function getWithdrawalRequest(id) {
+        return state.withdrawalRequests.find(
+            request => request.id === id
+        ) || null;
+    }
+
+    function getOrder(id) {
+        return state.orders.find(
+            order => order.id === id
+        ) || null;
+    }
+
+    function getUser(id) {
+        return state.users.find(
+            user => user.id === id
+        ) || null;
+                }
+        async function saveAdminSettings() {
+        try {
+            hideError();
+
+            const moncash = elements.moncash
+                ? elements.moncash.value.trim()
+                : "";
+
+            const natcash = elements.natcash
+                ? elements.natcash.value.trim()
+                : "";
+
+            const withdrawalFee = elements.withdrawalFee
+                ? Number(elements.withdrawalFee.value)
+                : 2.75;
+
+            const marketplaceFee = elements.marketplaceFee
+                ? Number(elements.marketplaceFee.value)
+                : 0;
+
+            if (
+                !Number.isFinite(withdrawalFee) ||
+                withdrawalFee < 0
+            ) {
+                throw new Error(
+                    "Frè retrè a pa valab."
+                );
+            }
+
+            if (
+                !Number.isFinite(marketplaceFee) ||
+                marketplaceFee < 0
+            ) {
+                throw new Error(
+                    "Komisyon Macheya a pa valab."
+                );
+            }
+
+            const {
+                error: adminError
+            } = await supabase.rpc(
+                "update_admin_settings",
+                {
+                    p_moncash_number: moncash,
+                    p_natcash_number: natcash,
+                    p_withdrawal_fee_percent:
+                        withdrawalFee
+                }
+            );
+
+            if (adminError) {
+                throw adminError;
+            }
+
+            const {
+                error: macheyaError
+            } = await supabase
+                .from("macheya_settings")
+                .update({
+                    fee_percentage:
+                        marketplaceFee,
+                    moncash_number:
+                        moncash,
+                    natcash_number:
+                        natcash,
+                    updated_by:
+                        state.user.id,
+                    updated_at:
+                        new Date().toISOString()
+                })
+                .eq("id", 1);
+
+            if (macheyaError) {
+                throw macheyaError;
+            }
+
+            state.settings.moncash_number =
+                moncash;
+
+            state.settings.natcash_number =
+                natcash;
+
+            state.settings.withdrawal_fee_percent =
+                withdrawalFee;
+
+            state.settings.fee_percentage =
+                marketplaceFee;
+
+            renderSettings();
+
+            alert(
+                "Paramèt Macheya yo mete ajou avèk siksè."
+            );
+
+        } catch (error) {
+            showError(
+                error.message ||
+                "Pa kapab mete paramèt yo ajou."
+            );
+        }
+    }
+
+    async function approveRecharge(
+        depositId,
+        adminNote = null
     ) {
-
-        if (!withdrawalId) {
-            return;
-        }
-
-
-        if (
-            newStatus !== "approved" &&
-            newStatus !== "rejected"
-        ) {
-            return;
-        }
-
-
-        const action =
-            newStatus === "approved"
-                ? "apwouve"
-                : "rejte";
-
-
-        const confirmed =
-            window.confirm(
-                `Èske ou sèten ou vle ${action} demann retrè sa a?`
-            );
-
-
-        if (!confirmed) {
-            return;
-        }
-
+        if (!depositId) return;
 
         try {
-
             const {
                 data,
                 error
-            } =
-                await supabase
-                    .from("withdrawal_requests")
-                    .update({
-                        status:
-                            newStatus
-                    })
-                    .eq(
-                        "id",
-                        withdrawalId
-                    )
-                    .select()
-                    .maybeSingle();
-
+            } = await supabase.rpc(
+                "approve_wallet_deposit",
+                {
+                    p_deposit_id:
+                        depositId,
+                    p_admin_note:
+                        adminNote
+                }
+            );
 
             if (error) {
                 throw error;
             }
 
-
-            if (!data) {
-
+            if (data !== true) {
                 throw new Error(
-                    "Demann retrè a pa jwenn oswa ou pa gen pèmisyon pou modifye li."
+                    "Rechaj la pa t kapab apwouve."
                 );
-
             }
 
+            await loadRechargeRequests();
+            renderRechargeRequests();
 
-            showMessage(
-                newStatus === "approved"
-                    ? "Demann retrè a apwouve avèk siksè."
-                    : "Demann retrè a rejte avèk siksè.",
-                "success"
+            alert(
+                "Rechaj la apwouve avèk siksè."
             );
-
-
-            await Promise.all([
-                loadWithdrawalRequests(),
-                loadStatistics()
-            ]);
-
 
         } catch (error) {
-
-            console.error(
-                "Update withdrawal status error:",
-                error
-            );
-
-
-            showMessage(
+            showError(
                 error.message ||
-                "Nou pa kapab modifye demann retrè a.",
-                "error"
+                "Erè pandan apwobasyon rechaj la."
             );
-
         }
-
-                    }
-
-        
-
-}
-        function setupSettings() {
-
-        const button =
-            document.getElementById(
-                "saveAdminSettings"
-            );
-
-
-        if (!button) {
-            return;
-        }
-
-
-        button.addEventListener(
-            "click",
-            function () {
-
-                saveSettings();
-
-            }
-        );
-
     }
 
-
-    function setupLogout() {
-
-        const button =
-            document.getElementById(
-                "adminLogoutButton"
-            );
-
-
-        if (!button) {
-            return;
-        }
-
-
-        button.addEventListener(
-            "click",
-            async function () {
-
-                if (
-                    button.disabled
-                ) {
-                    return;
-                }
-
-
-                button.disabled = true;
-
-
-                button.textContent =
-                    "Ap dekonekte...";
-
-
-                try {
-
-                    if (!supabase) {
-
-                        throw new Error(
-                            "Supabase client pa disponib."
-                        );
-
-                    }
-
-
-                    const {
-                        error
-                    } =
-                        await supabase.auth.signOut();
-
-
-                    if (error) {
-                        throw error;
-                    }
-
-
-                    window.location.href =
-                        "login.html";
-
-
-                } catch (error) {
-
-                    console.error(
-                        "Admin logout error:",
-                        error
-                    );
-
-
-                    button.disabled = false;
-
-
-                    button.textContent =
-                        "Dekonekte";
-
-
-                    showMessage(
-                        "Nou pa kapab dekonekte kounya.",
-                        "error"
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-
-    function setupRefreshOnVisibility() {
-
-        let lastRefresh =
-            0;
-
-
-        document.addEventListener(
-            "visibilitychange",
-            async function () {
-
-                if (
-                    document.visibilityState !==
-                    "visible"
-                ) {
-                    return;
-                }
-
-
-                const now =
-                    Date.now();
-
-
-                if (
-                    now - lastRefresh <
-                    30000
-                ) {
-                    return;
-                }
-
-
-                lastRefresh =
-                    now;
-
-
-                if (!currentUser) {
-                    return;
-                }
-
-
-                try {
-
-                    await loadStatistics();
-
-
-                    const withdrawalsSection =
-                        document.getElementById(
-                            "adminWithdrawalsSection"
-                        );
-
-
-                    if (
-                        withdrawalsSection &&
-                        !withdrawalsSection.hidden
-                    ) {
-
-                        await loadWithdrawalRequests();
-
-                    }
-
-                } catch (error) {
-
-                    console.error(
-                        "Admin refresh error:",
-                        error
-                    );
-
-                }
-
-            }
-        );
-
-    }
-
-
-    function setupAdminKeyboard() {
-
-        document.addEventListener(
-            "keydown",
-            function (event) {
-
-                if (
-                    event.key !==
-                    "Escape"
-                ) {
-                    return;
-                }
-
-
-                const sections = [
-                    "adminUsersSection",
-                    "adminProductsSection",
-                    "adminOrdersSection",
-                    "adminWalletsSection",
-                    "adminWithdrawalsSection",
-                    "adminSettingsSection"
-                ];
-
-
-                let openSection =
-                    false;
-
-
-                sections.forEach(
-                    function (id) {
-
-                        const section =
-                            document.getElementById(
-                                id
-                            );
-
-
-                        if (
-                            section &&
-                            !section.hidden
-                        ) {
-
-                            section.hidden =
-                                true;
-
-                            openSection =
-                                true;
-
-                        }
-
-                    }
-                );
-
-
-                if (openSection) {
-
-                    window.scrollTo({
-                        top: 0,
-                        behavior: "smooth"
-                    });
-
-                }
-
-            }
-        );
-
-    }
-
-
-    async function initializeAdmin() {
-
-        setLoading(true);
-
-        hideAdminError();
-
-        hideMessage();
-
-
-        if (!supabase) {
-
-            setLoading(false);
-
-            showAdminError(
-                "Supabase client pa disponib."
-            );
-
-            return;
-
-        }
-
+    async function rejectRecharge(
+        depositId,
+        adminNote = null
+    ) {
+        if (!depositId) return;
 
         try {
+            const {
+                data,
+                error
+            } = await supabase.rpc(
+                "reject_wallet_deposit",
+                {
+                    p_deposit_id:
+                        depositId,
+                    p_admin_note:
+                        adminNote
+                }
+            );
 
-            const isAdmin =
-                await verifyAdmin();
+            if (error) {
+                throw error;
+            }
 
+            if (data !== true) {
+                throw new Error(
+                    "Rechaj la pa t kapab rejte."
+                );
+            }
 
-            if (!isAdmin) {
+            await loadRechargeRequests();
+            renderRechargeRequests();
+
+            alert(
+                "Demann rechaj la rejte."
+            );
+
+        } catch (error) {
+            showError(
+                error.message ||
+                "Erè pandan rejè rechaj la."
+            );
+        }
+    }
+
+    async function approveWithdrawal(
+        requestId,
+        paymentReference = null,
+        adminNote = null
+    ) {
+        if (!requestId) return;
+
+        try {
+            const {
+                data,
+                error
+            } = await supabase.rpc(
+                "approve_withdrawal",
+                {
+                    p_request_id:
+                        requestId,
+                    p_payment_reference:
+                        paymentReference,
+                    p_admin_note:
+                        adminNote
+                }
+            );
+
+            if (error) {
+                throw error;
+            }
+
+            if (data !== true) {
+                throw new Error(
+                    "Retrè a pa t kapab apwouve."
+                );
+            }
+
+            await loadWithdrawalRequests();
+            renderWithdrawalRequests();
+
+            alert(
+                "Retrè a apwouve avèk siksè."
+            );
+
+        } catch (error) {
+            showError(
+                error.message ||
+                "Erè pandan apwobasyon retrè a."
+            );
+        }
+    }
+
+    async function rejectWithdrawal(
+        requestId,
+        adminNote = null
+    ) {
+        if (!requestId) return;
+
+        try {
+            const {
+                data,
+                error
+            } = await supabase.rpc(
+                "reject_withdrawal",
+                {
+                    p_request_id:
+                        requestId,
+                    p_admin_note:
+                        adminNote
+                }
+            );
+
+            if (error) {
+                throw error;
+            }
+
+            if (data !== true) {
+                throw new Error(
+                    "Retrè a pa t kapab rejte."
+                );
+            }
+
+            await loadWithdrawalRequests();
+            renderWithdrawalRequests();
+
+            alert(
+                "Demann retrè a rejte."
+            );
+
+        } catch (error) {
+            showError(
+                error.message ||
+                "Erè pandan rejè retrè a."
+            );
+        }
+    }
+
+    async function handleApproveRecharge(id) {
+        const request =
+            getRechargeRequest(id);
+
+        if (
+            !request ||
+            request.status !== "pending"
+        ) {
+            return;
+        }
+
+        const note = prompt(
+            "Nòt admin pou rechaj sa a (opsyonèl):"
+        );
+
+        if (note === null) {
+            return;
+        }
+
+        await approveRecharge(
+            id,
+            note.trim() || null
+        );
+    }
+
+    async function handleRejectRecharge(id) {
+        const request =
+            getRechargeRequest(id);
+
+        if (
+            !request ||
+            request.status !== "pending"
+        ) {
+            return;
+        }
+
+        const note = prompt(
+            "Rezon rejè rechaj la:"
+        );
+
+        if (note === null) {
+            return;
+        }
+
+        await rejectRecharge(
+            id,
+            note.trim() || null
+        );
+    }
+
+    async function handleApproveWithdrawal(id) {
+        const request =
+            getWithdrawalRequest(id);
+
+        if (
+            !request ||
+            request.status !== "pending"
+        ) {
+            return;
+        }
+
+        const paymentReference =
+            prompt(
+                "Mete referans peman an:"
+            );
+
+        if (paymentReference === null) {
+            return;
+        }
+
+        const adminNote = prompt(
+            "Nòt admin (opsyonèl):"
+        );
+
+        if (adminNote === null) {
+            return;
+        }
+
+        await approveWithdrawal(
+            id,
+            paymentReference.trim() || null,
+            adminNote.trim() || null
+        );
+    }
+
+    async function handleRejectWithdrawal(id) {
+        const request =
+            getWithdrawalRequest(id);
+
+        if (
+            !request ||
+            request.status !== "pending"
+        ) {
+            return;
+        }
+
+        const note = prompt(
+            "Rezon rejè retrè a:"
+        );
+
+        if (note === null) {
+            return;
+        }
+
+        await rejectWithdrawal(
+            id,
+            note.trim() || null
+        );
+                }
+        function getRechargeRequest(id) {
+        return state.rechargeRequests.find(
+            request => request.id === id
+        ) || null;
+    }
+
+    function getWithdrawalRequest(id) {
+        return state.withdrawalRequests.find(
+            request => request.id === id
+        ) || null;
+    }
+
+    function getOrder(id) {
+        return state.orders.find(
+            order => order.id === id
+        ) || null;
+    }
+
+    function getUser(id) {
+        return state.users.find(
+            user => user.id === id
+        ) || null;
+    }
+
+    function filterPendingRequests() {
+        return {
+            rechargePending:
+                state.rechargeRequests.filter(
+                    request =>
+                        request.status === "pending"
+                ),
+
+            withdrawalPending:
+                state.withdrawalRequests.filter(
+                    request =>
+                        request.status === "pending"
+                )
+        };
+    }
+
+    function updatePendingCounters() {
+        const {
+            rechargePending,
+            withdrawalPending
+        } = filterPendingRequests();
+
+        if (elements.rechargeCount) {
+            elements.rechargeCount.textContent =
+                rechargePending.length;
+        }
+
+        if (elements.withdrawalCount) {
+            elements.withdrawalCount.textContent =
+                withdrawalPending.length;
+        }
+    }
+
+    if (elements.saveSettings) {
+        elements.saveSettings.addEventListener(
+            "click",
+            saveAdminSettings
+        );
+    }
+
+    if (elements.rechargeList) {
+        elements.rechargeList.addEventListener(
+            "click",
+            async event => {
+                const approveButton =
+                    event.target.closest(
+                        ".approve-recharge-btn"
+                    );
+
+                const rejectButton =
+                    event.target.closest(
+                        ".reject-recharge-btn"
+                    );
+
+                if (approveButton) {
+                    await handleApproveRecharge(
+                        approveButton.dataset.id
+                    );
+                    return;
+                }
+
+                if (rejectButton) {
+                    await handleRejectRecharge(
+                        rejectButton.dataset.id
+                    );
+                }
+            }
+        );
+    }
+
+    if (elements.withdrawalList) {
+        elements.withdrawalList.addEventListener(
+            "click",
+            async event => {
+                const approveButton =
+                    event.target.closest(
+                        ".approve-withdrawal-btn"
+                    );
+
+                const rejectButton =
+                    event.target.closest(
+                        ".reject-withdrawal-btn"
+                    );
+
+                if (approveButton) {
+                    await handleApproveWithdrawal(
+                        approveButton.dataset.id
+                    );
+                    return;
+                }
+
+                if (rejectButton) {
+                    await handleRejectWithdrawal(
+                        rejectButton.dataset.id
+                    );
+                }
+            }
+        );
+    }
+
+    window.MacheyaAdmin.saveSettings =
+        saveAdminSettings;
+
+    window.MacheyaAdmin.approveRecharge =
+        approveRecharge;
+
+    window.MacheyaAdmin.rejectRecharge =
+        rejectRecharge;
+
+    window.MacheyaAdmin.approveWithdrawal =
+        approveWithdrawal;
+
+    window.MacheyaAdmin.rejectWithdrawal =
+        rejectWithdrawal;
+
+    window.MacheyaAdmin.getRechargeRequest =
+        getRechargeRequest;
+
+    window.MacheyaAdmin.getWithdrawalRequest =
+        getWithdrawalRequest;
+
+    window.MacheyaAdmin.getOrder =
+        getOrder;
+
+    window.MacheyaAdmin.getUser =
+        getUser;
+
+    window.MacheyaAdmin.handleApproveRecharge =
+        handleApproveRecharge;
+
+    window.MacheyaAdmin.handleRejectRecharge =
+        handleRejectRecharge;
+
+    window.MacheyaAdmin.handleApproveWithdrawal =
+        handleApproveWithdrawal;
+
+    window.MacheyaAdmin.handleRejectWithdrawal =
+        handleRejectWithdrawal;
+
+    window.MacheyaAdmin.updatePendingCounters =
+        updatePendingCounters;
+        function renderOrders() {
+        if (!elements.ordersList) {
+            return;
+        }
+
+        if (!state.orders.length) {
+            elements.ordersList.innerHTML =
+                '<div class="admin-empty">Pa gen kòmand pou montre.</div>';
+            return;
+        }
+
+        elements.ordersList.innerHTML =
+            state.orders.map(order => {
+                const status = order.status || "pending";
+
+                return `
+                    <div class="admin-order-item"
+                         data-id="${escapeHTML(order.id)}">
+
+                        <div class="order-main">
+                            <strong>
+                                ${escapeHTML(
+                                    order.product_name || "Pwodwi"
+                                )}
+                            </strong>
+
+                            <span>
+                                Achtè:
+                                ${escapeHTML(
+                                    order.buyer_name || "—"
+                                )}
+                            </span>
+
+                            <span>
+                                Telefòn:
+                                ${escapeHTML(
+                                    order.buyer_phone || "—"
+                                )}
+                            </span>
+
+                            <span>
+                                Kantite:
+                                ${escapeHTML(
+                                    order.quantity || 1
+                                )}
+                            </span>
+
+                            <span>
+                                Total:
+                                ${formatMoney(order.total)}
+                            </span>
+
+                            <span class="${getStatusClass(status)}">
+                                ${escapeHTML(
+                                    getStatusLabel(status)
+                                )}
+                            </span>
+
+                            <small>
+                                Kreye:
+                                ${formatDate(order.created_at)}
+                            </small>
+
+                            ${
+                                order.delivered_at
+                                    ? `
+                                        <small>
+                                            Livre:
+                                            ${formatDate(
+                                                order.delivered_at
+                                            )}
+                                        </small>
+                                    `
+                                    : ""
+                            }
+
+                            ${
+                                order.completed_at
+                                    ? `
+                                        <small>
+                                            Fini:
+                                            ${formatDate(
+                                                order.completed_at
+                                            )}
+                                        </small>
+                                    `
+                                    : ""
+                            }
+                        </div>
+
+                        <button
+                            type="button"
+                            class="admin-action-btn view-order-btn"
+                            data-id="${escapeHTML(order.id)}">
+                            Gade detay
+                        </button>
+                    </div>
+                `;
+            })
+            .join("");
+    }
+
+    function showOrderDetails(order) {
+        if (!order) {
+            return;
+        }
+
+        const details = [
+            `Pwodwi: ${order.product_name || "—"}`,
+            `Non achtè: ${order.buyer_name || "—"}`,
+            `Telefòn: ${order.buyer_phone || "—"}`,
+            `Adrès: ${order.delivery_address || "—"}`,
+            `Nòt livrezon: ${order.delivery_note || "—"}`,
+            `Kantite: ${order.quantity || 1}`,
+            `Pri: ${formatMoney(order.price)}`,
+            `Total: ${formatMoney(order.total)}`,
+            `Estati: ${getStatusLabel(order.status)}`,
+            `Kreye: ${formatDate(order.created_at)}`,
+            `Konfime: ${formatDate(order.confirmed_at)}`,
+            `Livre: ${formatDate(order.delivered_at)}`,
+            `Fini: ${formatDate(order.completed_at)}`
+        ].join("\n");
+
+        alert(details);
+    }
+
+    if (elements.ordersList) {
+        elements.ordersList.addEventListener(
+            "click",
+            event => {
+                const button =
+                    event.target.closest(".view-order-btn");
+
+                if (!button) {
+                    return;
+                }
+
+                const order =
+                    getOrder(button.dataset.id);
+
+                showOrderDetails(order);
+            }
+        );
+    }
+
+    function renderUsers() {
+        if (!elements.usersList) {
+            return;
+        }
+
+        if (!state.users.length) {
+            elements.usersList.innerHTML =
+                '<div class="admin-empty">Pa gen itilizatè.</div>';
+            return;
+        }
+
+        elements.usersList.innerHTML =
+            state.users.map(user => {
+                const name =
+                    user.full_name ||
+                    user.name ||
+                    user.username ||
+                    "Itilizatè";
+
+                return `
+                    <div class="admin-user-item"
+                         data-id="${escapeHTML(user.id)}">
+
+                        <div class="user-main">
+                            <strong>
+                                ${escapeHTML(name)}
+                            </strong>
+
+                            <span>
+                                Wòl:
+                                ${escapeHTML(user.role || "—")}
+                            </span>
+
+                            ${
+                                user.phone
+                                    ? `
+                                        <span>
+                                            Telefòn:
+                                            ${escapeHTML(user.phone)}
+                                        </span>
+                                    `
+                                    : ""
+                            }
+
+                            <small>
+                                Enskri:
+                                ${formatDate(user.created_at)}
+                            </small>
+                        </div>
+                    </div>
+                `;
+            })
+            .join("");
+        }
+        async function refreshAdminData() {
+        try {
+            hideError();
+
+            await Promise.all([
+                loadAdminSettings(),
+                loadRechargeRequests(),
+                loadWithdrawalRequests(),
+                loadOrders(),
+                loadUsers()
+            ]);
+
+            updatePendingCounters();
+
+        } catch (error) {
+            showError(
+                error.message ||
+                "Pa kapab rafrechi done admin yo."
+            );
+        }
+    }
+
+    let realtimeChannels = [];
+
+    function unsubscribeRealtime() {
+        realtimeChannels.forEach(channel => {
+            try {
+                supabase.removeChannel(channel);
+            } catch (error) {
+                console.error(error);
+            }
+        });
+
+        realtimeChannels = [];
+    }
+
+    function subscribeToRealtime() {
+        unsubscribeRealtime();
+
+        const rechargeChannel = supabase
+            .channel("admin-recharge-requests")
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "wallet_deposits"
+                },
+                async () => {
+                    await loadRechargeRequests();
+                    updatePendingCounters();
+                }
+            )
+            .subscribe();
+
+        const withdrawalChannel = supabase
+            .channel("admin-withdrawal-requests")
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "withdrawal_requests"
+                },
+                async () => {
+                    await loadWithdrawalRequests();
+                    updatePendingCounters();
+                }
+            )
+            .subscribe();
+
+        const ordersChannel = supabase
+            .channel("admin-orders")
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "orders"
+                },
+                async () => {
+                    await loadOrders();
+                }
+            )
+            .subscribe();
+
+        const settingsChannel = supabase
+            .channel("admin-settings")
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "admin_settings"
+                },
+                async () => {
+                    await loadAdminSettings();
+                }
+            )
+            .on(
+                "postgres_changes",
+                {
+                    event: "*",
+                    schema: "public",
+                    table: "macheya_settings"
+                },
+                async () => {
+                    await loadAdminSettings();
+                }
+            )
+            .subscribe();
+
+        realtimeChannels.push(
+            rechargeChannel,
+            withdrawalChannel,
+            ordersChannel,
+            settingsChannel
+        );
+    }
+
+    async function loadAllAdminData() {
+        try {
+            hideError();
+
+            await Promise.all([
+                loadAdminSettings(),
+                loadRechargeRequests(),
+                loadWithdrawalRequests(),
+                loadOrders(),
+                loadUsers()
+            ]);
+
+            updatePendingCounters();
+
+        } catch (error) {
+            showError(
+                error.message ||
+                "Pa kapab chaje done admin yo."
+            );
+        }
+    }
+
+    async function initializeAdmin() {
+        try {
+            showLoading(true);
+            hideError();
+
+            if (!supabase) {
+                throw new Error(
+                    "Supabase pa disponib."
+                );
+            }
+
+            const {
+                data: {
+                    user
+                },
+                error
+            } = await supabase.auth.getUser();
+
+            if (error) {
+                throw error;
+            }
+
+            if (!user) {
+                window.location.href = "login.html";
                 return;
             }
 
+            state.user = user;
 
-            setupAdminNavigation();
+            const {
+                data: isAdmin,
+                error: adminError
+            } = await supabase.rpc(
+                "is_super_admin"
+            );
 
-            setupSettings();
-
-            setupLogout();
-
-            setupRefreshOnVisibility();
-
-            setupAdminKeyboard();
-
-
-            await Promise.all([
-                loadStatistics(),
-                loadSettings()
-            ]);
-
-
-            setLoading(false);
-
-
-            const content =
-                document.getElementById(
-                    "adminContent"
-                );
-
-
-            if (content) {
-
-                content.hidden =
-                    false;
-
+            if (adminError) {
+                throw adminError;
             }
 
+            if (isAdmin !== true) {
+                throw new Error(
+                    "Aksè refize. Se Super Admin sèlman."
+                );
+            }
+
+            await loadAllAdminData();
+
+            subscribeToRealtime();
+
+            showLoading(false);
 
         } catch (error) {
-
             console.error(
-                "Admin initialization error:",
+                "Macheya Admin:",
                 error
             );
 
+            showLoading(false);
 
-            setLoading(false);
-
-
-            showAdminError(
-                "Yon erè rive pandan dashboard Super Admin lan t ap prepare."
+            showError(
+                error.message ||
+                "Pa kapab inisyalize panel admin lan."
             );
-
         }
-
     }
 
+    window.MacheyaAdmin.refresh =
+        refreshAdminData;
 
-    window.macheyaAdmin = {
+    window.MacheyaAdmin.initialize =
+        initializeAdmin;
 
-        refresh: async function () {
+    window.MacheyaAdmin.unsubscribeRealtime =
+        unsubscribeRealtime;
 
-            await Promise.all([
-                loadStatistics(),
-                loadSettings()
-            ]);
+    window.MacheyaAdmin.subscribeToRealtime =
+        subscribeToRealtime;
 
-        },
-
-
-        refreshUsers:
-            loadUsers,
-
-
-        refreshProducts:
-            loadProducts,
-
-
-        refreshOrders:
-            loadOrders,
-
-
-        refreshWallets:
-            loadWallets,
-
-
-        refreshWithdrawals:
-            loadWithdrawalRequests,
-
-
-        showSection:
-            showAdminSection
-
-    };
-
-     if (
-        document.readyState ===
-        "loading"
-    ) {
-
+    if (document.readyState === "loading") {
         document.addEventListener(
             "DOMContentLoaded",
             initializeAdmin
         );
-
     } else {
-
         initializeAdmin();
-
     }
 
 })();
