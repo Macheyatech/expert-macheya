@@ -3,6 +3,11 @@
 
     const supabase = window.supabaseClient;
 
+    if (!supabase) {
+        console.error("Supabase client pa disponib.");
+        return;
+    }
+
     const state = {
         user: null,
         settings: {
@@ -20,7 +25,7 @@
         loading: false
     };
 
-    const $ = (id) => document.getElementById(id);
+    const $ = id => document.getElementById(id);
 
     const elements = {
         loading: $("adminLoading"),
@@ -198,10 +203,8 @@
     }
 
     async function getCurrentUser() {
-        const {
-            data,
-            error
-        } = await supabase.auth.getUser();
+        const { data, error } =
+            await supabase.auth.getUser();
 
         if (error) {
             throw error;
@@ -218,10 +221,8 @@
     }
 
     async function verifySuperAdmin() {
-        const {
-            data,
-            error
-        } = await supabase.rpc("is_super_admin");
+        const { data, error } =
+            await supabase.rpc("is_super_admin");
 
         if (error) {
             throw error;
@@ -237,10 +238,8 @@
     }
 
     async function loadSettings() {
-        const {
-            data,
-            error
-        } = await supabase.rpc("get_admin_settings");
+        const { data, error } =
+            await supabase.rpc("get_admin_settings");
 
         if (error) {
             throw error;
@@ -251,8 +250,7 @@
 
             state.settings.withdrawal_fee_percent =
                 Number(
-                    settings.withdrawal_fee_percent ??
-                    2.75
+                    settings.withdrawal_fee_percent ?? 2.75
                 );
 
             state.settings.moncash_number =
@@ -295,17 +293,15 @@
             elements.withdrawalFee.value =
                 state.settings.withdrawal_fee_percent;
         }
-            }
+        }
         async function loadUsers() {
-        const {
-            data,
-            error
-        } = await supabase
-            .from("profiles")
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+        const { data, error } =
+            await supabase
+                .from("profiles")
+                .select("*")
+                .order("created_at", {
+                    ascending: false
+                });
 
         if (error) {
             throw error;
@@ -318,15 +314,13 @@
     }
 
     async function loadProducts() {
-        const {
-            data,
-            error
-        } = await supabase
-            .from("products")
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+        const { data, error } =
+            await supabase
+                .from("products")
+                .select("*")
+                .order("created_at", {
+                    ascending: false
+                });
 
         if (error) {
             throw error;
@@ -339,15 +333,13 @@
     }
 
     async function loadOrders() {
-        const {
-            data,
-            error
-        } = await supabase
-            .from("orders")
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+        const { data, error } =
+            await supabase
+                .from("orders")
+                .select("*")
+                .order("created_at", {
+                    ascending: false
+                });
 
         if (error) {
             throw error;
@@ -360,15 +352,13 @@
     }
 
     async function loadWallets() {
-        const {
-            data,
-            error
-        } = await supabase
-            .from("wallets")
-            .select("*")
-            .order("updated_at", {
-                ascending: false
-            });
+        const { data, error } =
+            await supabase
+                .from("wallets")
+                .select("*")
+                .order("updated_at", {
+                    ascending: false
+                });
 
         if (error) {
             throw error;
@@ -380,15 +370,13 @@
     }
 
     async function loadDeposits() {
-        const {
-            data,
-            error
-        } = await supabase
-            .from("wallet_deposits")
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+        const { data, error } =
+            await supabase
+                .from("wallet_deposits")
+                .select("*")
+                .order("created_at", {
+                    ascending: false
+                });
 
         if (error) {
             throw error;
@@ -398,15 +386,13 @@
     }
 
     async function loadWithdrawals() {
-        const {
-            data,
-            error
-        } = await supabase
-            .from("withdrawal_requests")
-            .select("*")
-            .order("created_at", {
-                ascending: false
-            });
+        const { data, error } =
+            await supabase
+                .from("withdrawal_requests")
+                .select("*")
+                .order("created_at", {
+                    ascending: false
+                });
 
         if (error) {
             throw error;
@@ -420,16 +406,14 @@
     function updateCounters() {
         const users = state.users;
 
-        const sellers = users.filter(
-            user =>
-                String(user.role || "").toLowerCase() ===
-                "seller"
+        const sellers = users.filter(user =>
+            String(user.role || "").toLowerCase() ===
+            "seller"
         );
 
-        const buyers = users.filter(
-            user =>
-                String(user.role || "").toLowerCase() ===
-                "buyer"
+        const buyers = users.filter(user =>
+            String(user.role || "").toLowerCase() ===
+            "buyer"
         );
 
         const volume = state.orders.reduce(
@@ -481,61 +465,59 @@
         }
 
         elements.usersList.innerHTML =
-            state.users.map(user => {
-                const name = getUserName(user);
+            state.users.map(user => `
+                <div class="admin-user-item"
+                     data-id="${escapeHTML(user.id)}">
 
-                return `
-                    <div class="admin-user-item"
-                         data-id="${escapeHTML(user.id)}">
+                    <div class="user-main">
+                        <strong>
+                            ${escapeHTML(
+                                getUserName(user)
+                            )}
+                        </strong>
 
-                        <div class="user-main">
-                            <strong>
-                                ${escapeHTML(name)}
-                            </strong>
+                        <span>
+                            Wòl:
+                            ${escapeHTML(
+                                user.role || "—"
+                            )}
+                        </span>
 
-                            <span>
-                                Wòl:
-                                ${escapeHTML(
-                                    user.role || "—"
-                                )}
-                            </span>
+                        ${
+                            user.phone
+                                ? `
+                                    <span>
+                                        Telefòn:
+                                        ${escapeHTML(
+                                            user.phone
+                                        )}
+                                    </span>
+                                `
+                                : ""
+                        }
 
-                            ${
-                                user.phone
-                                    ? `
-                                        <span>
-                                            Telefòn:
-                                            ${escapeHTML(
-                                                user.phone
-                                            )}
-                                        </span>
-                                    `
-                                    : ""
-                            }
+                        ${
+                            user.email
+                                ? `
+                                    <span>
+                                        Email:
+                                        ${escapeHTML(
+                                            user.email
+                                        )}
+                                    </span>
+                                `
+                                : ""
+                        }
 
-                            ${
-                                user.email
-                                    ? `
-                                        <span>
-                                            Email:
-                                            ${escapeHTML(
-                                                user.email
-                                            )}
-                                        </span>
-                                    `
-                                    : ""
-                            }
-
-                            <small>
-                                Enskri:
-                                ${formatDate(
-                                    user.created_at
-                                )}
-                            </small>
-                        </div>
+                        <small>
+                            Enskri:
+                            ${formatDate(
+                                user.created_at
+                            )}
+                        </small>
                     </div>
-                `;
-            }).join("");
+                </div>
+            `).join("");
     }
 
     function renderProducts() {
@@ -551,8 +533,6 @@
 
         elements.productsList.innerHTML =
             state.products.map(product => {
-                const name = getProductName(product);
-
                 const price =
                     product.price ??
                     product.unit_price ??
@@ -565,11 +545,17 @@
 
                 return `
                     <div class="admin-product-item"
-                         data-id="${escapeHTML(product.id)}">
+                         data-id="${escapeHTML(
+                             product.id
+                         )}">
 
                         <div class="product-main">
                             <strong>
-                                ${escapeHTML(name)}
+                                ${escapeHTML(
+                                    getProductName(
+                                        product
+                                    )
+                                )}
                             </strong>
 
                             <span>
@@ -605,9 +591,8 @@
                     </div>
                 `;
             }).join("");
-    }
-
-    function renderOrders() {
+}
+        function renderOrders() {
         if (!elements.ordersList) {
             return;
         }
@@ -625,7 +610,9 @@
 
                 return `
                     <div class="admin-order-item"
-                         data-id="${escapeHTML(order.id)}">
+                         data-id="${escapeHTML(
+                             order.id
+                         )}">
 
                         <div class="order-main">
                             <strong>
@@ -690,7 +677,9 @@
         elements.walletsList.innerHTML =
             state.wallets.map(wallet => `
                 <div class="admin-wallet-item"
-                     data-id="${escapeHTML(wallet.id)}">
+                     data-id="${escapeHTML(
+                         wallet.id
+                     )}">
 
                     <div class="wallet-main">
                         <strong>
@@ -715,6 +704,8 @@
                     </div>
                 </div>
             `).join("");
+
+        addDepositActions();
     }
 
     function renderWithdrawals() {
@@ -787,6 +778,9 @@
                 `;
             }).join("");
 
+        addWithdrawalActions();
+    }
+
     async function saveSettings() {
         if (!elements.saveSettings) {
             return;
@@ -797,10 +791,14 @@
             showSettingsMessage("", "");
 
             const feePercentage =
-                Number(elements.purchaseFee?.value);
+                Number(
+                    elements.purchaseFee?.value
+                );
 
             const withdrawalFee =
-                Number(elements.withdrawalFee?.value);
+                Number(
+                    elements.withdrawalFee?.value
+                );
 
             if (
                 !Number.isFinite(feePercentage) ||
@@ -827,8 +825,10 @@
                 {
                     p_moncash_number:
                         state.settings.moncash_number,
+
                     p_natcash_number:
                         state.settings.natcash_number,
+
                     p_withdrawal_fee_percent:
                         withdrawalFee
                 }
@@ -845,8 +845,10 @@
                 .update({
                     fee_percentage:
                         feePercentage,
+
                     updated_by:
                         state.user.id,
+
                     updated_at:
                         new Date().toISOString()
                 })
@@ -880,11 +882,11 @@
             );
 
         } finally {
-            elements.saveSettings.disabled = false;
+            elements.saveSettings.disabled =
+                false;
         }
-    }
-
-    async function approveDeposit(
+        }
+        async function approveDeposit(
         depositId,
         adminNote = null
     ) {
@@ -915,6 +917,7 @@
             }
 
             await loadDeposits();
+            await loadWallets();
 
         } catch (error) {
             showError(
@@ -955,6 +958,7 @@
             }
 
             await loadDeposits();
+            await loadWallets();
 
         } catch (error) {
             showError(
@@ -983,7 +987,8 @@
                     p_request_id: requestId,
                     p_payment_reference:
                         paymentReference,
-                    p_admin_note: adminNote
+                    p_admin_note:
+                        adminNote
                 }
             );
 
@@ -1024,7 +1029,8 @@
                 "reject_withdrawal",
                 {
                     p_request_id: requestId,
-                    p_admin_note: adminNote
+                    p_admin_note:
+                        adminNote
                 }
             );
 
@@ -1139,8 +1145,9 @@
             requestId,
             note.trim()
         );
-                       }
-            function getDeposit(id) {
+    }
+
+    function getDeposit(id) {
         return state.deposits.find(
             deposit => deposit.id === id
         ) || null;
@@ -1168,9 +1175,8 @@
         return state.products.find(
             product => product.id === id
         ) || null;
-    }
-
-    function renderRecentActivity() {
+                }
+        function renderRecentActivity() {
         if (!elements.recentActivity) {
             return;
         }
@@ -1182,7 +1188,8 @@
                 type: "order",
                 title: "Nouvo kòmand",
                 text:
-                    (order.product_name || "Pwodwi") +
+                    (order.product_name ||
+                        "Pwodwi") +
                     " — " +
                     formatMoney(
                         getOrderTotal(order)
@@ -1196,7 +1203,9 @@
                 type: "deposit",
                 title: "Demann rechaj",
                 text:
-                    formatMoney(deposit.amount) +
+                    formatMoney(
+                        deposit.amount
+                    ) +
                     " — " +
                     getStatusLabel(
                         deposit.status
@@ -1205,19 +1214,23 @@
             });
         });
 
-        state.withdrawals.slice(0, 5).forEach(request => {
-            activities.push({
-                type: "withdrawal",
-                title: "Demann retrè",
-                text:
-                    formatMoney(request.amount) +
-                    " — " +
-                    getStatusLabel(
-                        request.status
-                    ),
-                date: request.created_at
-            });
-        });
+        state.withdrawals.slice(0, 5).forEach(
+            request => {
+                activities.push({
+                    type: "withdrawal",
+                    title: "Demann retrè",
+                    text:
+                        formatMoney(
+                            request.amount
+                        ) +
+                        " — " +
+                        getStatusLabel(
+                            request.status
+                        ),
+                    date: request.created_at
+                });
+            }
+        );
 
         activities.sort(
             (a, b) =>
@@ -1286,8 +1299,10 @@
     async function refresh() {
         try {
             hideError();
-
             await loadAllData();
+
+            addWithdrawalActions();
+            addDepositActions();
 
         } catch (error) {
             console.error(
@@ -1298,71 +1313,6 @@
             showError(
                 error.message ||
                 "Pa kapab rafrechi done admin yo."
-            );
-        }
-    }
-
-    function setupEvents() {
-        if (elements.saveSettings) {
-            elements.saveSettings.addEventListener(
-                "click",
-                saveSettings
-            );
-        }
-
-        if (elements.logoutButton) {
-            elements.logoutButton.addEventListener(
-                "click",
-                async () => {
-                    try {
-                        await supabase.auth.signOut();
-
-                        window.location.href =
-                            "login.html";
-
-                    } catch (error) {
-                        showError(
-                            error.message ||
-                            "Pa kapab dekonekte."
-                        );
-                    }
-                }
-            );
-        }
-
-        if (elements.withdrawalsList) {
-            elements.withdrawalsList.addEventListener(
-                "click",
-                async event => {
-                    const button =
-                        event.target.closest(
-                            "[data-action]"
-                        );
-
-                    if (!button) {
-                        return;
-                    }
-
-                    const id =
-                        button.dataset.id;
-
-                    const action =
-                        button.dataset.action;
-
-                    if (action ===
-                        "approve-withdrawal") {
-                        await handleApproveWithdrawal(
-                            id
-                        );
-                    }
-
-                    if (action ===
-                        "reject-withdrawal") {
-                        await handleRejectWithdrawal(
-                            id
-                        );
-                    }
-                }
             );
         }
     }
@@ -1378,9 +1328,15 @@
             );
 
         items.forEach(item => {
-            const id =
-                item.dataset.id;
+            if (
+                item.querySelector(
+                    ".request-actions"
+                )
+            ) {
+                return;
+            }
 
+            const id = item.dataset.id;
             const request =
                 getWithdrawal(id);
 
@@ -1427,22 +1383,30 @@
         const pending =
             state.deposits.filter(
                 deposit =>
-                    deposit.status === "pending"
+                    deposit.status ===
+                    "pending"
             );
-
-        if (!pending.length) {
-            return;
-        }
 
         pending.slice(0, 20).forEach(
             deposit => {
+                const existing =
+                    elements.walletsList.querySelector(
+                        `[data-deposit-id="${CSS.escape(
+                            String(deposit.id)
+                        )}"]`
+                    );
+
+                if (existing) {
+                    return;
+                }
+
                 const item =
                     document.createElement("div");
 
                 item.className =
                     "admin-deposit-item";
 
-                item.dataset.id =
+                item.dataset.depositId =
                     deposit.id;
 
                 item.innerHTML = `
@@ -1454,6 +1418,7 @@
                         </strong>
 
                         <span>
+                            Metòd:
                             ${escapeHTML(
                                 deposit.method ||
                                 "—"
@@ -1461,6 +1426,7 @@
                         </span>
 
                         <span>
+                            Referans:
                             ${escapeHTML(
                                 deposit.payment_reference ||
                                 "—"
@@ -1507,51 +1473,121 @@
                     </div>
                 `;
 
-                elements.walletsList
-                    .appendChild(item);
+                elements.walletsList.prepend(item);
             }
         );
-}
-    
     }
-        function setupDepositEvents() {
-        if (!elements.walletsList) {
-            return;
+
+    function setupEvents() {
+        if (elements.saveSettings) {
+            elements.saveSettings.addEventListener(
+                "click",
+                saveSettings
+            );
         }
 
-        elements.walletsList.addEventListener(
-            "click",
-            async event => {
-                const button =
-                    event.target.closest(
-                        "[data-action]"
-                    );
-
-                if (!button) {
-                    return;
+        if (elements.logoutButton) {
+            elements.logoutButton.addEventListener(
+                "click",
+                async () => {
+                    try {
+                        await supabase.auth.signOut();
+                        window.location.href =
+                            "login.html";
+                    } catch (error) {
+                        showError(
+                            error.message ||
+                            "Pa kapab dekonekte."
+                        );
+                    }
                 }
+            );
+        }
 
-                const id =
-                    button.dataset.id;
+        if (elements.withdrawalsList) {
+            elements.withdrawalsList.addEventListener(
+                "click",
+                async event => {
+                    const button =
+                        event.target.closest(
+                            "[data-action]"
+                        );
 
-                const action =
-                    button.dataset.action;
+                    if (!button) {
+                        return;
+                    }
 
-                if (action === "approve-deposit") {
-                    await handleApproveDeposit(id);
-                    await refresh();
-                    return;
+                    const id =
+                        button.dataset.id;
+
+                    const action =
+                        button.dataset.action;
+
+                    if (
+                        action ===
+                        "approve-withdrawal"
+                    ) {
+                        await handleApproveWithdrawal(
+                            id
+                        );
+                        await refresh();
+                    }
+
+                    if (
+                        action ===
+                        "reject-withdrawal"
+                    ) {
+                        await handleRejectWithdrawal(
+                            id
+                        );
+                        await refresh();
+                    }
                 }
+            );
+        }
 
-                if (action === "reject-deposit") {
-                    await handleRejectDeposit(id);
-                    await refresh();
+        if (elements.walletsList) {
+            elements.walletsList.addEventListener(
+                "click",
+                async event => {
+                    const button =
+                        event.target.closest(
+                            "[data-action]"
+                        );
+
+                    if (!button) {
+                        return;
+                    }
+
+                    const id =
+                        button.dataset.id;
+
+                    const action =
+                        button.dataset.action;
+
+                    if (
+                        action ===
+                        "approve-deposit"
+                    ) {
+                        await handleApproveDeposit(
+                            id
+                        );
+                        await refresh();
+                    }
+
+                    if (
+                        action ===
+                        "reject-deposit"
+                    ) {
+                        await handleRejectDeposit(
+                            id
+                        );
+                        await refresh();
+                    }
                 }
-            }
-        );
-    }
-
-    function setupRealtime() {
+            );
+        }
+            function setupRealtime() {
         const channels = [];
 
         const tables = [
@@ -1578,7 +1614,7 @@
                     {
                         event: "*",
                         schema: "public",
-                        table
+                        table: table
                     },
                     async () => {
                         try {
@@ -1610,13 +1646,6 @@
     }
 
     async function initializeAdmin() {
-        if (!supabase) {
-            showError(
-                "Supabase client pa disponib."
-            );
-            return;
-        }
-
         try {
             showLoading(true);
             hideError();
@@ -1636,12 +1665,8 @@
             }
 
             setupEvents();
-            setupDepositEvents();
 
             await loadAllData();
-
-            addWithdrawalActions();
-            addDepositActions();
 
             const cleanupRealtime =
                 setupRealtime();
@@ -1736,3 +1761,4 @@
     }
 
 })();
+}
