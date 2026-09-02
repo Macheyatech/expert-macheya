@@ -293,8 +293,8 @@
             elements.withdrawalFee.value =
                 state.settings.withdrawal_fee_percent;
         }
-        }
-        async function loadUsers() {
+
+       async function loadUsers() {
         const { data, error } =
             await supabase
                 .from("profiles")
