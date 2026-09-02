@@ -4,7 +4,7 @@
     const supabase = window.supabaseClient;
 
     if (!supabase) {
-        console.error("Supabase client pa disponib.");
+        console.error("Macheya Admin: Supabase client pa disponib.");
         return;
     }
 
@@ -22,26 +22,25 @@
         wallets: [],
         deposits: [],
         withdrawals: [],
-        loading: false
+        errors: {}
     };
 
     const $ = id => document.getElementById(id);
 
-    const elements = {
+    const el = {
         loading: $("adminLoading"),
         content: $("adminContent"),
         error: $("adminError"),
         errorMessage: $("adminErrorMessage"),
+        role: $("adminRoleBadge"),
+        logout: $("adminLogoutButton"),
 
-        roleBadge: $("adminRoleBadge"),
-        logoutButton: $("adminLogoutButton"),
-
-        totalUsers: $("adminTotalUsers"),
-        totalSellers: $("adminTotalSellers"),
-        totalBuyers: $("adminTotalBuyers"),
-        totalProducts: $("adminTotalProducts"),
-        totalOrders: $("adminTotalOrders"),
-        transactionVolume: $("adminTransactionVolume"),
+        usersStat: $("adminTotalUsers"),
+        sellersStat: $("adminTotalSellers"),
+        buyersStat: $("adminTotalBuyers"),
+        productsStat: $("adminTotalProducts"),
+        ordersStat: $("adminTotalOrders"),
+        volumeStat: $("adminTransactionVolume"),
 
         usersSection: $("adminUsersSection"),
         productsSection: $("adminProductsSection"),
@@ -55,12 +54,21 @@
         ordersList: $("adminOrdersList"),
         walletsList: $("adminWalletsList"),
         withdrawalsList: $("adminWithdrawalsList"),
-        recentActivity: $("adminRecentActivity"),
+        activity: $("adminRecentActivity"),
 
         purchaseFee: $("purchaseFeePercentage"),
         withdrawalFee: $("withdrawalFeePercentage"),
         settingsMessage: $("adminSettingsMessage"),
         saveSettings: $("saveAdminSettings")
+    };
+
+    const sectionMap = {
+        users: el.usersSection,
+        products: el.productsSection,
+        orders: el.ordersSection,
+        wallets: el.walletsSection,
+        withdrawals: el.withdrawalsSection,
+        settings: el.settingsSection
     };
 
     function escapeHTML(value) {
@@ -82,15 +90,11 @@
     }
 
     function formatDate(value) {
-        if (!value) {
-            return "—";
-        }
+        if (!value) return "—";
 
         const date = new Date(value);
 
-        if (Number.isNaN(date.getTime())) {
-            return "—";
-        }
+        if (Number.isNaN(date.getTime())) return "—";
 
         return new Intl.DateTimeFormat("fr-FR", {
             day: "2-digit",
@@ -101,7 +105,7 @@
         }).format(date);
     }
 
-    function getStatusLabel(status) {
+    function statusLabel(status) {
         const labels = {
             pending: "An atant",
             approved: "Apwouve",
@@ -109,95 +113,118 @@
             delivered: "Livre",
             completed: "Fini",
             cancelled: "Anile",
+            canceled: "Anile",
             paid: "Peye",
-            processing: "An tretman"
+            processing: "An tretman",
+            failed: "Echwe"
         };
 
-        return labels[String(status || "").toLowerCase()]
-            || status
-            || "—";
+        const key = String(status || "").toLowerCase();
+
+        return labels[key] || status || "—";
     }
 
-    function getStatusClass(status) {
+    function statusClass(status) {
         return "status-" + String(status || "unknown")
             .toLowerCase()
             .replace(/[^a-z0-9_-]/g, "");
     }
 
-    function showLoading(show) {
-        state.loading = show;
+    function errorText(error, fallback) {
+        return error?.message ||
+            error?.details ||
+            error?.hint ||
+            fallback;
+    }
 
-        if (elements.loading) {
-            elements.loading.hidden = !show;
-            elements.loading.style.display =
-                show ? "flex" : "";
+    function setListMessage(target, message, type) {
+        if (!target) return;
+
+        target.innerHTML = `
+            <div class="${type === "error"
+                ? "admin-empty admin-load-error"
+                : "admin-empty"}">
+                ${escapeHTML(message)}
+            </div>
+        `;
+    }
+
+    function showLoading(show) {
+        if (el.loading) {
+            el.loading.hidden = !show;
+            el.loading.style.display = show ? "flex" : "";
         }
 
-        if (elements.content) {
-            elements.content.hidden = show;
+        if (el.content) {
+            el.content.hidden = show;
         }
     }
 
     function showError(message) {
-        console.error("Macheya Admin:", message);
-
-        if (elements.errorMessage) {
-            elements.errorMessage.textContent =
+        if (el.errorMessage) {
+            el.errorMessage.textContent =
                 message || "Yon erè rive.";
         }
 
-        if (elements.error) {
-            elements.error.hidden = false;
+        if (el.error) {
+            el.error.hidden = false;
         }
 
-        if (elements.content) {
-            elements.content.hidden = true;
+        if (el.content) {
+            el.content.hidden = true;
         }
     }
 
     function hideError() {
-        if (elements.error) {
-            elements.error.hidden = true;
-        }
-
-        if (elements.errorMessage) {
-            elements.errorMessage.textContent = "";
-        }
+        if (el.error) el.error.hidden = true;
+        if (el.errorMessage) el.errorMessage.textContent = "";
     }
 
-    function showSettingsMessage(message, type) {
-        if (!elements.settingsMessage) {
-            return;
-        }
+    function settingsMessage(message, type) {
+        if (!el.settingsMessage) return;
 
-        elements.settingsMessage.textContent = message;
-        elements.settingsMessage.className =
+        el.settingsMessage.textContent = message || "";
+        el.settingsMessage.className =
             "admin-form-message " + (type || "");
     }
 
-    function getUserName(user) {
-        return (
-            user?.full_name ||
+    function userName(user) {
+        return user?.full_name ||
             user?.name ||
             user?.nom_complet ||
             user?.username ||
             user?.email ||
-            "Itilizatè"
-        );
+            "Itilizatè";
     }
 
-    function getProductName(product) {
-        return (
-            product?.name ||
+    function productName(product) {
+        return product?.name ||
             product?.product_name ||
-            "Pwodwi"
-        );
+            "Pwodwi";
     }
 
-    function getOrderTotal(order) {
+    function orderTotal(order) {
         return Number(
             order?.total ??
             order?.total_amount ??
+            order?.grand_total ??
+            0
+        ) || 0;
+    }
+
+    function depositAmount(deposit) {
+        return Number(
+            deposit?.amount ??
+            deposit?.amount_requested ??
+            deposit?.deposit_amount ??
+            0
+        ) || 0;
+    }
+
+    function withdrawalAmount(request) {
+        return Number(
+            request?.amount ??
+            request?.requested_amount ??
             0
         ) || 0;
     }
@@ -206,9 +233,7 @@
         const { data, error } =
             await supabase.auth.getUser();
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         if (!data?.user) {
             window.location.href = "login.html";
@@ -216,7 +241,6 @@
         }
 
         state.user = data.user;
-
         return data.user;
     }
 
@@ -224,11 +248,14 @@
         const { data, error } =
             await supabase.rpc("is_super_admin");
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
-        if (data !== true) {
+        const allowed =
+            data === true ||
+            data?.is_super_admin === true ||
+            (Array.isArray(data) && data[0] === true);
+
+        if (!allowed) {
             throw new Error(
                 "Aksè refize. Se Super Admin sèlman ki ka antre isit la."
             );
@@ -241,16 +268,17 @@
         const { data, error } =
             await supabase.rpc("get_admin_settings");
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
-        if (Array.isArray(data) && data.length) {
-            const settings = data[0];
+        const settings =
+            Array.isArray(data) ? data[0] : data;
 
+        if (settings) {
             state.settings.withdrawal_fee_percent =
                 Number(
-                    settings.withdrawal_fee_percent ?? 2.75
+                    settings.withdrawal_fee_percent ??
+                    settings.withdrawal_fee_percentage ??
+                    state.settings.withdrawal_fee_percent
                 );
 
             state.settings.moncash_number =
@@ -260,1015 +288,468 @@
                 settings.natcash_number || "";
         }
 
-        const {
-            data: macheyaSettings,
-            error: macheyaError
-        } = await supabase
-            .from("macheya_settings")
-            .select("fee_percentage")
-            .eq("id", 1)
-            .maybeSingle();
+        const { data: marketplace, error: marketplaceError } =
+            await supabase
+                .from("macheya_settings")
+                .select("fee_percentage")
+                .eq("id", 1)
+                .maybeSingle();
 
-        if (macheyaError) {
-            throw macheyaError;
-        }
+        if (marketplaceError) throw marketplaceError;
 
-        if (macheyaSettings) {
+        if (marketplace) {
             state.settings.fee_percentage =
-                Number(
-                    macheyaSettings.fee_percentage ?? 0
-                );
+                Number(marketplace.fee_percentage ?? 0);
         }
 
         renderSettings();
     }
 
     function renderSettings() {
-        if (elements.purchaseFee) {
-            elements.purchaseFee.value =
+        if (el.purchaseFee) {
+            el.purchaseFee.value =
                 state.settings.fee_percentage;
         }
 
-        if (elements.withdrawalFee) {
-            elements.withdrawalFee.value =
+        if (el.withdrawalFee) {
+            el.withdrawalFee.value =
                 state.settings.withdrawal_fee_percent;
         }
+    }
 
-       async function loadUsers() {
-        const { data, error } =
-            await supabase
-                .from("profiles")
-                .select("*")
-                .order("created_at", {
-                    ascending: false
-                });
+    async function loadUsers() {
+        const { data, error } = await supabase
+            .from("profiles")
+            .select("*")
+            .order("created_at", { ascending: false });
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         state.users = data || [];
-
         renderUsers();
         updateCounters();
     }
 
     async function loadProducts() {
-        const { data, error } =
-            await supabase
-                .from("products")
-                .select("*")
-                .order("created_at", {
-                    ascending: false
-                });
+        const { data, error } = await supabase
+            .from("products")
+            .select("*")
+            .order("created_at", { ascending: false });
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         state.products = data || [];
-
         renderProducts();
         updateCounters();
     }
 
     async function loadOrders() {
-        const { data, error } =
-            await supabase
-                .from("orders")
-                .select("*")
-                .order("created_at", {
-                    ascending: false
-                });
+        const { data, error } = await supabase
+            .from("orders")
+            .select("*")
+            .order("created_at", { ascending: false });
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         state.orders = data || [];
-
         renderOrders();
         updateCounters();
     }
 
     async function loadWallets() {
-        const { data, error } =
-            await supabase
-                .from("wallets")
-                .select("*")
-                .order("updated_at", {
-                    ascending: false
-                });
+        const { data, error } = await supabase
+            .from("wallets")
+            .select("*")
+            .order("updated_at", { ascending: false });
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         state.wallets = data || [];
-
         renderWallets();
     }
 
     async function loadDeposits() {
-        const { data, error } =
-            await supabase
-                .from("wallet_deposits")
-                .select("*")
-                .order("created_at", {
-                    ascending: false
-                });
+        const { data, error } = await supabase
+            .from("wallet_deposits")
+            .select("*")
+            .order("created_at", { ascending: false });
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         state.deposits = data || [];
+        renderWallets();
+        renderActivity();
     }
 
     async function loadWithdrawals() {
-        const { data, error } =
-            await supabase
-                .from("withdrawal_requests")
-                .select("*")
-                .order("created_at", {
-                    ascending: false
-                });
+        const { data, error } = await supabase
+            .from("withdrawal_requests")
+            .select("*")
+            .order("created_at", { ascending: false });
 
-        if (error) {
-            throw error;
-        }
+        if (error) throw error;
 
         state.withdrawals = data || [];
-
         renderWithdrawals();
+        renderActivity();
     }
 
     function updateCounters() {
-        const users = state.users;
-
-        const sellers = users.filter(user =>
-            String(user.role || "").toLowerCase() ===
-            "seller"
+        const sellers = state.users.filter(user =>
+            String(user.role || "").toLowerCase() === "seller"
         );
 
-        const buyers = users.filter(user =>
-            String(user.role || "").toLowerCase() ===
-            "buyer"
+        const buyers = state.users.filter(user =>
+            String(user.role || "").toLowerCase() === "buyer"
         );
 
         const volume = state.orders.reduce(
-            (total, order) =>
-                total + getOrderTotal(order),
+            (total, order) => total + orderTotal(order),
             0
         );
 
-        if (elements.totalUsers) {
-            elements.totalUsers.textContent =
-                users.length;
-        }
-
-        if (elements.totalSellers) {
-            elements.totalSellers.textContent =
-                sellers.length;
-        }
-
-        if (elements.totalBuyers) {
-            elements.totalBuyers.textContent =
-                buyers.length;
-        }
-
-        if (elements.totalProducts) {
-            elements.totalProducts.textContent =
-                state.products.length;
-        }
-
-        if (elements.totalOrders) {
-            elements.totalOrders.textContent =
-                state.orders.length;
-        }
-
-        if (elements.transactionVolume) {
-            elements.transactionVolume.textContent =
-                formatMoney(volume);
-        }
+        if (el.usersStat) el.usersStat.textContent = state.users.length;
+        if (el.sellersStat) el.sellersStat.textContent = sellers.length;
+        if (el.buyersStat) el.buyersStat.textContent = buyers.length;
+        if (el.productsStat) el.productsStat.textContent = state.products.length;
+        if (el.ordersStat) el.ordersStat.textContent = state.orders.length;
+        if (el.volumeStat) el.volumeStat.textContent = formatMoney(volume);
     }
 
     function renderUsers() {
-        if (!elements.usersList) {
-            return;
-        }
+        if (!el.usersList) return;
 
         if (!state.users.length) {
-            elements.usersList.innerHTML =
-                '<div class="admin-empty">Pa gen itilizatè.</div>';
+            setListMessage(el.usersList, "Pa gen itilizatè.");
             return;
         }
 
-        elements.usersList.innerHTML =
-            state.users.map(user => `
-                <div class="admin-user-item"
-                     data-id="${escapeHTML(user.id)}">
-
-                    <div class="user-main">
-                        <strong>
-                            ${escapeHTML(
-                                getUserName(user)
-                            )}
-                        </strong>
-
-                        <span>
-                            Wòl:
-                            ${escapeHTML(
-                                user.role || "—"
-                            )}
-                        </span>
-
-                        ${
-                            user.phone
-                                ? `
-                                    <span>
-                                        Telefòn:
-                                        ${escapeHTML(
-                                            user.phone
-                                        )}
-                                    </span>
-                                `
-                                : ""
-                        }
-
-                        ${
-                            user.email
-                                ? `
-                                    <span>
-                                        Email:
-                                        ${escapeHTML(
-                                            user.email
-                                        )}
-                                    </span>
-                                `
-                                : ""
-                        }
-
-                        <small>
-                            Enskri:
-                            ${formatDate(
-                                user.created_at
-                            )}
-                        </small>
-                    </div>
+        el.usersList.innerHTML = state.users.map(user => `
+            <div class="admin-user-item" data-id="${escapeHTML(user.id)}">
+                <div class="user-main">
+                    <strong>${escapeHTML(userName(user))}</strong>
+                    <span>Wòl: ${escapeHTML(user.role || "—")}</span>
+                    ${user.phone
+                        ? `<span>Telefòn: ${escapeHTML(user.phone)}</span>`
+                        : ""}
+                    ${user.email
+                        ? `<span>Email: ${escapeHTML(user.email)}</span>`
+                        : ""}
+                    <small>
+                        Enskri: ${escapeHTML(formatDate(user.created_at))}
+                    </small>
                 </div>
-            `).join("");
+            </div>
+        `).join("");
     }
 
     function renderProducts() {
-        if (!elements.productsList) {
-            return;
-        }
+        if (!el.productsList) return;
 
         if (!state.products.length) {
-            elements.productsList.innerHTML =
-                '<div class="admin-empty">Pa gen pwodwi.</div>';
+            setListMessage(el.productsList, "Pa gen pwodwi.");
             return;
         }
 
-        elements.productsList.innerHTML =
-            state.products.map(product => {
-                const price =
-                    product.price ??
-                    product.unit_price ??
-                    0;
+        el.productsList.innerHTML = state.products.map(product => {
+            const price = product.price ?? product.unit_price ?? 0;
+            const stock = product.stock ?? product.quantity ?? 0;
 
-                const stock =
-                    product.stock ??
-                    product.quantity ??
-                    0;
-
-                return `
-                    <div class="admin-product-item"
-                         data-id="${escapeHTML(
-                             product.id
-                         )}">
-
-                        <div class="product-main">
-                            <strong>
-                                ${escapeHTML(
-                                    getProductName(
-                                        product
-                                    )
-                                )}
-                            </strong>
-
-                            <span>
-                                Pri:
-                                ${formatMoney(price)}
-                            </span>
-
-                            <span>
-                                Stock:
-                                ${escapeHTML(stock)}
-                            </span>
-
-                            ${
-                                product.category
-                                    ? `
-                                        <span>
-                                            Kategori:
-                                            ${escapeHTML(
-                                                product.category
-                                            )}
-                                        </span>
-                                    `
-                                    : ""
-                            }
-
-                            <small>
-                                Kreye:
-                                ${formatDate(
-                                    product.created_at
-                                )}
-                            </small>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-}
-        function renderOrders() {
-        if (!elements.ordersList) {
-            return;
-        }
-
-        if (!state.orders.length) {
-            elements.ordersList.innerHTML =
-                '<div class="admin-empty">Pa gen kòmand.</div>';
-            return;
-        }
-
-        elements.ordersList.innerHTML =
-            state.orders.map(order => {
-                const status =
-                    order.status || "pending";
-
-                return `
-                    <div class="admin-order-item"
-                         data-id="${escapeHTML(
-                             order.id
-                         )}">
-
-                        <div class="order-main">
-                            <strong>
-                                ${escapeHTML(
-                                    order.product_name ||
-                                    "Pwodwi"
-                                )}
-                            </strong>
-
-                            <span>
-                                Achtè:
-                                ${escapeHTML(
-                                    order.buyer_name ||
-                                    "—"
-                                )}
-                            </span>
-
-                            <span>
-                                Kantite:
-                                ${escapeHTML(
-                                    order.quantity || 1
-                                )}
-                            </span>
-
-                            <span>
-                                Total:
-                                ${formatMoney(
-                                    getOrderTotal(order)
-                                )}
-                            </span>
-
-                            <span class="${getStatusClass(
-                                status
-                            )}">
-                                ${escapeHTML(
-                                    getStatusLabel(status)
-                                )}
-                            </span>
-
-                            <small>
-                                ${formatDate(
-                                    order.created_at
-                                )}
-                            </small>
-                        </div>
-                    </div>
-                `;
-            }).join("");
-    }
-
-    function renderWallets() {
-        if (!elements.walletsList) {
-            return;
-        }
-
-        if (!state.wallets.length) {
-            elements.walletsList.innerHTML =
-                '<div class="admin-empty">Pa gen wallet.</div>';
-            return;
-        }
-
-        elements.walletsList.innerHTML =
-            state.wallets.map(wallet => `
-                <div class="admin-wallet-item"
-                     data-id="${escapeHTML(
-                         wallet.id
-                     )}">
-
-                    <div class="wallet-main">
-                        <strong>
-                            ${formatMoney(
-                                wallet.balance
-                            )}
-                        </strong>
-
-                        <span>
-                            User ID:
-                            ${escapeHTML(
-                                wallet.user_id || "—"
-                            )}
-                        </span>
-
+            return `
+                <div class="admin-product-item" data-id="${escapeHTML(product.id)}">
+                    <div class="product-main">
+                        <strong>${escapeHTML(productName(product))}</strong>
+                        <span>Pri: ${escapeHTML(formatMoney(price))}</span>
+                        <span>Stock: ${escapeHTML(stock)}</span>
+                        ${product.category
+                            ? `<span>Kategori: ${escapeHTML(product.category)}</span>`
+                            : ""}
+                        ${typeof product.is_active === "boolean"
+                            ? `<span class="${product.is_active
+                                ? "status-approved"
+                                : "status-rejected"}">
+                                ${product.is_active ? "Aktif" : "Inaktif"}
+                               </span>`
+                            : ""}
                         <small>
-                            Mizajou:
-                            ${formatDate(
-                                wallet.updated_at
-                            )}
+                            Kreye: ${escapeHTML(formatDate(product.created_at))}
                         </small>
                     </div>
                 </div>
-            `).join("");
+            `;
+        }).join("");
+    }
 
-        addDepositActions();
+    function renderOrders() {
+        if (!el.ordersList) return;
+
+        if (!state.orders.length) {
+            setListMessage(el.ordersList, "Pa gen kòmand.");
+            return;
+        }
+
+        el.ordersList.innerHTML = state.orders.map(order => {
+            const status = order.status || "pending";
+
+            return `
+                <div class="admin-order-item" data-id="${escapeHTML(order.id)}">
+                    <div class="order-main">
+                        <strong>
+                            Kòmand #${escapeHTML(String(order.id).slice(0, 8))}
+                        </strong>
+                        <span>
+                            Achtè:
+                            ${escapeHTML(order.buyer_name || order.buyer_id || "—")}
+                        </span>
+                        ${order.shipping_address
+                            ? `<span>Adrès: ${escapeHTML(order.shipping_address)}</span>`
+                            : ""}
+                        <span>
+                            Total: ${escapeHTML(formatMoney(orderTotal(order)))}
+                        </span>
+                        <span class="${statusClass(status)}">
+                            ${escapeHTML(statusLabel(status))}
+                        </span>
+                        <small>
+                            ${escapeHTML(formatDate(order.created_at))}
+                        </small>
+                    </div>
+                </div>
+            `;
+        }).join("");
+            function renderWallets() {
+        if (!el.walletsList) return;
+
+        const wallets = state.wallets.map(wallet => `
+            <div class="admin-wallet-item" data-id="${escapeHTML(wallet.id)}">
+                <div class="wallet-main">
+                    <strong>${escapeHTML(formatMoney(wallet.balance))}</strong>
+                    <span>
+                        User ID: ${escapeHTML(wallet.user_id || "—")}
+                    </span>
+                    <small>
+                        Mizajou: ${escapeHTML(formatDate(wallet.updated_at))}
+                    </small>
+                </div>
+            </div>
+        `);
+
+        const deposits = state.deposits.slice(0, 20).map(deposit => {
+            const status = deposit.status || "pending";
+
+            return `
+                <div
+                    class="admin-deposit-item"
+                    data-deposit-id="${escapeHTML(deposit.id)}"
+                >
+                    <div class="deposit-main">
+                        <strong>
+                            Rechaj:
+                            ${escapeHTML(formatMoney(depositAmount(deposit)))}
+                        </strong>
+                        <span>
+                            Metòd:
+                            ${escapeHTML(
+                                deposit.method ||
+                                deposit.payment_method ||
+                                "—"
+                            )}
+                        </span>
+                        <span>
+                            Referans:
+                            ${escapeHTML(
+                                deposit.payment_reference ||
+                                deposit.reference ||
+                                "—"
+                            )}
+                        </span>
+                        <span class="${statusClass(status)}">
+                            ${escapeHTML(statusLabel(status))}
+                        </span>
+                        <small>
+                            ${escapeHTML(formatDate(deposit.created_at))}
+                        </small>
+                    </div>
+
+                    ${status === "pending" ? `
+                        <div class="request-actions">
+                            <button
+                                type="button"
+                                class="admin-action-btn"
+                                data-action="approve-deposit"
+                                data-id="${escapeHTML(deposit.id)}"
+                            >
+                                Apwouve
+                            </button>
+                            <button
+                                type="button"
+                                class="admin-action-btn"
+                                data-action="reject-deposit"
+                                data-id="${escapeHTML(deposit.id)}"
+                            >
+                                Rejte
+                            </button>
+                        </div>
+                    ` : ""}
+                </div>
+            `;
+        });
+
+        if (!wallets.length && !deposits.length) {
+            setListMessage(
+                el.walletsList,
+                "Pa gen wallet oswa demann rechaj."
+            );
+            return;
+        }
+
+        el.walletsList.innerHTML =
+            wallets.concat(deposits).join("");
     }
 
     function renderWithdrawals() {
-        if (!elements.withdrawalsList) {
-            return;
-        }
+        if (!el.withdrawalsList) return;
 
         if (!state.withdrawals.length) {
-            elements.withdrawalsList.innerHTML =
-                '<div class="admin-empty">Pa gen demann retrè.</div>';
+            setListMessage(
+                el.withdrawalsList,
+                "Pa gen demann retrè."
+            );
             return;
         }
 
-        elements.withdrawalsList.innerHTML =
+        el.withdrawalsList.innerHTML =
             state.withdrawals.map(request => {
-                const status =
-                    request.status || "pending";
+                const status = request.status || "pending";
+                const amount = withdrawalAmount(request);
+                const fee =
+                    Number(
+                        request.fee ??
+                        request.fee_amount ??
+                        0
+                    ) || 0;
 
                 return `
-                    <div class="admin-withdrawal-item"
-                         data-id="${escapeHTML(
-                             request.id
-                         )}">
-
+                    <div
+                        class="admin-withdrawal-item"
+                        data-id="${escapeHTML(request.id)}"
+                    >
                         <div class="withdrawal-main">
                             <strong>
-                                ${formatMoney(
-                                    request.amount
-                                )}
+                                ${escapeHTML(formatMoney(amount))}
                             </strong>
-
                             <span>
                                 Frè:
-                                ${formatMoney(
-                                    request.fee
-                                )}
+                                ${escapeHTML(formatMoney(fee))}
                             </span>
-
                             <span>
                                 Metòd:
                                 ${escapeHTML(
                                     request.method ||
+                                    request.payment_method ||
                                     "—"
                                 )}
                             </span>
-
                             <span>
                                 Kont:
                                 ${escapeHTML(
                                     request.destination_account ||
+                                    request.account_number ||
+                                    request.phone ||
                                     "—"
                                 )}
                             </span>
-
-                            <span class="${getStatusClass(
-                                status
-                            )}">
-                                ${escapeHTML(
-                                    getStatusLabel(status)
-                                )}
+                            <span class="${statusClass(status)}">
+                                ${escapeHTML(statusLabel(status))}
                             </span>
-
                             <small>
-                                ${formatDate(
-                                    request.created_at
-                                )}
+                                ${escapeHTML(formatDate(request.created_at))}
                             </small>
                         </div>
+
+                        ${status === "pending" ? `
+                            <div class="request-actions">
+                                <button
+                                    type="button"
+                                    class="admin-action-btn"
+                                    data-action="approve-withdrawal"
+                                    data-id="${escapeHTML(request.id)}"
+                                >
+                                    Apwouve
+                                </button>
+                                <button
+                                    type="button"
+                                    class="admin-action-btn"
+                                    data-action="reject-withdrawal"
+                                    data-id="${escapeHTML(request.id)}"
+                                >
+                                    Rejte
+                                </button>
+                            </div>
+                        ` : ""}
                     </div>
                 `;
             }).join("");
-
-        addWithdrawalActions();
     }
 
-    async function saveSettings() {
-        if (!elements.saveSettings) {
-            return;
-        }
+    function renderActivity() {
+        if (!el.activity) return;
 
-        try {
-            elements.saveSettings.disabled = true;
-            showSettingsMessage("", "");
-
-            const feePercentage =
-                Number(
-                    elements.purchaseFee?.value
-                );
-
-            const withdrawalFee =
-                Number(
-                    elements.withdrawalFee?.value
-                );
-
-            if (
-                !Number.isFinite(feePercentage) ||
-                feePercentage < 0
-            ) {
-                throw new Error(
-                    "Komisyon acha a pa valab."
-                );
-            }
-
-            if (
-                !Number.isFinite(withdrawalFee) ||
-                withdrawalFee < 0
-            ) {
-                throw new Error(
-                    "Frè retrè a pa valab."
-                );
-            }
-
-            const {
-                error: adminError
-            } = await supabase.rpc(
-                "update_admin_settings",
-                {
-                    p_moncash_number:
-                        state.settings.moncash_number,
-
-                    p_natcash_number:
-                        state.settings.natcash_number,
-
-                    p_withdrawal_fee_percent:
-                        withdrawalFee
-                }
-            );
-
-            if (adminError) {
-                throw adminError;
-            }
-
-            const {
-                error: macheyaError
-            } = await supabase
-                .from("macheya_settings")
-                .update({
-                    fee_percentage:
-                        feePercentage,
-
-                    updated_by:
-                        state.user.id,
-
-                    updated_at:
-                        new Date().toISOString()
-                })
-                .eq("id", 1);
-
-            if (macheyaError) {
-                throw macheyaError;
-            }
-
-            state.settings.fee_percentage =
-                feePercentage;
-
-            state.settings.withdrawal_fee_percent =
-                withdrawalFee;
-
-            showSettingsMessage(
-                "Paramèt yo sove avèk siksè.",
-                "success"
-            );
-
-        } catch (error) {
-            console.error(
-                "Save settings:",
-                error
-            );
-
-            showSettingsMessage(
-                error.message ||
-                "Pa kapab sove paramèt yo.",
-                "error"
-            );
-
-        } finally {
-            elements.saveSettings.disabled =
-                false;
-        }
-        }
-        async function approveDeposit(
-        depositId,
-        adminNote = null
-    ) {
-        if (!depositId) {
-            return;
-        }
-
-        try {
-            const {
-                data,
-                error
-            } = await supabase.rpc(
-                "approve_wallet_deposit",
-                {
-                    p_deposit_id: depositId,
-                    p_admin_note: adminNote
-                }
-            );
-
-            if (error) {
-                throw error;
-            }
-
-            if (data !== true) {
-                throw new Error(
-                    "Rechaj la pa t kapab apwouve."
-                );
-            }
-
-            await loadDeposits();
-            await loadWallets();
-
-        } catch (error) {
-            showError(
-                error.message ||
-                "Erè pandan apwobasyon rechaj la."
-            );
-        }
-    }
-
-    async function rejectDeposit(
-        depositId,
-        adminNote = null
-    ) {
-        if (!depositId) {
-            return;
-        }
-
-        try {
-            const {
-                data,
-                error
-            } = await supabase.rpc(
-                "reject_wallet_deposit",
-                {
-                    p_deposit_id: depositId,
-                    p_admin_note: adminNote
-                }
-            );
-
-            if (error) {
-                throw error;
-            }
-
-            if (data !== true) {
-                throw new Error(
-                    "Rechaj la pa t kapab rejte."
-                );
-            }
-
-            await loadDeposits();
-            await loadWallets();
-
-        } catch (error) {
-            showError(
-                error.message ||
-                "Erè pandan rejè rechaj la."
-            );
-        }
-    }
-
-    async function approveWithdrawal(
-        requestId,
-        paymentReference = null,
-        adminNote = null
-    ) {
-        if (!requestId) {
-            return;
-        }
-
-        try {
-            const {
-                data,
-                error
-            } = await supabase.rpc(
-                "approve_withdrawal",
-                {
-                    p_request_id: requestId,
-                    p_payment_reference:
-                        paymentReference,
-                    p_admin_note:
-                        adminNote
-                }
-            );
-
-            if (error) {
-                throw error;
-            }
-
-            if (data !== true) {
-                throw new Error(
-                    "Retrè a pa t kapab apwouve."
-                );
-            }
-
-            await loadWithdrawals();
-            await loadWallets();
-
-        } catch (error) {
-            showError(
-                error.message ||
-                "Erè pandan apwobasyon retrè a."
-            );
-        }
-    }
-
-    async function rejectWithdrawal(
-        requestId,
-        adminNote = null
-    ) {
-        if (!requestId) {
-            return;
-        }
-
-        try {
-            const {
-                data,
-                error
-            } = await supabase.rpc(
-                "reject_withdrawal",
-                {
-                    p_request_id: requestId,
-                    p_admin_note:
-                        adminNote
-                }
-            );
-
-            if (error) {
-                throw error;
-            }
-
-            if (data !== true) {
-                throw new Error(
-                    "Retrè a pa t kapab rejte."
-                );
-            }
-
-            await loadWithdrawals();
-            await loadWallets();
-
-        } catch (error) {
-            showError(
-                error.message ||
-                "Erè pandan rejè retrè a."
-            );
-        }
-    }
-
-    async function handleApproveDeposit(
-        depositId
-    ) {
-        const note = window.prompt(
-            "Nòt admin (opsyonèl):"
-        );
-
-        if (note === null) {
-            return;
-        }
-
-        await approveDeposit(
-            depositId,
-            note.trim() || null
-        );
-    }
-
-    async function handleRejectDeposit(
-        depositId
-    ) {
-        const note = window.prompt(
-            "Rezon rejè rechaj la:"
-        );
-
-        if (note === null) {
-            return;
-        }
-
-        if (!note.trim()) {
-            showError(
-                "Ou dwe mete yon rezon pou rejè a."
-            );
-            return;
-        }
-
-        await rejectDeposit(
-            depositId,
-            note.trim()
-        );
-    }
-
-    async function handleApproveWithdrawal(
-        requestId
-    ) {
-        const paymentReference =
-            window.prompt(
-                "Mete referans peman an:"
-            );
-
-        if (paymentReference === null) {
-            return;
-        }
-
-        const note = window.prompt(
-            "Nòt admin (opsyonèl):"
-        );
-
-        if (note === null) {
-            return;
-        }
-
-        await approveWithdrawal(
-            requestId,
-            paymentReference.trim() || null,
-            note.trim() || null
-        );
-    }
-
-    async function handleRejectWithdrawal(
-        requestId
-    ) {
-        const note = window.prompt(
-            "Rezon rejè retrè a:"
-        );
-
-        if (note === null) {
-            return;
-        }
-
-        if (!note.trim()) {
-            showError(
-                "Ou dwe mete yon rezon pou rejè a."
-            );
-            return;
-        }
-
-        await rejectWithdrawal(
-            requestId,
-            note.trim()
-        );
-    }
-
-    function getDeposit(id) {
-        return state.deposits.find(
-            deposit => deposit.id === id
-        ) || null;
-    }
-
-    function getWithdrawal(id) {
-        return state.withdrawals.find(
-            request => request.id === id
-        ) || null;
-    }
-
-    function getOrder(id) {
-        return state.orders.find(
-            order => order.id === id
-        ) || null;
-    }
-
-    function getUser(id) {
-        return state.users.find(
-            user => user.id === id
-        ) || null;
-    }
-
-    function getProduct(id) {
-        return state.products.find(
-            product => product.id === id
-        ) || null;
-                }
-        function renderRecentActivity() {
-        if (!elements.recentActivity) {
-            return;
-        }
-
-        const activities = [];
+        const items = [];
 
         state.orders.slice(0, 5).forEach(order => {
-            activities.push({
-                type: "order",
+            items.push({
                 title: "Nouvo kòmand",
-                text:
-                    (order.product_name ||
-                        "Pwodwi") +
-                    " — " +
-                    formatMoney(
-                        getOrderTotal(order)
-                    ),
+                text: formatMoney(orderTotal(order)),
                 date: order.created_at
             });
         });
 
         state.deposits.slice(0, 5).forEach(deposit => {
-            activities.push({
-                type: "deposit",
+            items.push({
                 title: "Demann rechaj",
                 text:
-                    formatMoney(
-                        deposit.amount
-                    ) +
+                    formatMoney(depositAmount(deposit)) +
                     " — " +
-                    getStatusLabel(
-                        deposit.status
-                    ),
+                    statusLabel(deposit.status),
                 date: deposit.created_at
             });
         });
 
-        state.withdrawals.slice(0, 5).forEach(
-            request => {
-                activities.push({
-                    type: "withdrawal",
-                    title: "Demann retrè",
-                    text:
-                        formatMoney(
-                            request.amount
-                        ) +
-                        " — " +
-                        getStatusLabel(
-                            request.status
-                        ),
-                    date: request.created_at
-                });
-            }
-        );
+        state.withdrawals.slice(0, 5).forEach(request => {
+            items.push({
+                title: "Demann retrè",
+                text:
+                    formatMoney(withdrawalAmount(request)) +
+                    " — " +
+                    statusLabel(request.status),
+                date: request.created_at
+            });
+        });
 
-        activities.sort(
+        items.sort(
             (a, b) =>
-                new Date(b.date) -
-                new Date(a.date)
+                new Date(b.date || 0) -
+                new Date(a.date || 0)
         );
 
-        const recent =
-            activities.slice(0, 10);
+        const recent = items.slice(0, 10);
 
         if (!recent.length) {
-            elements.recentActivity.innerHTML =
-                '<div class="admin-empty">Pa gen aktivite resan.</div>';
+            setListMessage(
+                el.activity,
+                "Pa gen aktivite resan."
+            );
             return;
         }
 
-        elements.recentActivity.innerHTML =
-            recent.map(activity => `
-                <div class="admin-activity-item">
-                    <strong>
-                        ${escapeHTML(
-                            activity.title
-                        )}
-                    </strong>
-
-                    <span>
-                        ${escapeHTML(
-                            activity.text
-                        )}
-                    </span>
-
-                    <small>
-                        ${formatDate(
-                            activity.date
-                        )}
-                    </small>
-                </div>
-            `).join("");
+        el.activity.innerHTML = recent.map(item => `
+            <div class="admin-activity-item">
+                <strong>${escapeHTML(item.title)}</strong>
+                <span>${escapeHTML(item.text)}</span>
+                <small>${escapeHTML(formatDate(item.date))}</small>
+            </div>
+        `).join("");
     }
 
     function renderAll() {
@@ -1278,234 +759,442 @@
         renderOrders();
         renderWallets();
         renderWithdrawals();
-        renderRecentActivity();
+        renderActivity();
         updateCounters();
     }
 
+    function showSection(name) {
+        Object.keys(sectionMap).forEach(key => {
+            if (sectionMap[key]) {
+                sectionMap[key].hidden = key !== name;
+            }
+        });
+
+        const target = sectionMap[name];
+
+        if (target) {
+            target.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+    }
+
     async function loadAllData() {
-        await Promise.all([
-            loadSettings(),
-            loadUsers(),
-            loadProducts(),
-            loadOrders(),
-            loadWallets(),
-            loadDeposits(),
-            loadWithdrawals()
-        ]);
+        state.errors = {};
+
+        const jobs = [
+            ["settings", loadSettings, null],
+            ["users", loadUsers, el.usersList],
+            ["products", loadProducts, el.productsList],
+            ["orders", loadOrders, el.ordersList],
+            ["wallets", loadWallets, el.walletsList],
+            ["withdrawals", loadWithdrawals, el.withdrawalsList]
+        ];
+
+        const results = await Promise.allSettled(
+            jobs.map(job => job[1]())
+        );
+
+        results.forEach((result, index) => {
+            const [name, , target] = jobs[index];
+
+            if (result.status === "rejected") {
+                const message = errorText(
+                    result.reason,
+                    `Pa kapab chaje ${name}.`
+                );
+
+                state.errors[name] = message;
+
+                console.error(
+                    `Macheya Admin - ${name}:`,
+                    result.reason
+                );
+
+                if (target) {
+                    setListMessage(
+                        target,
+                        message,
+                        "error"
+                    );
+                }
+            }
+        });
 
         renderAll();
-    }
 
-    async function refresh() {
-        try {
-            hideError();
-            await loadAllData();
+        results.forEach((result, index) => {
+            if (result.status !== "rejected") return;
 
-            addWithdrawalActions();
-            addDepositActions();
+            const [name, , target] = jobs[index];
 
-        } catch (error) {
-            console.error(
-                "Refresh admin:",
-                error
-            );
-
-            showError(
-                error.message ||
-                "Pa kapab rafrechi done admin yo."
-            );
-        }
-    }
-
-    function addWithdrawalActions() {
-        if (!elements.withdrawalsList) {
-            return;
-        }
-
-        const items =
-            elements.withdrawalsList.querySelectorAll(
-                ".admin-withdrawal-item"
-            );
-
-        items.forEach(item => {
-            if (
-                item.querySelector(
-                    ".request-actions"
-                )
-            ) {
-                return;
+            if (target && state.errors[name]) {
+                setListMessage(
+                    target,
+                    state.errors[name],
+                    "error"
+                );
             }
-
-            const id = item.dataset.id;
-            const request =
-                getWithdrawal(id);
-
-            if (
-                !request ||
-                request.status !== "pending"
-            ) {
-                return;
-            }
-
-            const actions =
-                document.createElement("div");
-
-            actions.className =
-                "request-actions";
-
-            actions.innerHTML = `
-                <button
-                    type="button"
-                    class="admin-action-btn"
-                    data-action="approve-withdrawal"
-                    data-id="${escapeHTML(id)}">
-                    Apwouve
-                </button>
-
-                <button
-                    type="button"
-                    class="admin-action-btn"
-                    data-action="reject-withdrawal"
-                    data-id="${escapeHTML(id)}">
-                    Rejte
-                </button>
-            `;
-
-            item.appendChild(actions);
         });
     }
 
-    function addDepositActions() {
-        if (!elements.walletsList) {
+    async function refresh() {
+        hideError();
+        await loadAllData();
+    }
+
+    async function saveSettings() {
+        if (!el.saveSettings) return;
+
+        const purchaseFee =
+            Number(el.purchaseFee?.value);
+
+        const withdrawalFee =
+            Number(el.withdrawalFee?.value);
+
+        if (
+            !Number.isFinite(purchaseFee) ||
+            purchaseFee < 0 ||
+            purchaseFee > 100
+        ) {
+            settingsMessage(
+                "Komisyon acha a dwe ant 0% ak 100%.",
+                "error"
+            );
             return;
         }
 
-        const pending =
-            state.deposits.filter(
-                deposit =>
-                    deposit.status ===
-                    "pending"
+        if (
+            !Number.isFinite(withdrawalFee) ||
+            withdrawalFee < 0 ||
+            withdrawalFee > 100
+        ) {
+            settingsMessage(
+                "Frè retrè a dwe ant 0% ak 100%.",
+                "error"
+            );
+            return;
+        }
+
+        try {
+            el.saveSettings.disabled = true;
+
+            settingsMessage(
+                "Ap sove paramèt yo...",
+                ""
             );
 
-        pending.slice(0, 20).forEach(
-            deposit => {
-                const existing =
-                    elements.walletsList.querySelector(
-                        `[data-deposit-id="${CSS.escape(
-                            String(deposit.id)
-                        )}"]`
-                    );
+            const { error: adminError } =
+                await supabase.rpc(
+                    "update_admin_settings",
+                    {
+                        p_moncash_number:
+                            state.settings.moncash_number,
+                        p_natcash_number:
+                            state.settings.natcash_number,
+                        p_withdrawal_fee_percent:
+                            withdrawalFee
+                    }
+                );
 
-                if (existing) {
-                    return;
-                }
+            if (adminError) throw adminError;
 
-                const item =
-                    document.createElement("div");
+            const { error: marketplaceError } =
+                await supabase
+                    .from("macheya_settings")
+                    .update({
+                        fee_percentage: purchaseFee,
+                        updated_by: state.user?.id || null,
+                        updated_at:
+                            new Date().toISOString()
+                    })
+                    .eq("id", 1);
 
-                item.className =
-                    "admin-deposit-item";
-
-                item.dataset.depositId =
-                    deposit.id;
-
-                item.innerHTML = `
-                    <div class="deposit-main">
-                        <strong>
-                            ${formatMoney(
-                                deposit.amount
-                            )}
-                        </strong>
-
-                        <span>
-                            Metòd:
-                            ${escapeHTML(
-                                deposit.method ||
-                                "—"
-                            )}
-                        </span>
-
-                        <span>
-                            Referans:
-                            ${escapeHTML(
-                                deposit.payment_reference ||
-                                "—"
-                            )}
-                        </span>
-
-                        <span class="${getStatusClass(
-                            deposit.status
-                        )}">
-                            ${escapeHTML(
-                                getStatusLabel(
-                                    deposit.status
-                                )
-                            )}
-                        </span>
-
-                        <small>
-                            ${formatDate(
-                                deposit.created_at
-                            )}
-                        </small>
-                    </div>
-
-                    <div class="request-actions">
-                        <button
-                            type="button"
-                            class="admin-action-btn"
-                            data-action="approve-deposit"
-                            data-id="${escapeHTML(
-                                deposit.id
-                            )}">
-                            Apwouve
-                        </button>
-
-                        <button
-                            type="button"
-                            class="admin-action-btn"
-                            data-action="reject-deposit"
-                            data-id="${escapeHTML(
-                                deposit.id
-                            )}">
-                            Rejte
-                        </button>
-                    </div>
-                `;
-
-                elements.walletsList.prepend(item);
+            if (marketplaceError) {
+                throw marketplaceError;
             }
+
+            state.settings.fee_percentage =
+                purchaseFee;
+
+            state.settings.withdrawal_fee_percent =
+                withdrawalFee;
+
+            renderSettings();
+
+            settingsMessage(
+                "Paramèt yo sove avèk siksè.",
+                "success"
+            );
+        } catch (error) {
+            console.error(
+                "Macheya Admin save settings:",
+                error
+            );
+
+            settingsMessage(
+                errorText(
+                    error,
+                    "Pa kapab sove paramèt yo."
+                ),
+                "error"
+            );
+        } finally {
+            el.saveSettings.disabled = false;
+        }
+    }
+
+    async function approveDeposit(id, note) {
+        if (!id) return;
+
+        try {
+            const { data, error } =
+                await supabase.rpc(
+                    "approve_wallet_deposit",
+                    {
+                        p_deposit_id: id,
+                        p_admin_note: note || null
+                    }
+                );
+
+            if (error) throw error;
+
+            if (data !== true && data?.success !== true) {
+                throw new Error(
+                    "Rechaj la pa t kapab apwouve."
+                );
+            }
+
+            await refresh();
+        } catch (error) {
+            showError(
+                errorText(
+                    error,
+                    "Erè pandan apwobasyon rechaj la."
+                )
+            );
+        }
+    }
+
+    async function rejectDeposit(id, note) {
+        if (!id) return;
+
+        try {
+            const { data, error } =
+                await supabase.rpc(
+                    "reject_wallet_deposit",
+                    {
+                        p_deposit_id: id,
+                        p_admin_note: note || null
+                    }
+                );
+
+            if (error) throw error;
+
+            if (data !== true && data?.success !== true) {
+                throw new Error(
+                    "Rechaj la pa t kapab rejte."
+                );
+            }
+
+            await refresh();
+        } catch (error) {
+            showError(
+                errorText(
+                    error,
+                    "Erè pandan rejè rechaj la."
+                )
+            );
+        }
+            }
+            async function approveWithdrawal(
+        id,
+        paymentReference,
+        note
+    ) {
+        if (!id) return;
+
+        try {
+            const { data, error } =
+                await supabase.rpc(
+                    "approve_withdrawal",
+                    {
+                        p_request_id: id,
+                        p_payment_reference:
+                            paymentReference || null,
+                        p_admin_note:
+                            note || null
+                    }
+                );
+
+            if (error) throw error;
+
+            if (data !== true && data?.success !== true) {
+                throw new Error(
+                    "Retrè a pa t kapab apwouve."
+                );
+            }
+
+            await refresh();
+        } catch (error) {
+            showError(
+                errorText(
+                    error,
+                    "Erè pandan apwobasyon retrè a."
+                )
+            );
+        }
+    }
+
+    async function rejectWithdrawal(id, note) {
+        if (!id) return;
+
+        try {
+            const { data, error } =
+                await supabase.rpc(
+                    "reject_withdrawal",
+                    {
+                        p_request_id: id,
+                        p_admin_note: note || null
+                    }
+                );
+
+            if (error) throw error;
+
+            if (data !== true && data?.success !== true) {
+                throw new Error(
+                    "Retrè a pa t kapab rejte."
+                );
+            }
+
+            await refresh();
+        } catch (error) {
+            showError(
+                errorText(
+                    error,
+                    "Erè pandan rejè retrè a."
+                )
+            );
+        }
+    }
+
+    async function approveDepositPrompt(id) {
+        const note = window.prompt(
+            "Nòt admin (opsyonèl):"
+        );
+
+        if (note === null) return;
+
+        await approveDeposit(
+            id,
+            note.trim() || null
+        );
+    }
+
+    async function rejectDepositPrompt(id) {
+        const note = window.prompt(
+            "Rezon rejè rechaj la:"
+        );
+
+        if (note === null) return;
+
+        if (!note.trim()) {
+            showError(
+                "Ou dwe mete yon rezon pou rejè a."
+            );
+            return;
+        }
+
+        await rejectDeposit(
+            id,
+            note.trim()
+        );
+    }
+
+    async function approveWithdrawalPrompt(id) {
+        const reference = window.prompt(
+            "Mete referans peman an:"
+        );
+
+        if (reference === null) return;
+
+        const note = window.prompt(
+            "Nòt admin (opsyonèl):"
+        );
+
+        if (note === null) return;
+
+        await approveWithdrawal(
+            id,
+            reference.trim() || null,
+            note.trim() || null
+        );
+    }
+
+    async function rejectWithdrawalPrompt(id) {
+        const note = window.prompt(
+            "Rezon rejè retrè a:"
+        );
+
+        if (note === null) return;
+
+        if (!note.trim()) {
+            showError(
+                "Ou dwe mete yon rezon pou rejè a."
+            );
+            return;
+        }
+
+        await rejectWithdrawal(
+            id,
+            note.trim()
         );
     }
 
     function setupEvents() {
-        if (elements.saveSettings) {
-            elements.saveSettings.addEventListener(
+        document.querySelectorAll(
+            ".admin-menu-button[data-section]"
+        ).forEach(button => {
+            button.addEventListener(
+                "click",
+                () => showSection(
+                    button.dataset.section
+                )
+            );
+        });
+
+        if (el.saveSettings) {
+            el.saveSettings.addEventListener(
                 "click",
                 saveSettings
             );
         }
 
-        if (elements.logoutButton) {
-            elements.logoutButton.addEventListener(
+        if (el.logout) {
+            el.logout.addEventListener(
                 "click",
                 async () => {
                     try {
+                        el.logout.disabled = true;
                         await supabase.auth.signOut();
-                        window.location.href =
-                            "login.html";
+                        window.location.href = "login.html";
                     } catch (error) {
+                        el.logout.disabled = false;
+
                         showError(
-                            error.message ||
-                            "Pa kapab dekonekte."
+                            errorText(
+                                error,
+                                "Pa kapab dekonekte."
+                            )
                         );
                     }
                 }
             );
         }
 
-        if (elements.withdrawalsList) {
-            elements.withdrawalsList.addEventListener(
+        if (el.walletsList) {
+            el.walletsList.addEventListener(
                 "click",
                 async event => {
                     const button =
@@ -1513,41 +1202,33 @@
                             "[data-action]"
                         );
 
-                    if (!button) {
-                        return;
-                    }
-
-                    const id =
-                        button.dataset.id;
+                    if (!button) return;
 
                     const action =
                         button.dataset.action;
 
-                    if (
-                        action ===
-                        "approve-withdrawal"
-                    ) {
-                        await handleApproveWithdrawal(
-                            id
-                        );
-                        await refresh();
-                    }
+                    const id =
+                        button.dataset.id;
 
-                    if (
-                        action ===
-                        "reject-withdrawal"
-                    ) {
-                        await handleRejectWithdrawal(
-                            id
-                        );
-                        await refresh();
+                    button.disabled = true;
+
+                    try {
+                        if (action === "approve-deposit") {
+                            await approveDepositPrompt(id);
+                        } else if (
+                            action === "reject-deposit"
+                        ) {
+                            await rejectDepositPrompt(id);
+                        }
+                    } finally {
+                        button.disabled = false;
                     }
                 }
             );
         }
 
-        if (elements.walletsList) {
-            elements.walletsList.addEventListener(
+        if (el.withdrawalsList) {
+            el.withdrawalsList.addEventListener(
                 "click",
                 async event => {
                     const button =
@@ -1555,41 +1236,37 @@
                             "[data-action]"
                         );
 
-                    if (!button) {
-                        return;
-                    }
-
-                    const id =
-                        button.dataset.id;
+                    if (!button) return;
 
                     const action =
                         button.dataset.action;
 
-                    if (
-                        action ===
-                        "approve-deposit"
-                    ) {
-                        await handleApproveDeposit(
-                            id
-                        );
-                        await refresh();
-                    }
+                    const id =
+                        button.dataset.id;
 
-                    if (
-                        action ===
-                        "reject-deposit"
-                    ) {
-                        await handleRejectDeposit(
-                            id
-                        );
-                        await refresh();
+                    button.disabled = true;
+
+                    try {
+                        if (
+                            action ===
+                            "approve-withdrawal"
+                        ) {
+                            await approveWithdrawalPrompt(id);
+                        } else if (
+                            action ===
+                            "reject-withdrawal"
+                        ) {
+                            await rejectWithdrawalPrompt(id);
+                        }
+                    } finally {
+                        button.disabled = false;
                     }
                 }
             );
         }
-            function setupRealtime() {
-        const channels = [];
+    }
 
+    function setupRealtime() {
         const tables = [
             "profiles",
             "products",
@@ -1601,156 +1278,113 @@
             "admin_settings"
         ];
 
-        tables.forEach(table => {
-            const channel = supabase
+        const channels = tables.map(table =>
+            supabase
                 .channel(
-                    "admin-" +
+                    "macheya-admin-" +
                     table +
                     "-" +
-                    Date.now()
+                    Math.random()
+                        .toString(36)
+                        .slice(2)
                 )
                 .on(
                     "postgres_changes",
                     {
                         event: "*",
                         schema: "public",
-                        table: table
+                        table
                     },
-                    async () => {
-                        try {
-                            await refresh();
-                        } catch (error) {
+                    () => {
+                        refresh().catch(error =>
                             console.error(
-                                "Realtime:",
+                                "Macheya Admin realtime:",
                                 error
-                            );
-                        }
+                            )
+                        );
                     }
                 )
-                .subscribe();
-
-            channels.push(channel);
-        });
+                .subscribe()
+        );
 
         return () => {
             channels.forEach(channel => {
-                try {
-                    supabase.removeChannel(
-                        channel
-                    );
-                } catch (error) {
-                    console.error(error);
-                }
+                supabase.removeChannel(channel);
             });
         };
     }
 
     async function initializeAdmin() {
+        showLoading(true);
+        hideError();
+
         try {
-            showLoading(true);
-            hideError();
+            const user = await getCurrentUser();
 
-            const user =
-                await getCurrentUser();
-
-            if (!user) {
-                return;
-            }
+            if (!user) return;
 
             await verifySuperAdmin();
 
-            if (elements.roleBadge) {
-                elements.roleBadge.textContent =
+            if (el.role) {
+                el.role.textContent =
                     "SUPER ADMIN";
             }
 
             setupEvents();
 
-            await loadAllData();
-
-            const cleanupRealtime =
-                setupRealtime();
-
-            window.MacheyaAdminCleanup =
-                cleanupRealtime;
-
-            if (elements.content) {
-                elements.content.hidden = false;
+            if (el.content) {
+                el.content.hidden = false;
             }
 
-            showLoading(false);
+            await loadAllData();
 
+            window.MacheyaAdminCleanup =
+                setupRealtime();
         } catch (error) {
             console.error(
                 "Macheya Admin initialization:",
                 error
             );
 
+            showError(
+                errorText(
+                    error,
+                    "Pa kapab inisyalize panel admin lan."
+                )
+            );
+        } finally {
             showLoading(false);
 
-            showError(
-                error.message ||
-                "Pa kapab inisyalize panel admin lan."
-            );
+            if (
+                el.error?.hidden !== false &&
+                el.content
+            ) {
+                el.content.hidden = false;
+            }
         }
     }
 
     window.MacheyaAdmin = {
         state,
-
-        initialize:
-            initializeAdmin,
-
+        initialize: initializeAdmin,
         refresh,
-
-        reload:
-            refresh,
-
+        reload: refresh,
         saveSettings,
-
         loadSettings,
-
         loadUsers,
-
         loadProducts,
-
         loadOrders,
-
         loadWallets,
-
         loadDeposits,
-
         loadWithdrawals,
-
         approveDeposit,
-
         rejectDeposit,
-
         approveWithdrawal,
-
         rejectWithdrawal,
-
-        getUser,
-
-        getProduct,
-
-        getOrder,
-
-        getDeposit,
-
-        getWithdrawal,
-
         formatMoney,
-
         formatDate,
-
         escapeHTML
-    };
-
-    if (
-        document.readyState ===
-        "loading"
-    ) {
+            if (document.readyState === "loading") {
         document.addEventListener(
             "DOMContentLoaded",
             initializeAdmin,
@@ -1759,6 +1393,6 @@
     } else {
         initializeAdmin();
     }
-
 })();
-}
+    };
+    }
