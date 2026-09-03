@@ -14,7 +14,7 @@
         "https://iscktsymqntjgqaxcitv.supabase.co";
 
     const SUPABASE_KEY =
-        "sb_publishable_fvlSCK0gmNtIMQApA3Y-gw_e9ja75GW";
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlzY2t0c3ltcW50amdxYXhjaXR2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYyNDU5NDAsImV4cCI6MjEwMTgyMTk0MH0.cIu9QxDD2Y7OWwCadf8_6PkIBvxU3KmzA2pYECtu51I";
 
 
     // ========================================================
@@ -50,8 +50,21 @@
         client;
 
 
-    console.log(
-        "MACHEYA: Supabase client pare."
-    );
+    // ========================================================
+    // VERIFY CONNECTION (optional safety check)
+    // ========================================================
+
+    client.auth.getSession().then(function (result) {
+        if (result.error) {
+            console.error(
+                "MACHEYA: Erè koneksyon Supabase:",
+                result.error
+            );
+        } else {
+            console.log(
+                "MACHEYA: Supabase client pare."
+            );
+        }
+    });
 
 })();
