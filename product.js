@@ -281,7 +281,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
         // ====================================================
-        // SELLER
+        // SELLER — CHANJMAN: itilize seller_public view
         // ====================================================
 
         if (product.seller_id) {
@@ -292,8 +292,8 @@ document.addEventListener("DOMContentLoaded", async () => {
                     data: seller,
                     error: sellerError
                 } = await db
-                    .from("profiles")
-                    .select("name")
+                    .from("seller_public")  // ✅ View piblik, pa profiles
+                    .select("name, nom_complet")
                     .eq(
                         "id",
                         product.seller_id
@@ -302,12 +302,11 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 if (
                     !sellerError &&
-                    seller &&
-                    seller.name
+                    seller
                 ) {
 
                     productSellerName.textContent =
-                        seller.name;
+                        seller.name || seller.nom_complet || "Vandè Macheya";
                 }
 
             } catch (error) {
@@ -317,6 +316,31 @@ document.addEventListener("DOMContentLoaded", async () => {
                     error
                 );
             }
+        }
+
+
+        // ====================================================
+        // STOCK CHECK — NOUVO
+        // ====================================================
+
+        if (product.stock !== null && product.stock <= 0) {
+            if (productAddCartButton) {
+                productAddCartButton.disabled = true;
+                productAddCartButton.textContent = "Stock epwize";
+            }
+            if (productBuyButton) {
+                productBuyButton.disabled = true;
+                productBuyButton.textContent = "Stock epwize";
+            }
+        }
+
+
+        // ====================================================
+        // DIGITAL PRODUCT NOTE — NOUVO
+        // ====================================================
+
+        if (product.product_type === "digital") {
+            productCategory.textContent = getCategoryName(product.category) + " (Dijital)";
         }
 
 
@@ -450,7 +474,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
 
     // ========================================================
-    // LOAD PRODUCT
+    // LOAD PRODUCT — CHANJMAN: itilize products_public view
     // ========================================================
 
     async function loadProduct() {
@@ -478,11 +502,13 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         try {
 
+            // CHANJMAN: itilize products_public olye de products
+            // View la deja filtre is_active = true
             const {
                 data: product,
                 error: productError
             } = await db
-                .from("products")
+                .from("products_public")  // ✅ View piblik
                 .select(`
                     id,
                     name,
@@ -493,16 +519,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     product_type,
                     image_url,
                     seller_id,
-                    is_active,
                     created_at
                 `)
                 .eq(
                     "id",
                     productId
-                )
-                .eq(
-                    "is_active",
-                    true
                 )
                 .maybeSingle();
 
