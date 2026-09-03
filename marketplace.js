@@ -67,13 +67,37 @@ async function buyerBack() {
     }
 }
 
+// NOUVO: Li URL parameters pou pre-chaje kategori/search
+function readUrlParams() {
+    const params = new URLSearchParams(window.location.search);
+    const urlCat = params.get("category");
+    const urlSearch = params.get("search");
+
+    if (urlCat) {
+        category = cat(urlCat);
+        // Mete bouton aktif
+        cats.forEach(x =>
+            x.classList.toggle(
+                "is-active",
+                cat(x.dataset.categoryId) === category
+            )
+        );
+    }
+
+    if (urlSearch) {
+        search = urlSearch;
+        if (input) input.value = urlSearch;
+    }
+}
+
 async function load() {
     count.textContent = "Ap chaje...";
 
+    // CHANJMAN: itilize products_public olye de products
+    // View la deja filtre is_active = true
     const { data, error } = await db
-        .from("products")
+        .from("products_public")
         .select("*")
-        .eq("is_active", true)
         .order("created_at", { ascending:false });
 
     if (error) {
@@ -249,7 +273,11 @@ document.addEventListener("keydown",e => {
     if (e.key === "Escape") closeMenu();
 });
 
-cats[0]?.classList.add("is-active");
+// Inisyalizasyon
+readUrlParams(); // NOUVO: li URL params anvan
+if (category === "all") {
+    cats[0]?.classList.add("is-active");
+}
 
 buyerBack();
 load();
