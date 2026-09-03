@@ -4,10 +4,12 @@
     const supabase = window.supabaseClient;
     const params = new URLSearchParams(location.search);
 
-    const id =
+    const productId =
         params.get("id") ||
         params.get("product_id") ||
         params.get("product");
+
+    const cartAll = params.get("cart") === "all";
 
     const form = document.getElementById("checkout-form");
     const name = document.getElementById("checkout-name");
@@ -52,6 +54,8 @@
         document.getElementById("checkout-total");
 
     let product = null;
+    let cartProducts = [];
+    let feePercent = 0;
 
 
     function msg(text) {
@@ -68,15 +72,68 @@
 
 
     function updateTotal() {
-        const q = Number(quantity?.value || 1);
-        const price = Number(product?.price || 0);
+        if (cartAll && cartProducts.length > 0) {
+            // Plizyè pwodwi
+            let subtotal = 0;
+            let totalQty = 0;
 
-        if (summaryQuantity) {
-            summaryQuantity.textContent = q;
+            cartProducts.forEach(function (item) {
+                const qty = Number(item.quantity || 1);
+                const price = Number(item.price || 0);
+                subtotal += price * qty;
+                totalQty += qty;
+            });
+
+            const fee = Math.round(subtotal * feePercent / 100 * 100) / 100;
+            const grandTotal = subtotal + fee;
+
+            if (summaryProduct) {
+                summaryProduct.textContent = cartProducts.length + " pwodwi";
+            }
+
+            if (summaryQuantity) {
+                summaryQuantity.textContent = totalQty;
+            }
+
+            if (total) {
+                total.textContent = money(grandTotal);
+            }
+
+        } else if (product) {
+            // Yon sèl pwodwi
+            const q = Number(quantity?.value || 1);
+            const price = Number(product.price || 0);
+            const subtotal = price * q;
+            const fee = Math.round(subtotal * feePercent / 100 * 100) / 100;
+            const grandTotal = subtotal + fee;
+
+            if (summaryQuantity) {
+                summaryQuantity.textContent = q;
+            }
+
+            if (total) {
+                total.textContent = money(grandTotal);
+            }
         }
+    }
 
-        if (total) {
-            total.textContent = money(price * q);
+
+    async function loadFeePercent() {
+        try {
+            const { data, error } = await supabase.rpc("get_public_settings");
+
+            if (error) {
+                console.error("Fee load error:", error);
+                feePercent = 0;
+                return;
+            }
+
+            if (data && data.length > 0) {
+                feePercent = Number(data[0].fee_percentage || 0);
+            }
+        } catch (error) {
+            console.error("Fee load exception:", error);
+            feePercent = 0;
         }
     }
 
@@ -100,340 +157,316 @@
             return;
         }
 
+        // Chaje fee percent
+        await loadFeePercent();
 
-        let productId = id;
-
-
-        if (!productId) {
+        if (cartAll) {
+            // Plizyè pwodwi depi cart
             try {
-                const saved =
-                    localStorage.getItem(
-                        "macheya_checkout_product"
-                    );
+                const saved = localStorage.getItem("macheya_checkout_cart");
 
-                if (saved) {
-                    const savedProduct =
-                        JSON.parse(saved);
-
-                    productId =
-                        savedProduct?.id || null;
+                if (!saved) {
+                    msg("Panier ou vid.");
+                    return;
                 }
 
+                cartProducts = JSON.parse(saved);
+
+                if (!Array.isArray(cartProducts) || cartProducts.length === 0) {
+                    msg("Panier ou vid.");
+                    return;
+                }
+
+                // Montre premye pwodwi a kòm preview
+                product = cartProducts[0];
+
+                if (productName) {
+                    productName.textContent = cartProducts.length + " pwodwi nan panier ou";
+                }
+
+                if (productDescription) {
+                    productDescription.textContent = "W ap achte tout pwodwi ki nan panier ou.";
+                }
+
+                if (productPrice) {
+                    productPrice.textContent = "Plizyè pri";
+                }
+
+                if (summaryProduct) {
+                    summaryProduct.textContent = cartProducts.length + " pwodwi";
+                }
+
+                // Kache quantity controls pou cart
+                if (minus) minus.style.display = "none";
+                if (plus) plus.style.display = "none";
+                if (quantity) quantity.style.display = "none";
+
             } catch (error) {
-                console.error(
-                    "Checkout localStorage:",
-                    error
-                );
+                console.error("Cart load error:", error);
+                msg("Erè chajman panier.");
+                return;
+            }
+
+        } else {
+            // Yon sèl pwodwi
+            let pid = productId;
+
+            if (!pid) {
+                try {
+                    const saved =
+                        localStorage.getItem("macheya_checkout_product");
+
+                    if (saved) {
+                        const savedProduct = JSON.parse(saved);
+                        pid = savedProduct?.id || null;
+                    }
+                } catch (error) {
+                    console.error("Checkout localStorage:", error);
+                }
+            }
+
+            if (!pid) {
+                msg("Pa gen pwodwi pou achte.");
+                return;
+            }
+
+            const { data, error } =
+                await supabase
+                    .from("products_public")
+                    .select("id,name,description,price,stock,category,seller_id,image_url,product_type")
+                    .eq("id", pid)
+                    .maybeSingle();
+
+            if (error) {
+                console.error("Checkout Product Error:", error);
+                msg("Nou pa kapab chaje pwodwi sa a.");
+                return;
+            }
+
+            if (!data) {
+                msg("Pwodwi sa a pa disponib ankò.");
+                return;
+            }
+
+            product = data;
+
+            if (productName) {
+                productName.textContent = data.name || "Pwodwi san non";
+            }
+
+            if (productDescription) {
+                productDescription.textContent = data.description || "";
+            }
+
+            if (productPrice) {
+                productPrice.textContent = money(data.price);
+            }
+
+            if (summaryProduct) {
+                summaryProduct.textContent = data.name || "Pwodwi";
+            }
+
+            if (productImage && data.image_url) {
+                productImage.style.backgroundImage =
+                    `url("${data.image_url}")`;
+                productImage.style.backgroundSize = "cover";
+                productImage.style.backgroundPosition = "center";
+                productImage.style.backgroundRepeat = "no-repeat";
+                productImage.textContent = "";
             }
         }
 
-
-        if (!productId) {
-            msg("Pa gen pwodwi pou achte.");
-            return;
-        }
-
-
-        const { data, error } =
+        // Chaje profile itilizatè a
+        const { data: profile, error: profileError } =
             await supabase
-                .from("products")
-                .select(
-                    "id,name,description,price,stock,category,seller_id,image_url,is_active"
-                )
-                .eq("id", productId)
-                .eq("is_active", true)
+                .from("profiles")
+                .select("name,nom_complet,telephone")
+                .eq("id", auth.user.id)
                 .maybeSingle();
 
-
-        if (error) {
-            console.error(
-                "Checkout Product Error:",
-                error
-            );
-
-            msg("Nou pa kapab chaje pwodwi sa a.");
-            return;
-        }
-
-
-        if (!data) {
-            msg("Pwodwi sa a pa disponib ankò.");
-            return;
-        }
-
-
-        product = data;
-
-
-        if (productName) {
-            productName.textContent =
-                data.name || "Pwodwi san non";
-        }
-
-
-        if (productDescription) {
-            productDescription.textContent =
-                data.description || "";
-        }
-
-
-        if (productPrice) {
-            productPrice.textContent =
-                money(data.price);
-        }
-
-
-        if (summaryProduct) {
-            summaryProduct.textContent =
-                data.name || "Pwodwi";
-        }
-
-
-        if (productImage && data.image_url) {
-            productImage.style.backgroundImage =
-                `url("${data.image_url}")`;
-
-            productImage.style.backgroundSize = "cover";
-            productImage.style.backgroundPosition = "center";
-            productImage.style.backgroundRepeat = "no-repeat";
-
-            productImage.textContent = "";
-        }
-
-
-        const {
-            data: profile,
-            error: profileError
-        } = await supabase
-            .from("profiles")
-            .select(
-                "name,full_name,nom_complet,phone"
-            )
-            .eq("id", auth.user.id)
-            .maybeSingle();
-
-
         if (profileError) {
-            console.error(
-                "Profile Error:",
-                profileError
-            );
+            console.error("Profile Error:", profileError);
         }
-
 
         if (profile) {
-
             if (name) {
-                name.value =
-                    profile.name ||
-                    profile.full_name ||
-                    profile.nom_complet ||
-                    "";
+                name.value = profile.name || profile.nom_complet || "";
             }
 
             if (phone) {
-                phone.value =
-                    profile.phone || "";
+                phone.value = profile.telephone || "";
             }
         }
-
 
         updateTotal();
     }
 
 
     if (minus) {
-        minus.addEventListener(
-            "click",
-            function () {
+        minus.addEventListener("click", function () {
+            const value = Number(quantity?.value || 1);
 
-                const value =
-                    Number(quantity?.value || 1);
-
-                if (value > 1) {
-                    quantity.value = value - 1;
-                    updateTotal();
-                }
+            if (value > 1) {
+                quantity.value = value - 1;
+                updateTotal();
             }
-        );
+        });
     }
 
 
     if (plus) {
-        plus.addEventListener(
-            "click",
-            function () {
+        plus.addEventListener("click", function () {
+            const value = Number(quantity?.value || 1);
+            const stock = Number(product?.stock || 0);
 
-                const value =
-                    Number(quantity?.value || 1);
-
-                const stock =
-                    Number(product?.stock || 0);
-
-                if (stock > 0) {
-
-                    if (value < stock) {
-                        quantity.value = value + 1;
-                        updateTotal();
-                    }
-
-                } else {
-                    quantity.value = value + 1;
-                    updateTotal();
-                }
+            if (stock > 0 && value < stock) {
+                quantity.value = value + 1;
+                updateTotal();
+            } else if (stock === 0 || stock === null) {
+                quantity.value = value + 1;
+                updateTotal();
             }
-        );
+        });
     }
+
+
     if (form) {
-        form.addEventListener(
-            "submit",
-            async function (e) {
+        form.addEventListener("submit", async function (e) {
+            e.preventDefault();
 
-                e.preventDefault();
+            if (!product && cartProducts.length === 0) {
+                msg("Pwodwi a poko chaje.");
+                return;
+            }
 
+            if (!name?.value.trim() || !phone?.value.trim() || !address?.value.trim()) {
+                msg("Tanpri ranpli non, telefòn ak adrès livrezon an.");
+                return;
+            }
 
-                if (!product) {
-                    msg("Pwodwi a poko chaje.");
-                    return;
-                }
+            const { data: auth } = await supabase.auth.getUser();
 
+            if (!auth?.user) {
+                location.href = "login.html";
+                return;
+            }
 
-                if (
-                    !name?.value.trim() ||
-                    !phone?.value.trim() ||
-                    !address?.value.trim()
-                ) {
-                    msg(
-                        "Tanpri ranpli non, telefòn ak adrès livrezon an."
-                    );
-                    return;
-                }
+            if (submit) {
+                submit.disabled = true;
+                submit.textContent = "Kreyasyon kòmand...";
+            }
 
+            msg("");
 
-                const { data: auth } =
-                    await supabase.auth.getUser();
+            try {
+                if (cartAll && cartProducts.length > 0) {
+                    // Plizyè pwodwi
+                    const orderIds = [];
 
+                    for (let i = 0; i < cartProducts.length; i++) {
+                        const item = cartProducts[i];
 
-                if (!auth?.user) {
-                    location.href = "login.html";
-                    return;
-                }
+                        const q = Number(item.quantity || 1);
+                        const stock = Number(item.stock || 0);
 
+                        if (stock > 0 && q > stock) {
+                            throw new Error(
+                                `Kantite pou "${item.name}" depase stock vandè a.`
+                            );
+                        }
 
-                if (submit) {
-                    submit.disabled = true;
-                    submit.textContent =
-                        "Kreyasyon kòmand...";
-                }
-
-                msg("");
-
-
-                try {
-
-                    const q =
-                        Number(quantity?.value || 1);
-
-                    const unitPrice =
-                        Number(product.price || 0);
-
-                    const stock =
-                        Number(product.stock || 0);
-
-                    const orderTotal =
-                        unitPrice * q;
-
-
-                    if (stock > 0 && q > stock) {
-                        throw new Error(
-                            "Kantite ou chwazi a depase stock vandè a."
-                        );
-                    }
-
-
-                    const { error } =
-                        await supabase
-                            .from("orders")
-                            .insert({
-
-                                buyer_id:
-                                    auth.user.id,
-
-                                seller_id:
-                                    product.seller_id,
-
-                                product_id:
-                                    product.id,
-
-                                product_name:
-                                    product.name,
-
-                                quantity:
-                                    q,
-
-                                total:
-                                    orderTotal,
-
-                                buyer_name:
-                                    name.value.trim(),
-
-                                buyer_phone:
-                                    phone.value.trim(),
-
-                                delivery_address:
-                                    address.value.trim(),
-
-                                delivery_note:
-                                    note?.value.trim() ||
-                                    null
+                        // Kreye order
+                        const { data: orderId, error: createError } =
+                            await supabase.rpc("create_order", {
+                                p_product_id: item.id,
+                                p_quantity: q,
+                                p_buyer_name: name.value.trim(),
+                                p_buyer_phone: phone.value.trim(),
+                                p_delivery_address: address.value.trim(),
+                                p_delivery_note: note?.value.trim() || null
                             });
 
+                        if (createError) {
+                            throw new Error(
+                                `Erè kreyasyon kòmand pou "${item.name}": ${createError.message}`
+                            );
+                        }
 
-                    if (error) {
-                        throw error;
+                        orderIds.push(orderId);
                     }
 
+                    // Peye tout orders yo
+                    for (let i = 0; i < orderIds.length; i++) {
+                        const { error: payError } =
+                            await supabase.rpc("pay_order", {
+                                p_order_id: orderIds[i]
+                            });
 
-                    localStorage.removeItem(
-                        "macheya_checkout_product"
-                    );
+                        if (payError) {
+                            throw new Error(
+                                `Erè peman pou kòmand ${i + 1}: ${payError.message}`
+                            );
+                        }
+                    }
 
+                } else if (product) {
+                    // Yon sèl pwodwi
+                    const q = Number(quantity?.value || 1);
+                    const stock = Number(product.stock || 0);
 
-                    alert(
-                        "Kòmand ou kreye avèk siksè!"
-                    );
+                    if (stock > 0 && q > stock) {
+                        throw new Error("Kantite ou chwazi a depase stock vandè a.");
+                    }
 
+                    // Kreye order
+                    const { data: orderId, error: createError } =
+                        await supabase.rpc("create_order", {
+                            p_product_id: product.id,
+                            p_quantity: q,
+                            p_buyer_name: name.value.trim(),
+                            p_buyer_phone: phone.value.trim(),
+                            p_delivery_address: address.value.trim(),
+                            p_delivery_note: note?.value.trim() || null
+                        });
 
-                    location.href =
-                        "dashboard.html";
+                    if (createError) {
+                        throw new Error("Erè kreyasyon kòmand: " + createError.message);
+                    }
 
+                    // Peye order la
+                    const { error: payError } =
+                        await supabase.rpc("pay_order", {
+                            p_order_id: orderId
+                        });
 
-                } catch (error) {
-
-                    console.error(
-                        "MACHEYA CHECKOUT:",
-                        error
-                    );
-
-
-                    msg(
-                        error.message ||
-                        "Nou pa t kapab kreye kòmand lan."
-                    );
-
-
-                    if (submit) {
-                        submit.disabled = false;
-
-                        submit.textContent =
-                            "Konfime kòmand";
+                    if (payError) {
+                        throw new Error("Erè peman: " + payError.message);
                     }
                 }
+
+                // Netwaye localStorage
+                localStorage.removeItem("macheya_checkout_product");
+                localStorage.removeItem("macheya_checkout_cart");
+                localStorage.removeItem("macheya_cart");
+
+                alert("Kòmand ou kreye epi peye avèk siksè!");
+
+                location.href = "buyer-orders.html";
+
+            } catch (error) {
+                console.error("MACHEYA CHECKOUT:", error);
+
+                msg(error.message || "Nou pa t kapab kreye kòmand lan.");
+
+                if (submit) {
+                    submit.disabled = false;
+                    submit.textContent = "Konfime kòmand";
+                }
             }
-        );
+        });
     }
 
 
     start();
 
-})();    
+})();
