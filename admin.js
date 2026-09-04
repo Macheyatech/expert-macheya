@@ -143,14 +143,14 @@
     }
 
     function showLoading(show) {
-        if (el.loading) {
-            el.loading.hidden = !show;
-            el.loading.style.display = show ? "flex" : "";
-        }
-        if (el.content) {
-            el.content.hidden = show;
-        }
+    if (el.loading) {
+        el.loading.hidden = !show;
+        el.loading.style.display = show ? "flex" : "none";  // ✅ Fiks
     }
+    if (el.content) {
+        el.content.hidden = show;
+    }
+}
 
     function showError(message) {
         if (el.errorMessage) {
