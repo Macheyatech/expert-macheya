@@ -50,6 +50,13 @@
     const summaryQuantity =
         document.getElementById("checkout-summary-quantity");
 
+    // ✅ NOUVO eleman yo
+    const subtotalEl =
+        document.getElementById("checkout-subtotal");
+
+    const feeEl =
+        document.getElementById("checkout-fee");
+
     const total =
         document.getElementById("checkout-total");
 
@@ -95,6 +102,15 @@
                 summaryQuantity.textContent = totalQty;
             }
 
+            // ✅ NOUVO: Mete soutotal ak frè
+            if (subtotalEl) {
+                subtotalEl.textContent = money(subtotal);
+            }
+
+            if (feeEl) {
+                feeEl.textContent = money(fee);
+            }
+
             if (total) {
                 total.textContent = money(grandTotal);
             }
@@ -109,6 +125,15 @@
 
             if (summaryQuantity) {
                 summaryQuantity.textContent = q;
+            }
+
+            // ✅ NOUVO: Mete soutotal ak frè
+            if (subtotalEl) {
+                subtotalEl.textContent = money(subtotal);
+            }
+
+            if (feeEl) {
+                feeEl.textContent = money(fee);
             }
 
             if (total) {
@@ -318,14 +343,16 @@
         plus.addEventListener("click", function () {
             const value = Number(quantity?.value || 1);
             const stock = Number(product?.stock || 0);
+            const productType = product?.product_type || "physical";
 
-            if (stock > 0 && value < stock) {
-                quantity.value = value + 1;
-                updateTotal();
-            } else if (stock === 0 || stock === null) {
-                quantity.value = value + 1;
-                updateTotal();
+            // ✅ Sèlman bloke pou pwodwi fizik
+            if (productType === "physical" && stock > 0 && value >= stock) {
+                msg("Ou pa ka ajoute plis — stock la fini.");
+                return;
             }
+
+            quantity.value = value + 1;
+            updateTotal();
         });
     }
 
@@ -368,8 +395,10 @@
 
                         const q = Number(item.quantity || 1);
                         const stock = Number(item.stock || 0);
+                        const productType = item.product_type || "physical";
 
-                        if (stock > 0 && q > stock) {
+                        // ✅ Sèlman tcheke stock pou pwodwi fizik
+                        if (productType === "physical" && stock > 0 && q > stock) {
                             throw new Error(
                                 `Kantite pou "${item.name}" depase stock vandè a.`
                             );
@@ -413,8 +442,10 @@
                     // Yon sèl pwodwi
                     const q = Number(quantity?.value || 1);
                     const stock = Number(product.stock || 0);
+                    const productType = product.product_type || "physical";
 
-                    if (stock > 0 && q > stock) {
+                    // ✅ Sèlman tcheke stock pou pwodwi fizik
+                    if (productType === "physical" && stock > 0 && q > stock) {
                         throw new Error("Kantite ou chwazi a depase stock vandè a.");
                     }
 
