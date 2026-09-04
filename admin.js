@@ -41,6 +41,12 @@
         productsStat: $("adminTotalProducts"),
         ordersStat: $("adminTotalOrders"),
         volumeStat: $("adminTransactionVolume"),
+        
+        // ✅ NOUVO: Statistik finansye yo
+        sellerWalletsStat: $("adminSellerWallets"),
+        buyerWalletsStat: $("adminBuyerWallets"),
+        platformProfitStat: $("adminPlatformProfit"),
+        profitBreakdown: $("adminProfitBreakdown"),
 
         usersSection: $("adminUsersSection"),
         productsSection: $("adminProductsSection"),
@@ -143,14 +149,14 @@
     }
 
     function showLoading(show) {
-    if (el.loading) {
-        el.loading.hidden = !show;
-        el.loading.style.display = show ? "flex" : "none";  // ✅ Fiks
+        if (el.loading) {
+            el.loading.hidden = !show;
+            el.loading.style.display = show ? "flex" : "none";
+        }
+        if (el.content) {
+            el.content.hidden = show;
+        }
     }
-    if (el.content) {
-        el.content.hidden = show;
-    }
-}
 
     function showError(message) {
         if (el.errorMessage) {
@@ -288,6 +294,7 @@
         if (error) throw error;
         state.wallets = data || [];
         renderWallets();
+        updateCounters();
     }
 
     async function loadDeposits() {
@@ -334,6 +341,58 @@
         if (el.productsStat) el.productsStat.textContent = state.products.length;
         if (el.ordersStat) el.ordersStat.textContent = state.orders.length;
         if (el.volumeStat) el.volumeStat.textContent = formatMoney(volume);
+
+        // ✅ NOUVO: Kalkile total wallet vandè + achtè
+        const sellerIds = new Set(sellers.map(s => s.id));
+        const buyerIds = new Set(buyers.map(b => b.id));
+
+        let sellerWalletTotal = 0;
+        let buyerWalletTotal = 0;
+
+        state.wallets.forEach(wallet => {
+            const balance = Number(wallet.balance || 0);
+            if (sellerIds.has(wallet.user_id)) {
+                sellerWalletTotal += balance;
+            } else if (buyerIds.has(wallet.user_id)) {
+                buyerWalletTotal += balance;
+            }
+        });
+
+        if (el.sellerWalletsStat) {
+            el.sellerWalletsStat.textContent = formatMoney(sellerWalletTotal);
+        }
+        if (el.buyerWalletsStat) {
+            el.buyerWalletsStat.textContent = formatMoney(buyerWalletTotal);
+        }
+
+        // ✅ NOUVO: Kalkile benefis Macheya
+        // Frè sou acha (orders ki completed/confirmed)
+        const purchaseFees = state.orders.reduce((total, order) => {
+            const status = String(order.status || "").toLowerCase();
+            if (status === "completed" || status === "confirmed") {
+                return total + (Number(order.platform_fee || 0));
+            }
+            return total;
+        }, 0);
+
+        // Frè sou retrè (withdrawals ki approved/completed)
+        const withdrawalFees = state.withdrawals.reduce((total, req) => {
+            const status = String(req.status || "").toLowerCase();
+            if (status === "approved" || status === "completed") {
+                return total + (Number(req.fee || 0));
+            }
+            return total;
+        }, 0);
+
+        const totalProfit = purchaseFees + withdrawalFees;
+
+        if (el.platformProfitStat) {
+            el.platformProfitStat.textContent = formatMoney(totalProfit);
+        }
+        if (el.profitBreakdown) {
+            el.profitBreakdown.textContent = 
+                `Acha: ${formatMoney(purchaseFees)} | Retrè: ${formatMoney(withdrawalFees)}`;
+        }
     }
 
     function renderUsers() {
@@ -404,8 +463,9 @@
                 </div>
             `;
         }).join("");
-        }
-        function renderWallets() {
+    }
+
+    function renderWallets() {
         if (!el.walletsList) return;
         if (!state.wallets.length) {
             setListMessage(el.walletsList, "Pa gen wallet.");
