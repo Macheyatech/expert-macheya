@@ -64,6 +64,11 @@ async function buyerBack() {
 
     if (["acheteur","achte","buyer"].includes(clean(profile?.role))) {
         back.style.display = "block";
+        
+        // ✅ Montre bouton meni an sèlman pou achtè konekte
+        if (menuBtn) {
+            menuBtn.style.display = "block";
+        }
     }
 }
 
@@ -250,6 +255,11 @@ const menu = $("marketplace-side-menu");
 const menuBtn = $("marketplace-menu-button");
 const closeBtn = $("marketplace-close-menu-button");
 const overlay = $("marketplace-menu-overlay");
+
+// ✅ Kache bouton meni an pa default
+if (menuBtn) {
+    menuBtn.style.display = "none";
+}
 
 function closeMenu() {
     menu?.classList.remove("is-open");
