@@ -84,11 +84,13 @@
 
         try {
 
+            // ✅ CHANJMAN: itilize products_public (view piblik la)
+            // olye tab products la (ki bloke pa RLS pou achtè)
             const {
                 data: product,
                 error: productError
             } = await db
-                .from("products")
+                .from("products_public")
                 .select("*")
                 .eq("id", productId)
                 .maybeSingle();
@@ -154,11 +156,8 @@
             ========================= */
 
             /*
-             * Macheya ap sèvi ak is_active
-             * pou konnen si pwodwi a aktif.
-             *
-             * Nou PA itilize stock/quantity
-             * pou bloke pwodwi a.
+             * View products_public la montre sèlman
+             * pwodwi ki aktif yo, donk disponib = true.
              */
 
             const available =
