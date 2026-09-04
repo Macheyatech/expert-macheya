@@ -12,7 +12,7 @@
         completed: "Fini",
         refunded: "Refunded",
         cancelled: "Anile",
-        canceled: "Anile"  // ✅ Ajoute vèsyon san dezyèm 'l'
+        canceled: "Anile"
     };
 
     const money = value =>
@@ -94,7 +94,7 @@
         // Bouton aksyon yo
         let actions = "";
 
-        // ✅ Orders ki poko peye - SÈLMAN POU FIZIK (dijital otomatik)
+        // Orders ki poko peye - SÈLMAN POU FIZIK (dijital otomatik)
         if (fundsStatus === "unpaid" && !isDigital) {
             actions = `
                 <div class="order-actions">
@@ -107,7 +107,7 @@
                 </div>
             `;
         }
-        // ✅ Dijital ki poko peye - mesaj enfòmasyon
+        // Dijital ki poko peye - mesaj enfòmasyon
         else if (fundsStatus === "unpaid" && isDigital) {
             actions = `
                 <div class="delivery-warning">
@@ -134,7 +134,7 @@
                 </div>
             `;
         }
-        // ✅ Orders ki fini (completed) - bouton download pou dijital
+        // Orders ki fini (completed) - bouton download pou dijital
         else if (status === "completed" && isDigital) {
             actions = `
                 <div class="order-actions">
@@ -307,6 +307,7 @@
         }
     }
 
+    // ✅ VÈSYON AMELYORE: Fòse telechajman nan Downloads telefòn nan
     async function downloadDigitalFile(id) {
         try {
             const { data: fileUrl, error } = await supabase.rpc("get_order_digital_file", {
@@ -315,11 +316,35 @@
 
             if (error) throw error;
 
-            if (fileUrl) {
-                window.open(fileUrl, "_blank");
-            } else {
+            if (!fileUrl) {
                 alert("Fichye a pa disponib.");
+                return;
             }
+
+            // Chaje fichye a kòm blob
+            const response = await fetch(fileUrl);
+
+            if (!response.ok) {
+                throw new Error("Fichye a pa disponib sou sèvè a.");
+            }
+
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+
+            // Kreye yon lyen pou fòse telechajman an
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = decodeURIComponent(
+                fileUrl.split("/").pop() || "macheya-fichye-dijital"
+            );
+
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+
+            URL.revokeObjectURL(blobUrl);
+
+            alert("Telechajman an kòmanse! Gade nan dosye Downloads ou.");
 
         } catch (error) {
             console.error(error);
