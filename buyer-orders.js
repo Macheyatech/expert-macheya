@@ -11,7 +11,8 @@
         delivered: "Livre - Ap tann konfimasyon ou",
         completed: "Fini",
         refunded: "Refunded",
-        cancelled: "Anile"
+        cancelled: "Anile",
+        canceled: "Anile"  // ✅ Ajoute vèsyon san dezyèm 'l'
     };
 
     const money = value =>
@@ -93,8 +94,8 @@
         // Bouton aksyon yo
         let actions = "";
 
-        // Orders ki poko peye
-        if (fundsStatus === "unpaid") {
+        // ✅ Orders ki poko peye - SÈLMAN POU FIZIK (dijital otomatik)
+        if (fundsStatus === "unpaid" && !isDigital) {
             actions = `
                 <div class="order-actions">
                     <button type="button" class="pay-button" data-id="${order.id}">
@@ -106,8 +107,22 @@
                 </div>
             `;
         }
-        // Orders ki livre (ap tann konfimasyon buyer)
-        else if (status === "delivered" && fundsStatus === "held") {
+        // ✅ Dijital ki poko peye - mesaj enfòmasyon
+        else if (fundsStatus === "unpaid" && isDigital) {
+            actions = `
+                <div class="delivery-warning">
+                    ⏳ Kòmand dijital sa a poko peye. 
+                    Apre peman, w ap resevwa lyen telechajman an touswit.
+                </div>
+                <div class="order-actions">
+                    <button type="button" class="cancel-button" data-id="${order.id}" style="background:#666;">
+                        ✕ Anile kòmand
+                    </button>
+                </div>
+            `;
+        }
+        // Orders ki livre (ap tann konfimasyon buyer) - SÈLMAN FIZIK
+        else if (status === "delivered" && fundsStatus === "held" && !isDigital) {
             actions = `
                 <div class="order-actions">
                     <button type="button" class="confirm-button" data-id="${order.id}">
@@ -119,7 +134,7 @@
                 </div>
             `;
         }
-        // Orders ki fini (completed) - bouton download pou dijital
+        // ✅ Orders ki fini (completed) - bouton download pou dijital
         else if (status === "completed" && isDigital) {
             actions = `
                 <div class="order-actions">
@@ -176,10 +191,12 @@
                     <strong>${money(buyerPaidTotal)}</strong>
                 </div>
 
+                ${!isDigital ? `
                 <div>
                     📍 Adrès:
                     <strong>${escapeHTML(order.delivery_address || "")}</strong>
                 </div>
+                ` : ""}
 
                 ${order.delivery_note ? `
                 <div>
