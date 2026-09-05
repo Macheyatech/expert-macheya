@@ -605,6 +605,17 @@ select {
         font-size: 26px;
     }
 
+    .fee-notice {
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #fffbeb;
+    border: 1px solid #fde68a;
+    color: #92400e;
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 8px;
+    }
+
     .wallet-section {
         padding: 16px;
     }
