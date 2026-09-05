@@ -187,10 +187,39 @@
         if (netElement) netElement.textContent = money(amount);
     }
 
+    // ✅ NOUVO: Montre/kache avètisman frè MonCash/NatCash
+    function updateWithdrawalNotice() {
+        const methodSelect = document.getElementById("withdrawalMethod");
+        const noticeBox = document.getElementById("withdrawalFeeNotice");
+        const noticeText = document.getElementById("withdrawalFeeNoticeText");
+
+        if (!methodSelect || !noticeBox) return;
+
+        const method = methodSelect.value;
+
+        if (method === "moncash") {
+            noticeBox.classList.remove("hidden");
+            if (noticeText) noticeText.textContent = "MonCash";
+        } else if (method === "natcash") {
+            noticeBox.classList.remove("hidden");
+            if (noticeText) noticeText.textContent = "NatCash";
+        } else {
+            noticeBox.classList.add("hidden");
+        }
+    }
+
     function setupWithdrawalCalculation() {
         const amountInput = document.getElementById("withdrawalAmount");
-        if (!amountInput) return;
-        amountInput.addEventListener("input", updateWithdrawalCalculation);
+        const methodSelect = document.getElementById("withdrawalMethod");
+
+        if (amountInput) {
+            amountInput.addEventListener("input", updateWithdrawalCalculation);
+        }
+
+        // ✅ NOUVO: Event listener sou metòd la
+        if (methodSelect) {
+            methodSelect.addEventListener("change", updateWithdrawalNotice);
+        }
     }
 
     async function loadTransactions() {
@@ -437,6 +466,7 @@
             if (form) form.reset();
 
             updateWithdrawalCalculation();
+            updateWithdrawalNotice();
             await loadWithdrawalHistory();
             await calculateTotals();
 
@@ -490,6 +520,9 @@
 
             setupWithdrawalButton();
             setupWithdrawalCalculation();
+
+            // ✅ NOUVO: Inisyalize avètisman an
+            updateWithdrawalNotice();
 
             await loadTransactions();
             await loadWithdrawalHistory();
